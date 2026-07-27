@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.app.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["./src/*"],
+      "camunda7-ui": ["./src/index.ts"],
+      "camunda7-ui/*": ["./src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.vue", "../env.d.ts"]
+}

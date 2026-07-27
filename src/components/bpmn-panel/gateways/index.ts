@@ -1,0 +1,1 @@
+export { default as GatewayPropertiesPanel } from './GatewayPropertiesPanel'
