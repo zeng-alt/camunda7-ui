@@ -15,6 +15,9 @@
       "boundary-event": "边界事件",
       "user-task": "用户任务",
       "service-task": "服务任务",
+      "send-task": "发送任务",
+      "receive-task": "接收任务",
+      "manual-task": "手动任务",
       "script-task": "脚本任务",
       "business-rule-task": "业务规则任务",
       "call-activity": "调用活动",
@@ -99,6 +102,7 @@
       "jobExecution": "作业执行",
       "asyncContinuousExecution": "异步连续",
       "retryTimeCycle": "重试时间周期",
+      "resultVariable": "结果变量",
       "connectorId": "连接器 ID",
       "connectorInputs": "连接器输入",
       "connectorOutputs": "连接器输出",
@@ -118,7 +122,12 @@
       "implDelegateExpression": "委托表达式",
       "implExternal": "外部任务",
       "implConnector": "连接器",
+      "implDmn": "DMN",
       "implNone": "无",
+      "decisionRef": "决策引用",
+      "decisionRefBinding": "绑定方式",
+      "decisionRefVersion": "版本",
+      "decisionRefTenantId": "租户 ID",
       "formType": "表单类型",
       "formRef": "表单引用",
       "formRefBinding": "绑定方式",
@@ -192,7 +201,11 @@
       "formFieldDatePattern": "例如 yyyy-MM-dd",
       "constraintValidator": "例如 ${myValidator}",
       "properties": "属性",
-      "topic": "示例 myTopic"
+      "topic": "示例 myTopic",
+      "resultVariable": "例如 myResultVar",
+      "decisionRef": "例如 myDecision",
+      "decisionRefVersion": "例如 1.0",
+      "decisionRefTenantId": "例如 tenant1"
     },
     "buttons": {
       "delete": "删除",
@@ -251,9 +264,12 @@
       "exclusiveGateway": "排他网关",
       "callActivity": "调用活动",
       "forms": "表单",
+      "script": "脚本",
+      "receiveTask": "消息",
       "input": "输入参数",
       "output": "输出参数",
-      "implementation": "实现者"
+      "implementation": "实现者",
+      "fieldInjections": "字段注入"
     },
     "options": {
       "formTypeNone": "无",

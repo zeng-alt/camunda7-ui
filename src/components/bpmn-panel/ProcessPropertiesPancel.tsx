@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NTabs, NTabPane, NInput, NCheckbox, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../locales'
-import { GeneralPanel, DocumentationPanel } from './base'
+import { GeneralPanel, DocumentationPanel, HintTooltip } from './base'
 
 export default defineComponent({
   name: 'ProcessPropertiesPancel',
@@ -140,7 +140,14 @@ export default defineComponent({
                   </NCheckbox>
                 </div>
                 <div class="mt-12px">
-                  <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.historyTimeToLive')}</div>
+                  <div class="mb-4px">
+                    <HintTooltip
+                      label={t('bpmnPanel.fields.historyTimeToLive')}
+                      hintHtml={
+                        'Number of days before this resource is being cleaned up. If specified, takes precedence over the engine configuration. <a href="https://docs.camunda.org/manual/latest/user-guide/process-engine/history/" target="_blank" rel="noopener noreferrer" style="color: #1890ff; text-decoration: underline;">Learn more</a>.'
+                      }
+                    />
+                  </div>
                   <NInput
                     value={historyTimeToLive.value}
                     onUpdateValue={onHistoryTimeToLiveChange}

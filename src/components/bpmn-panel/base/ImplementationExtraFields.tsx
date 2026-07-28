@@ -1,14 +1,14 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NInput, NInputNumber, NSelect } from 'naive-ui'
+import { NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from '.'
-import { JavaClassField, ExpressionField, DelegateExpressionField, ErrorFields, ConnectorFields } from '.'
+import { JavaClassField, ExpressionField, DelegateExpressionField, ExternalTaskFields, ConnectorFields, ErrorFields, DmnFields } from '.'
 
 export const implementationTabs: ExtraFieldTab[] = [
   { name: 'implementation', labelKey: 'bpmnPanel.tabs.implementation' },
 ]
 
-type ImplType = 'none' | 'class' | 'expression' | 'delegateExpression' | 'external' | 'connector'
+type ImplType = 'none' | 'class' | 'expression' | 'delegateExpression' | 'external' | 'connector' | 'dmn'
 
 export default defineComponent({
   name: 'ImplementationExtraFields',
@@ -17,25 +17,31 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
-    tabName: { type: String, default: 'implementation' },
     showExternalErrors: { type: Boolean, default: false },
     defaultType: { type: String as PropType<ImplType | null>, default: null },
+    showDmn: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
 
     const implType = ref<ImplType>('none')
-    const topic = ref('')
-    const priority = ref<number | null>(null)
 
-    const implTypeOptions = [
-      { label: t('bpmnPanel.fields.implNone'), value: 'none' },
-      { label: t('bpmnPanel.fields.implClass'), value: 'class' },
-      { label: t('bpmnPanel.fields.implExpression'), value: 'expression' },
-      { label: t('bpmnPanel.fields.implDelegateExpression'), value: 'delegateExpression' },
-      { label: t('bpmnPanel.fields.implExternal'), value: 'external' },
-      { label: t('bpmnPanel.fields.implConnector'), value: 'connector' },
-    ]
+    function buildOptions() {
+      const opts: { label: string; value: string }[] = [
+        { label: t('bpmnPanel.fields.implNone'), value: 'none' },
+        { label: t('bpmnPanel.fields.implExternal'), value: 'external' },
+        { label: t('bpmnPanel.fields.implClass'), value: 'class' },
+        { label: t('bpmnPanel.fields.implExpression'), value: 'expression' },
+        { label: t('bpmnPanel.fields.implDelegateExpression'), value: 'delegateExpression' },
+        { label: t('bpmnPanel.fields.implConnector'), value: 'connector' },
+      ]
+      if (props.showDmn) {
+        opts.push({ label: t('bpmnPanel.fields.implDmn'), value: 'dmn' })
+      }
+      return opts
+    }
+
+    const implTypeOptions = buildOptions()
 
     function detectType(): ImplType {
       const bo = props.businessObject
@@ -45,6 +51,7 @@ export default defineComponent({
       if (bo.delegateExpression) return 'delegateExpression'
       if (bo.type === 'external') return 'external'
       if (bo.extensionElements?.values?.find((v: any) => v.$type === 'camunda:Connector')) return 'connector'
+      if (props.showDmn && bo.decisionRef) return 'dmn'
       return 'none'
     }
 
@@ -57,8 +64,6 @@ export default defineComponent({
       } else {
         implType.value = detectType()
       }
-      topic.value = bo.topic || ''
-      priority.value = bo.taskPriority ?? null
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })
@@ -79,12 +84,17 @@ export default defineComponent({
         type: undefined,
         topic: undefined,
         taskPriority: undefined,
+        decisionRef: undefined,
+        decisionRefBinding: undefined,
+        decisionRefVersion: undefined,
+        decisionRefTenantId: undefined,
+        resultVariable: undefined,
       }
 
       if (newType === 'external') {
         attrs.type = 'external'
-        attrs.topic = topic.value || undefined
-        attrs.taskPriority = priority.value ?? undefined
+        attrs.topic = bo.topic || undefined
+        attrs.taskPriority = bo.taskPriority ?? undefined
       }
 
       if (newType !== 'connector') {
@@ -102,22 +112,7 @@ export default defineComponent({
       modeling.updateProperties(toRaw(props.element), attrs)
     }
 
-    function onTopicChange(val: string | null) {
-      topic.value = val ?? ''
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { topic: val || undefined })
-    }
-
-    function onPriorityChange(val: number | null) {
-      priority.value = val
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { taskPriority: val ?? undefined })
-    }
-
     return () => {
-      if (props.tabName !== 'implementation') return null
 
       return (
         <div class="pt-8px">
@@ -148,12 +143,13 @@ export default defineComponent({
 
           {implType.value === 'expression' && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.listenerExpression')}</div>
               <ExpressionField
                 businessObject={props.businessObject}
                 element={props.element}
                 bpmnModeler={props.bpmnModeler}
                 propertyKey="expression"
+                showResultVariable={true}
+                resultVariablePropertyKey="resultVariable"
                 formSize={props.formSize}
               />
             </div>
@@ -174,26 +170,12 @@ export default defineComponent({
 
           {implType.value === 'external' && (
             <>
-              <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.topic')}</div>
-                <NInput
-                  value={topic.value}
-                  onUpdateValue={onTopicChange}
-                  placeholder={t('bpmnPanel.placeholders.topic')}
-                  size={props.formSize}
-                />
-              </div>
-              <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.externalTaskPriority')}</div>
-                <NInputNumber
-                  value={priority.value}
-                  onUpdateValue={onPriorityChange}
-                  placeholder={t('bpmnPanel.placeholders.taskPriority')}
-                  size={props.formSize}
-                  min={0}
-                  class="w-full"
-                />
-              </div>
+              <ExternalTaskFields
+                businessObject={props.businessObject}
+                element={props.element}
+                bpmnModeler={props.bpmnModeler}
+                formSize={props.formSize}
+              />
               {props.showExternalErrors && (
                 <div class="mt-16px">
                   <div class="text-12px font-bold mb-8px">{t('bpmnPanel.fields.errors')}</div>
@@ -214,6 +196,16 @@ export default defineComponent({
               element={props.element}
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
+            />
+          )}
+
+          {implType.value === 'dmn' && (
+            <DmnFields
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+              showResultVariable={true}
             />
           )}
         </div>

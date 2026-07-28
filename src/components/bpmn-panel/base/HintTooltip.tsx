@@ -5,7 +5,8 @@ export default defineComponent({
   name: 'HintTooltip',
   props: {
     label: { type: String, required: true },
-    hint: { type: String, required: true },
+    hint: { type: String, default: '' },
+    hintHtml: { type: String, default: '' },
     placement: { type: String as PropType<'top' | 'bottom' | 'left' | 'right'>, default: 'top' },
   },
   setup(props) {
@@ -17,8 +18,13 @@ export default defineComponent({
               {props.label}
             </span>
           ),
-          default: () => (
-            <div style="white-space: pre-wrap; word-break: break-word; max-width: 360px; line-height: 1.6;">
+          default: () => props.hintHtml ? (
+            <div
+              style="white-space: pre-wrap; word-break: break-word; max-width: 360px; line-height: 1.6; font-size: 12px;"
+              domPropsInnerHTML={props.hintHtml}
+            />
+          ) : (
+            <div style="white-space: pre-wrap; word-break: break-word; max-width: 360px; line-height: 1.6; font-size: 12px;">
               {props.hint}
             </div>
           ),

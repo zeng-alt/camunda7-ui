@@ -12,6 +12,7 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     propertyKey: { type: String, default: '' },
+    nested: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -33,7 +34,12 @@ export default defineComponent({
         local.value = val
         if (props.bpmnModeler && props.element) {
           const modeling = props.bpmnModeler.get('modeling')
-          modeling.updateProperties(toRaw(props.element), { [props.propertyKey]: val || undefined })
+          const attrs = { [props.propertyKey]: val || undefined }
+          if (props.nested) {
+            modeling.updateModdleProperties(toRaw(props.element), toRaw(props.businessObject), attrs)
+          } else {
+            modeling.updateProperties(toRaw(props.element), attrs)
+          }
         }
       } else if (props.onUpdateValue) {
         props.onUpdateValue(val)

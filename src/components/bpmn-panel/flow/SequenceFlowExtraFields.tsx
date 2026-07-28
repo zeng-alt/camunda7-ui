@@ -1,5 +1,5 @@
 import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
-import { NInput, NSelect, NTabPane } from 'naive-ui'
+import { NSelect, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { ScriptFields, ExpressionField } from '../base'
 
@@ -18,103 +18,47 @@ const conditionTypeOptions = [
 export default defineComponent({
   name: 'SequenceFlowExtraFields',
   props: {
-    businessObject: {
-      type: Object as PropType<any>,
-      default: null,
-    },
-    element: {
-      type: Object as PropType<any>,
-      default: null,
-    },
-    bpmnModeler: {
-      type: Object,
-      default: null,
-    },
-    formSize: {
-      type: String as PropType<'small' | 'medium' | 'large'>,
-      default: 'small',
-    },
+    businessObject: { type: Object as PropType<any>, default: null },
+    element: { type: Object as PropType<any>, default: null },
+    bpmnModeler: { type: Object, default: null },
+    formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
 
     const isDefault = computed(() => props.element ? isDefaultFlow(props.element) : false)
     const conditionType = ref<'expression' | 'script'>('expression')
-    const expression = ref('')
-    const scriptFormat = ref('js')
-    const scriptValue = ref('')
+    const conditionExpr = ref<any>(null)
 
     function syncFromModel() {
       const bo = props.businessObject
-      if (!bo) return
+      if (!bo) { conditionExpr.value = null; return }
       const expr = bo.conditionExpression
-      if (!expr) {
-        conditionType.value = 'expression'
-        expression.value = ''
-        scriptFormat.value = 'js'
-        scriptValue.value = ''
-        return
-      }
-      if (expr.language) {
-        conditionType.value = 'script'
-        scriptFormat.value = expr.language
-        scriptValue.value = expr.body || ''
-        expression.value = ''
-      } else {
-        conditionType.value = 'expression'
-        expression.value = expr.body || expr || ''
-        scriptFormat.value = 'js'
-        scriptValue.value = ''
-      }
+      conditionExpr.value = expr || null
+      conditionType.value = expr?.language ? 'script' : 'expression'
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function save() {
+    function onConditionTypeChange(val: string | null) {
+      const newType = (val as 'expression' | 'script') ?? 'expression'
+      conditionType.value = newType
       if (!props.bpmnModeler || !props.element) return
       const modeling = props.bpmnModeler.get('modeling')
       const bo = props.businessObject
       if (!bo) return
 
-      const hasContent = conditionType.value === 'expression' ? expression.value : scriptValue.value
-      if (!hasContent) {
+      if (conditionExpr.value) {
         modeling.updateProperties(toRaw(props.element), { conditionExpression: undefined })
-        return
       }
 
       const moddle = props.bpmnModeler.get('moddle')
       const attrs: Record<string, any> = {}
-
-      if (conditionType.value === 'script') {
-        attrs.language = scriptFormat.value
-        attrs.body = scriptValue.value
-      } else {
-        attrs.body = expression.value
-      }
-
-      const formalExpression = moddle.create('bpmn:FormalExpression', attrs)
-      modeling.updateProperties(toRaw(props.element), { conditionExpression: formalExpression })
-    }
-
-    function onConditionTypeChange(val: string | null) {
-      conditionType.value = (val as 'expression' | 'script') ?? 'expression'
-      save()
-    }
-
-    function onExpressionChange(val: string | null) {
-      expression.value = val ?? ''
-      save()
-    }
-
-    function onScriptFormatChange(val: string | null) {
-      scriptFormat.value = val ?? 'js'
-      save()
-    }
-
-    function onScriptValueChange(val: string | null) {
-      scriptValue.value = val ?? ''
-      save()
+      if (newType === 'script') attrs.language = 'js'
+      const newExpr = moddle.create('bpmn:FormalExpression', attrs)
+      conditionExpr.value = newExpr
+      modeling.updateProperties(toRaw(props.element), { conditionExpression: newExpr })
     }
 
     return () => (
@@ -134,23 +78,29 @@ export default defineComponent({
               size={props.formSize}
             />
           </div>
-          {conditionType.value === 'expression' ? (
+          {conditionType.value === 'expression' && conditionExpr.value && (
             <div class="mt-12px">
               <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionExpression')}</div>
               <ExpressionField
-                value={expression.value}
-                onUpdateValue={onExpressionChange}
-                formSize={props.formSize}
+                businessObject={conditionExpr.value}
+                element={props.element}
+                bpmnModeler={props.bpmnModeler}
+                propertyKey="body"
+                nested
                 textarea
+                formSize={props.formSize}
               />
             </div>
-          ) : (
+          )}
+          {conditionType.value === 'script' && conditionExpr.value && (
             <div class="mt-12px">
               <ScriptFields
-                scriptFormat={scriptFormat.value}
-                scriptValue={scriptValue.value}
-                onUpdateScriptFormat={onScriptFormatChange}
-                onUpdateScriptValue={onScriptValueChange}
+                businessObject={conditionExpr.value}
+                element={props.element}
+                bpmnModeler={props.bpmnModeler}
+                scriptFormatPropertyKey="language"
+                scriptValuePropertyKey="body"
+                nested
                 formSize={props.formSize}
               />
             </div>

@@ -4,13 +4,22 @@ import { useCamundaI18n } from '../../../locales'
 import { InputsPanel, OutputsPanel, GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel, AsyncCheckboxes } from '../base'
 import UserTaskExtraFields, { userTaskTabs } from './UserTaskExtraFields'
 import ServiceTaskExtraFields, { serviceTaskTabs } from './ServiceTaskExtraFields'
+import SendTaskExtraFields, { sendTaskTabs } from './SendTaskExtraFields'
+import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraFields'
+import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
+import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
+
 
 
 function getTaskSubType(businessObject: any): string {
   if (!businessObject) return ''
   const type: string = businessObject.$type || ''
+  debugger
   if (type.includes('UserTask')) return 'user-task'
   if (type.includes('ServiceTask')) return 'service-task'
+  if (type.includes('SendTask')) return 'send-task'
+  if (type.includes('ReceiveTask')) return 'receive-task'
+  if (type.includes('ManualTask')) return 'manual-task'
   if (type.includes('ScriptTask')) return 'script-task'
   if (type.includes('BusinessRuleTask')) return 'business-rule-task'
   if (type.includes('CallActivity')) return 'call-activity'
@@ -103,6 +112,50 @@ export default defineComponent({
             {type === 'service-task' && serviceTaskTabs.map(tab => (
               <NTabPane name={tab.name} tab={t(tab.labelKey)}>
                 <ServiceTaskExtraFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  tabName={tab.name}
+                />
+              </NTabPane>
+            ))}
+            {type === 'send-task' && sendTaskTabs.map(tab => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <SendTaskExtraFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  tabName={tab.name}
+                />
+              </NTabPane>
+            ))}
+            {type === 'receive-task' && receiveTaskTabs.map(tab => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <ReceiveTaskExtraFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  tabName={tab.name}
+                />
+              </NTabPane>
+            ))}
+            {type === 'script-task' && scriptTaskTabs.map(tab => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <ScriptTaskExtraFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  tabName={tab.name}
+                />
+              </NTabPane>
+            ))}
+            {type === 'business-rule-task' && businessRuleTaskTabs.map(tab => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <BusinessRuleTaskExtraFields
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

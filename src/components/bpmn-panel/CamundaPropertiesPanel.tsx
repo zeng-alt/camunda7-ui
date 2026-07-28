@@ -25,6 +25,9 @@ function getElementType(element: any): string {
   if (type.includes('BoundaryEvent')) return 'boundary-event'
   if (type.includes('UserTask')) return 'user-task'
   if (type.includes('ServiceTask')) return 'service-task'
+  if (type.includes('SendTask')) return 'send-task'
+  if (type.includes('ReceiveTask')) return 'receive-task'
+  if (type.includes('ManualTask')) return 'manual-task'
   if (type.includes('ScriptTask')) return 'script-task'
   if (type.includes('BusinessRuleTask')) return 'business-rule-task'
   if (type.includes('CallActivity')) return 'call-activity'
@@ -48,8 +51,8 @@ const eventTypes = new Set([
 ])
 
 const taskTypes = new Set([
-  'user-task', 'service-task', 'script-task',
-  'business-rule-task', 'task',
+  'user-task', 'service-task', 'send-task', 'receive-task', 'manual-task',
+  'script-task', 'business-rule-task', 'task',
 ])
 
 const callActivityTypes = new Set([
@@ -74,6 +77,9 @@ const typeIconMap: Record<string, string> = {
   'boundary-event': 'bpmn-icon-intermediate-event-catch-timer',
   'user-task': 'bpmn-icon-user-task',
   'service-task': 'bpmn-icon-service-task',
+  'send-task': 'bpmn-icon-send-task',
+  'receive-task': 'bpmn-icon-receive-task',
+  'manual-task': 'bpmn-icon-manual-task',
   'script-task': 'bpmn-icon-script-task',
   'business-rule-task': 'bpmn-icon-business-rule-task',
   'call-activity': 'bpmn-icon-call-activity',
@@ -121,7 +127,7 @@ export default defineComponent({
     },
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
-      default: 'left',
+      default: 'top',
     },
   },
   setup(props) {

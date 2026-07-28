@@ -27,7 +27,7 @@ export default defineComponent({
     },
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
-      default: 'left',
+      default: 'top',
     },
     labelWidth: {
       type: Number,

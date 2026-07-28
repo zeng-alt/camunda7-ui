@@ -2,13 +2,13 @@ import { defineComponent, type PropType } from 'vue'
 import type { ExtraFieldTab } from '../base'
 import { ImplementationExtraFields, FieldInjections } from '../base'
 
-export const serviceTaskTabs: ExtraFieldTab[] = [
+export const sendTaskTabs: ExtraFieldTab[] = [
   { name: 'implementation', labelKey: 'bpmnPanel.tabs.implementation' },
   { name: 'fieldInjections', labelKey: 'bpmnPanel.tabs.fieldInjections' },
 ]
 
 export default defineComponent({
-  name: 'ServiceTaskExtraFields',
+  name: 'SendTaskExtraFields',
   props: {
     businessObject: { type: Object as PropType<any>, default: null },
     element: { type: Object as PropType<any>, default: null },
@@ -25,7 +25,6 @@ export default defineComponent({
             element={props.element}
             bpmnModeler={props.bpmnModeler}
             formSize={props.formSize}
-            showExternalErrors={true}
           />
         )
       }
