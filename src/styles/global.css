@@ -82,6 +82,43 @@ body {
   z-index: 9999;
 }
 
+.camunda-props-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.camunda-props-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.camunda-props-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+.camunda-props-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.35);
+}
+.camunda-props-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+.dark .camunda-props-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+}
+.dark .camunda-props-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.35);
+}
+.dark .camunda-props-scroll {
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.camunda-props-scroll .n-tabs-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+}
+.dark .camunda-props-scroll .n-tabs-nav {
+  background: #18181c;
+}
+
 .default-flow-icon {
   position: relative;
 }

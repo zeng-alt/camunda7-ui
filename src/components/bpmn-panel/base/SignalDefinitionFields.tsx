@@ -64,7 +64,7 @@ export default defineComponent({
 
       if (value === '__create__') {
         const id = uid()
-        const name = 'newSignal'
+        const name = id
         const newSignal = moddle.create('bpmn:Signal', { id, name })
         const definitions = getDefinitions(toRaw(props.businessObject))
         if (definitions && definitions.rootElements) {

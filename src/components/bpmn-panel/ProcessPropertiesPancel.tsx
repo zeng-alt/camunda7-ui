@@ -143,9 +143,7 @@ export default defineComponent({
                   <div class="mb-4px">
                     <HintTooltip
                       label={t('bpmnPanel.fields.historyTimeToLive')}
-                      hintHtml={
-                        'Number of days before this resource is being cleaned up. If specified, takes precedence over the engine configuration. <a href="https://docs.camunda.org/manual/latest/user-guide/process-engine/history/" target="_blank" rel="noopener noreferrer" style="color: #1890ff; text-decoration: underline;">Learn more</a>.'
-                      }
+                      hintHtml={t('bpmnPanel.tooltips.historyTimeToLive')}
                     />
                   </div>
                   <NInput

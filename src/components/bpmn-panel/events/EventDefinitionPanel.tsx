@@ -6,6 +6,10 @@ import {
   ConditionalDefinitionFields,
   MessageDefinitionFields,
   SignalDefinitionFields,
+  EscalationDefinitionFields,
+  ErrorDefinitionFields,
+  CompensationDefinitionFields,
+  LinkDefinitionFields,
 } from '../base'
 import { uid, getDefinitions } from '../base/eventHelpers'
 
@@ -28,7 +32,7 @@ export function getEventDefLabelKey(type: string): string {
     Escalation: 'bpmnPanel.eventDef.escalation',
     Cancel: 'bpmnPanel.eventDef.cancel',
     Terminate: 'bpmnPanel.eventDef.terminate',
-    Compensation: 'bpmnPanel.eventDef.compensation',
+    Compensate: 'bpmnPanel.eventDef.compensation',
     Multiple: 'bpmnPanel.eventDef.multiple',
     ParallelMultiple: 'bpmnPanel.eventDef.parallelMultiple',
   }
@@ -52,7 +56,7 @@ const defIconSuffix: Record<string, string> = {
   Timer: 'timer',
   Error: 'error',
   Signal: 'signal',
-  Conditional: 'conditional',
+  Conditional: 'condition',
   Link: 'link',
   Escalation: 'escalation',
   Cancel: 'cancel',
@@ -70,9 +74,12 @@ export function getEventIcon(subType: string, businessObject: any): string {
     'end-event': 'bpmn-icon-end-event',
     'intermediate-catch-event': 'bpmn-icon-intermediate-event-catch',
     'intermediate-throw-event': 'bpmn-icon-intermediate-event-throw',
-    'boundary-event': 'bpmn-icon-boundary-event',
+    'boundary-event': 'bpmn-icon-intermediate-event-catch',
   }
-  const prefix = prefixMap[subType] || 'bpmn-icon-event'
+  let prefix = prefixMap[subType] || 'bpmn-icon-event'
+  if (subType === 'boundary-event' && businessObject?.cancelActivity === false) {
+    prefix = 'bpmn-icon-intermediate-event-catch-non-interrupting'
+  }
   return `${prefix}-${suffix}`
 }
 
@@ -96,39 +103,27 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    showVariableEvents: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
 
     const defType = computed(() => getEventDefType(props.businessObject))
 
-    // Link
-    const linkName = ref('')
-
     // Ref-based (Error, Escalation)
     const refValue = ref('')
     const refLabel = ref('')
-
-    // Compensation
-    const activityRef = ref('')
 
     function syncFromModel() {
       const rawBo = toRaw(props.businessObject)
       if (!rawBo || !rawBo.eventDefinitions || !rawBo.eventDefinitions.length) return
       const def = rawBo.eventDefinitions[0]
       const type = (def.$type || '').replace('bpmn:', '').replace('EventDefinition', '')
-
-      if (type === 'Link') {
-        linkName.value = def.name || ''
-      } else if (type === 'Compensation') {
-        activityRef.value = def.activityRef?.id || ''
-      } else {
-        const cfg = refTypeConfig[type]
-        if (cfg) {
-          const refEl = def[cfg.refKey]
-          refValue.value = refEl?.[cfg.displayAttr] || ''
-          refLabel.value = t(`bpmnPanel.placeholders.${cfg.refKey}`)
-        }
+      const cfg = refTypeConfig[type]
+      if (cfg) {
+        const refEl = def[cfg.refKey]
+        refValue.value = refEl?.[cfg.displayAttr] || ''
+        refLabel.value = t(`bpmnPanel.placeholders.${cfg.refKey}`)
       }
     }
 
@@ -139,39 +134,12 @@ export default defineComponent({
       return props.bpmnModeler
     }
 
-    function updateDefProperty(key: string, value: any) {
-      const ed = props.businessObject?.eventDefinitions?.[0]
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { [key]: value })
-    }
-
-    function onLinkNameChange(val: string | null) {
-      linkName.value = val ?? ''
-      updateDefProperty('name', val ?? '')
-    }
-
-    function onActivityRefChange(val: string | null) {
-      activityRef.value = val ?? ''
-      const ed = props.businessObject?.eventDefinitions?.[0]
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-
-      if (!val) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { activityRef: undefined })
-        return
-      }
-
-      const moddle = getModeler().get('moddle')
-      const ref = moddle.create('bpmn:Activity', { id: val })
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { activityRef: ref })
-    }
-
     function onRefValueChange(val: string | null) {
       const value = val ?? ''
       refValue.value = value
 
       const type = defType.value
+      debugger
       const cfg = refTypeConfig[type]
       if (!cfg) return
 
@@ -220,20 +188,11 @@ export default defineComponent({
       }
 
       if (type === 'Conditional') {
-        return <ConditionalDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return <ConditionalDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} showVariableEvents={props.showVariableEvents} />
       }
 
       if (type === 'Link') {
-        return (
-          <div>
-            <NInput
-              value={linkName.value}
-              onUpdateValue={onLinkNameChange}
-              placeholder={t('bpmnPanel.placeholders.linkName')}
-              size={props.formSize}
-            />
-          </div>
-        )
+        return <LinkDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
       }
 
       if (type === 'Cancel' || type === 'Terminate') {
@@ -244,17 +203,8 @@ export default defineComponent({
         )
       }
 
-      if (type === 'Compensation') {
-        return (
-          <div>
-            <NInput
-              value={activityRef.value}
-              onUpdateValue={onActivityRefChange}
-              placeholder={t('bpmnPanel.placeholders.activityRef')}
-              size={props.formSize}
-            />
-          </div>
-        )
+      if (type === 'Compensate') {
+        return <CompensationDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
       }
 
       if (type === 'Message') {
@@ -263,6 +213,14 @@ export default defineComponent({
 
       if (type === 'Signal') {
         return <SignalDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+      }
+
+      if (type === 'Error') {
+        return <ErrorDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+      }
+
+      if (type === 'Escalation') {
+        return <EscalationDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
       }
 
       if (type === 'Multiple' || type === 'ParallelMultiple') {

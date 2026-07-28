@@ -1,11 +1,12 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NCheckbox } from 'naive-ui'
+import { defineComponent, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
-import type { ExtraFieldTab } from '../base'
+import { InputsPanel, OutputsPanel, type ExtraFieldTab } from '../base'
 import EventDefinitionPanel from './EventDefinitionPanel'
 
 export const boundaryEventTabs: ExtraFieldTab[] = [
   { name: 'boundary', labelKey: 'bpmnPanel.tabs.boundary' },
+  { name: 'inputs', labelKey: 'bpmnPanel.tabs.input' },
+  { name: 'outputs', labelKey: 'bpmnPanel.tabs.output' },
 ]
 
 export default defineComponent({
@@ -19,42 +20,50 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
-    const cancelActivity = ref(true)
 
-    function syncFromModel() {
-      const bo = props.businessObject
-      if (!bo) return
-      cancelActivity.value = bo.cancelActivity !== false
+    return () => {
+      if (props.tabName === 'boundary') {
+        return (
+          <div class="pt-8px">
+            <div class="mb-8px text-12px text-#666">{t('bpmnPanel.fields.eventDefinition')}</div>
+            <EventDefinitionPanel
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+              showVariableEvents
+            />
+          </div>
+        )
+      }
+
+      if (props.tabName === 'inputs') {
+        return (
+          <div class="pt-8px">
+            <InputsPanel
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+            />
+          </div>
+        )
+      }
+
+      if (props.tabName === 'outputs') {
+        return (
+          <div class="pt-8px">
+            <OutputsPanel
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+            />
+          </div>
+        )
+      }
+
+      return null
     }
-
-    watch(() => props.businessObject, syncFromModel, { immediate: true })
-    watch(() => props.element, syncFromModel, { immediate: true })
-
-    function onCancelActivityChange(val: boolean) {
-      cancelActivity.value = val
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { cancelActivity: val })
-    }
-
-    return () => (
-      <div class="pt-8px">
-        <div class="mb-12px">
-          <NCheckbox
-            checked={cancelActivity.value}
-            onUpdateChecked={onCancelActivityChange}
-          >
-            {t('bpmnPanel.fields.cancelActivity')}
-          </NCheckbox>
-        </div>
-        <div class="mb-8px text-12px text-#666">{t('bpmnPanel.fields.eventDefinition')}</div>
-        <EventDefinitionPanel
-          businessObject={props.businessObject}
-          element={props.element}
-          bpmnModeler={props.bpmnModeler}
-          formSize={props.formSize}
-        />
-      </div>
-    )
   },
 })

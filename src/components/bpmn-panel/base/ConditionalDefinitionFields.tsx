@@ -1,7 +1,13 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { ExpressionField, ScriptFields } from '.'
+import { ExpressionField, ScriptFields, HintTooltip } from '.'
+
+const variableEventOptions = [
+  { label: 'create', value: 'create' },
+  { label: 'update', value: 'update' },
+  { label: 'delete', value: 'delete' },
+]
 
 export default defineComponent({
   name: 'ConditionalDefinitionFields',
@@ -10,12 +16,14 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    showVariableEvents: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const conditionType = ref<'none' | 'expression' | 'script'>('none')
     const variableName = ref('')
     const conditionModdle = ref<any>(null)
+    const variableEvents = ref<string[]>([])
 
     function getModeler() {
       return props.bpmnModeler
@@ -44,6 +52,8 @@ export default defineComponent({
       } else {
         conditionType.value = 'expression'
       }
+      const raw = def['camunda:variableEvents'] || def.variableEvents || ''
+      variableEvents.value = raw ? raw.split(',').map((s: string) => s.trim()).filter(Boolean) : []
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true, deep: true })
@@ -74,6 +84,11 @@ export default defineComponent({
       modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { condition: expr })
     }
 
+    function onVariableEventsChange(vals: string[] | null) {
+      variableEvents.value = vals ?? []
+      updateDefProperty('variableEvents', (vals ?? []).join(',') || undefined)
+    }
+
     return () => (
       <div>
         <div class="mb-8px">
@@ -85,6 +100,24 @@ export default defineComponent({
             size={props.formSize}
           />
         </div>
+        {props.showVariableEvents && (
+          <div class="mb-8px">
+            <div class="mb-4px text-12px">
+              <HintTooltip
+                label={t('bpmnPanel.fields.variableEvents')}
+                hintHtml={t('bpmnPanel.tooltips.variableEvents')}
+              />
+            </div>
+            <NSelect
+              value={variableEvents.value}
+              onUpdateValue={onVariableEventsChange}
+              options={variableEventOptions}
+              size={props.formSize}
+              multiple
+              clearable
+            />
+          </div>
+        )}
         <div class="mb-8px">
           <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionType')}</div>
           <NSelect

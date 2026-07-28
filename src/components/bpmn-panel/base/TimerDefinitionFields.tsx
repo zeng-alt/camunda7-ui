@@ -1,5 +1,5 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NInput, NRadioGroup, NRadio, NSpace } from 'naive-ui'
+import { NInput, NInputNumber, NRadioGroup, NRadio, NSpace, NTooltip } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { HintTooltip } from '.'
 
@@ -15,6 +15,8 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const timerActiveField = ref('timeDuration')
     const timerValue = ref('')
+    const retryTimeCycle = ref('')
+    const jobPriority = ref<number | null>()
 
     function getModeler() {
       return props.bpmnModeler
@@ -24,21 +26,33 @@ export default defineComponent({
       return props.businessObject?.eventDefinitions?.[0]
     }
 
+    function updateBoProperty(key: string, value: any) {
+      if (!props.bpmnModeler || !props.element) return
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { [key]: value })
+    }
+
     function syncFromModel() {
+      const bo = props.businessObject
       const def = getEventDef()
-      if (!def) return
-      if (def.timeDate?.body) {
-        timerActiveField.value = 'timeDate'
-        timerValue.value = def.timeDate.body
-      } else if (def.timeDuration?.body) {
-        timerActiveField.value = 'timeDuration'
-        timerValue.value = def.timeDuration.body
-      } else if (def.timeCycle?.body) {
-        timerActiveField.value = 'timeCycle'
-        timerValue.value = def.timeCycle.body
-      } else {
-        timerActiveField.value = 'none'
-        timerValue.value = ''
+      if (def) {
+        if (def.timeDate?.body) {
+          timerActiveField.value = 'timeDate'
+          timerValue.value = def.timeDate.body
+        } else if (def.timeDuration?.body) {
+          timerActiveField.value = 'timeDuration'
+          timerValue.value = def.timeDuration.body
+        } else if (def.timeCycle?.body) {
+          timerActiveField.value = 'timeCycle'
+          timerValue.value = def.timeCycle.body
+        } else {
+          timerActiveField.value = 'none'
+          timerValue.value = ''
+        }
+      }
+      if (bo) {
+        retryTimeCycle.value = bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+        jobPriority.value = bo.jobPriority ?? ''
       }
     }
 
@@ -93,6 +107,16 @@ export default defineComponent({
       }
     }
 
+    function onRetryTimeCycleChange(val: string | null) {
+      retryTimeCycle.value = val ?? ''
+      updateBoProperty('failedJobRetryTimeCycle', val ?? '')
+    }
+
+    function onJobPriorityChange(val: number | null) {
+      jobPriority.value = val ?? null
+      updateBoProperty('jobPriority', val ?? null)
+    }
+
     return () => (
       <div>
         <div class="mb-8px">
@@ -131,6 +155,39 @@ export default defineComponent({
             size={props.formSize}
           />
         )}
+        <div class="mt-12px">
+          <div class="text-12px font-bold text-#888">{t('bpmnPanel.fields.jobExecution')}</div>
+          <div class="mt-8px">
+            <div class="mb-4px text-12px">
+              <NTooltip trigger="hover" placement="top">
+                {{
+                  trigger: () => (
+                    <span class="border-b border-dashed border-#1890ff text-#1890ff cursor-help">
+                      {t('bpmnPanel.fields.retryTimeCycle')}
+                    </span>
+                  ),
+                  default: () => t('bpmnPanel.tooltips.retryTimeCycle'),
+                }}
+              </NTooltip>
+            </div>
+            <NInput
+              value={retryTimeCycle.value}
+              onUpdateValue={onRetryTimeCycleChange}
+              placeholder={t('bpmnPanel.placeholders.retryTimeCycle')}
+              size={props.formSize}
+            />
+          </div>
+          <div class="mt-8px">
+            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.jobPriority')}</div>
+            <NInputNumber
+              value={jobPriority.value}
+              onUpdateValue={onJobPriorityChange}
+              placeholder={t('bpmnPanel.placeholders.jobPriority')}
+              size={props.formSize}
+              clearable
+            />
+          </div>
+        </div>
       </div>
     )
   },

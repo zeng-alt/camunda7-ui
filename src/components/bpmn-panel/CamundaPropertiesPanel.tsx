@@ -6,6 +6,7 @@ import { TaskPropertiesPanel } from './task'
 import { GatewayPropertiesPanel } from './gateways'
 import { CallActivityPropertiesPanel } from './callactivity'
 import { FlowPropertiesPanel } from './flow'
+import { SubProcessPropertiesPanel } from './subprocess'
 
 function isDefaultFlow(sequenceFlow: any) {
   const source = sequenceFlow.source
@@ -17,6 +18,9 @@ function isDefaultFlow(sequenceFlow: any) {
 function getElementType(element: any): string {
   if (!element || !element.businessObject) return ''
   const type: string = element.businessObject.$type || ''
+  if (type.includes('AdHocSubProcess')) return 'ad-hoc-sub-process'
+  if (type.includes('SubProcess')) return 'sub-process'
+  if (type.includes('Transaction')) return 'transaction'
   if (type.includes('Process')) return 'process'
   if (type.includes('StartEvent')) return 'start-event'
   if (type.includes('EndEvent')) return 'end-event'
@@ -59,6 +63,10 @@ const callActivityTypes = new Set([
   'call-activity',
 ])
 
+const subProcessTypes = new Set([
+  'sub-process', 'ad-hoc-sub-process', 'transaction',
+])
+
 const gatewayTypes = new Set([
   'exclusive-gateway', 'parallel-gateway', 'inclusive-gateway',
   'event-based-gateway', 'gateway',
@@ -74,7 +82,6 @@ const typeIconMap: Record<string, string> = {
   'end-event': 'bpmn-icon-end-event-none',
   'intermediate-throw-event': 'bpmn-icon-intermediate-event-none',
   'intermediate-catch-event': 'bpmn-icon-intermediate-event-none',
-  'boundary-event': 'bpmn-icon-intermediate-event-catch-timer',
   'user-task': 'bpmn-icon-user-task',
   'service-task': 'bpmn-icon-service-task',
   'send-task': 'bpmn-icon-send-task',
@@ -83,6 +90,9 @@ const typeIconMap: Record<string, string> = {
   'script-task': 'bpmn-icon-script-task',
   'business-rule-task': 'bpmn-icon-business-rule-task',
   'call-activity': 'bpmn-icon-call-activity',
+  'sub-process': 'bpmn-icon-subprocess-expanded',
+  'ad-hoc-sub-process': 'bpmn-icon-subprocess-expanded',
+  transaction: 'bpmn-icon-subprocess-expanded',
   task: 'bpmn-icon-task',
   'exclusive-gateway': 'bpmn-icon-gateway-xor',
   'parallel-gateway': 'bpmn-icon-gateway-parallel',
@@ -245,6 +255,7 @@ export default defineComponent({
       }
 
       return (
+        <>
         <div class="h-full flex flex-col">
           <div class={`flex gap-12px p-12px border-b border-solid border-light_border dark:border-dark_border ${elementName ? 'items-start' : 'items-center'}`}>
             <i class={`${iconClass} text-24px`} />
@@ -255,7 +266,7 @@ export default defineComponent({
               )}
             </div>
           </div>
-          <div class="flex-1 overflow-auto">
+          <div class="flex-1 overflow-auto camunda-props-scroll">
             {type === 'process' ? (
               <ProcessPropertiesPancel
                 businessObject={selectedBusinessObject.value}
@@ -266,6 +277,22 @@ export default defineComponent({
               />
             ) : eventTypes.has(type) ? (
               <EventPropertiesPanel
+                businessObject={selectedBusinessObject.value}
+                element={selectedElement.value}
+                bpmnModeler={props.bpmnModeler}
+                formSize={props.formSize}
+                labelPlacement={props.labelPlacement}
+              />
+            ) : subProcessTypes.has(type) ? (
+              <SubProcessPropertiesPanel
+                businessObject={selectedBusinessObject.value}
+                element={selectedElement.value}
+                bpmnModeler={props.bpmnModeler}
+                formSize={props.formSize}
+                labelPlacement={props.labelPlacement}
+              />
+            ) : callActivityTypes.has(type) ? (
+              <CallActivityPropertiesPanel
                 businessObject={selectedBusinessObject.value}
                 element={selectedElement.value}
                 bpmnModeler={props.bpmnModeler}
@@ -303,6 +330,7 @@ export default defineComponent({
             )}
           </div>
         </div>
+        </>
       )
     }
   },
