@@ -10,8 +10,8 @@ import {
   ErrorDefinitionFields,
   CompensationDefinitionFields,
   LinkDefinitionFields,
-} from '../base'
-import { uid, getDefinitions } from '../base/eventHelpers'
+} from '.'
+import { uid, getDefinitions } from './eventHelpers'
 
 export function getEventDefType(businessObject: any): string {
   if (!businessObject) return 'none'

@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NInputNumber, NRadioGroup, NRadio, NSpace, NTooltip } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { HintTooltip } from '.'
+import { HintTooltip } from '../base'
 
 export default defineComponent({
   name: 'TimerDefinitionFields',

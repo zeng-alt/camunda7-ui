@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { ExpressionField, ScriptFields, HintTooltip } from '.'
+import { ExpressionField, ScriptFields, HintTooltip } from '../base'
 
 const variableEventOptions = [
   { label: 'create', value: 'create' },

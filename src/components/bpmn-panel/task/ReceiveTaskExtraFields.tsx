@@ -1,6 +1,6 @@
 import { defineComponent, type PropType } from 'vue'
 import type { ExtraFieldTab } from '../base'
-import { MessageDefinitionFields } from '../base'
+import { MessageDefinitionFields } from '../events'
 
 export const receiveTaskTabs: ExtraFieldTab[] = [
   { name: 'receiveTask', labelKey: 'bpmnPanel.tabs.receiveTask' },
