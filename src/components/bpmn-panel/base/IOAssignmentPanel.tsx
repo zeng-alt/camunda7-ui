@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NButton, NInput, NSelect, NEmpty } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { ScriptFields } from '.'
 
 type AssignmentType = 'value' | 'list' | 'map' | 'script'
 
@@ -33,15 +34,6 @@ const assignmentTypeOptions = [
   { label: 'List', value: 'list' },
   { label: 'Map', value: 'map' },
   { label: 'Script', value: 'script' },
-]
-
-const scriptFormatOptions = [
-  { label: 'JavaScript (js)', value: 'js' },
-  { label: 'Groovy', value: 'groovy' },
-  { label: 'Python', value: 'python' },
-  { label: 'Ruby', value: 'ruby' },
-  { label: 'JRuby', value: 'jruby' },
-  { label: 'BeanShell', value: 'beanshell' },
 ]
 
 function findInputOutput(extensionElements: any): any {
@@ -407,26 +399,14 @@ export default defineComponent({
                     </div>
                   )}
                   {item.assignmentType === 'script' && (
-                    <div class="flex flex-col gap-4px">
-                      <div class="flex gap-8px items-center">
-                        <span class="text-12px text-#888">{t('bpmnPanel.fields.scriptFormat')}:</span>
-                        <NSelect
-                          value={item.scriptFormat}
-                          onUpdateValue={(v: string | null) => updateItem(index, 'scriptFormat', v ?? 'js')}
-                          options={scriptFormatOptions}
-                          size={props.formSize}
-                          style="width:140px"
-                        />
-                      </div>
-                      <NInput
-                        value={item.scriptValue}
-                        onUpdateValue={(v: string | null) => updateItem(index, 'scriptValue', v ?? '')}
-                        placeholder={t('bpmnPanel.placeholders.listenerScript')}
-                        size={props.formSize}
-                        type="textarea"
-                        rows={3}
-                      />
-                    </div>
+                    <ScriptFields
+                      scriptFormat={item.scriptFormat}
+                      scriptValue={item.scriptValue}
+                      onUpdateScriptFormat={(v: string) => updateItem(index, 'scriptFormat', v)}
+                      onUpdateScriptValue={(v: string) => updateItem(index, 'scriptValue', v)}
+                      formSize={props.formSize}
+                      compact
+                    />
                   )}
                 </div>
               ))}

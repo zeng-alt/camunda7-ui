@@ -3,6 +3,11 @@ import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, ExecutionListenersPanel, AsyncCheckboxes } from '../base'
 import StartEventExtraFields, { startEventTabs } from './StartEventExtraFields'
+import IntermediateCatchEventExtraFields, { intermediateCatchEventTabs } from './IntermediateCatchEventExtraFields'
+import IntermediateThrowEventExtraFields, { intermediateThrowEventTabs } from './IntermediateThrowEventExtraFields'
+import BoundaryEventExtraFields, { boundaryEventTabs } from './BoundaryEventExtraFields'
+import EndEventExtraFields, { endEventTabs } from './EndEventExtraFields'
+import { getEventDefType, getEventDefLabelKey, getCategoryLabelKey } from './EventDefinitionPanel'
 
 function getEventSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -15,37 +20,33 @@ function getEventSubType(businessObject: any): string {
   return ''
 }
 
+const extraFieldsMap: Record<string, { component: any; tabs: { name: string; labelKey: string }[] }> = {
+  'start-event': { component: StartEventExtraFields, tabs: startEventTabs },
+  'intermediate-catch-event': { component: IntermediateCatchEventExtraFields, tabs: intermediateCatchEventTabs },
+  'intermediate-throw-event': { component: IntermediateThrowEventExtraFields, tabs: intermediateThrowEventTabs },
+  'boundary-event': { component: BoundaryEventExtraFields, tabs: boundaryEventTabs },
+  'end-event': { component: EndEventExtraFields, tabs: endEventTabs },
+}
+
 export default defineComponent({
   name: 'EventPropertiesPanel',
   props: {
-    businessObject: {
-      type: Object as PropType<any>,
-      default: null,
-    },
-    element: {
-      type: Object as PropType<any>,
-      default: null,
-    },
-    bpmnModeler: {
-      type: Object,
-      default: null,
-    },
-    formSize: {
-      type: String as PropType<'small' | 'medium' | 'large'>,
-      default: 'small',
-    },
-    labelPlacement: {
-      type: String as PropType<'left' | 'top'>,
-      default: 'left',
-    },
+    businessObject: { type: Object as PropType<any>, default: null },
+    element: { type: Object as PropType<any>, default: null },
+    bpmnModeler: { type: Object, default: null },
+    formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'left' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const eventType = computed(() => getEventSubType(props.businessObject))
     const tabValue = ref('general')
 
+    const defType = computed(() => getEventDefType(props.businessObject))
+
     return () => {
       const type = eventType.value
+      const def = defType.value
 
       if (!type) {
         return (
@@ -54,6 +55,9 @@ export default defineComponent({
           </div>
         )
       }
+
+      const config = extraFieldsMap[type]!
+      const tabs = config.tabs
 
       return (
         <div class="p-8px">
@@ -86,9 +90,9 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            {type === 'start-event' && startEventTabs.map(tab => (
+            {tabs.map(tab => (
               <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <StartEventExtraFields
+                <config.component
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

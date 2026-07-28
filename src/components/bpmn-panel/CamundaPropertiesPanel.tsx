@@ -1,7 +1,7 @@
 import { defineComponent, ref, onBeforeUnmount, watch, type PropType } from 'vue'
 import { useCamundaI18n } from '../../locales'
 import ProcessPropertiesPancel from './ProcessPropertiesPancel'
-import { EventPropertiesPanel } from './events'
+import { EventPropertiesPanel, getEventIcon, getEventDefType, getEventDefLabelKey, getCategoryLabelKey } from './events'
 import { TaskPropertiesPanel } from './task'
 import { GatewayPropertiesPanel } from './gateways'
 import { CallActivityPropertiesPanel } from './callactivity'
@@ -216,9 +216,27 @@ export default defineComponent({
       }
 
       const isDefault = type === 'sequence-flow' && selectedElement.value ? isDefaultFlow(selectedElement.value) : false
-      const typeLabel = isDefault ? t('bpmnPanel.types.default-flow') : t(`bpmnPanel.types.${type}`)
       const elementName = selectedBusinessObject.value?.name
-      const iconClass = isDefault ? 'bpmn-icon-default-flow' : getTypeIcon(type)
+      const isEvent = eventTypes.has(type)
+
+      let typeLabel: string
+      let iconClass: string
+
+      if (isDefault) {
+        typeLabel = t('bpmnPanel.types.default-flow')
+        iconClass = 'bpmn-icon-default-flow'
+      } else if (isEvent) {
+        const defType = getEventDefType(selectedBusinessObject.value)
+        const categoryKey = getCategoryLabelKey(type)
+        const categoryLabel = t(categoryKey)
+        const defLabelKey = getEventDefLabelKey(defType)
+        const defLabel = t(defLabelKey)
+        typeLabel = defType === 'none' ? categoryLabel : `${categoryLabel} > ${defLabel}`
+        iconClass = getEventIcon(type, selectedBusinessObject.value)
+      } else {
+        typeLabel = t(`bpmnPanel.types.${type}`)
+        iconClass = getTypeIcon(type)
+      }
 
       return (
         <div class="h-full flex flex-col">

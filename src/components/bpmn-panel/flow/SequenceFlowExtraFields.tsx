@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
 import { NInput, NSelect, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { ScriptFields, ExpressionField } from '../base'
 
 function isDefaultFlow(sequenceFlow: any) {
   const source = sequenceFlow.source
@@ -12,15 +13,6 @@ function isDefaultFlow(sequenceFlow: any) {
 const conditionTypeOptions = [
   { label: 'Expression', value: 'expression' },
   { label: 'Script', value: 'script' },
-]
-
-const scriptFormatOptions = [
-  { label: 'JavaScript (js)', value: 'js' },
-  { label: 'Groovy', value: 'groovy' },
-  { label: 'Python', value: 'python' },
-  { label: 'Ruby', value: 'ruby' },
-  { label: 'JRuby', value: 'jruby' },
-  { label: 'BeanShell', value: 'beanshell' },
 ]
 
 export default defineComponent({
@@ -145,37 +137,22 @@ export default defineComponent({
           {conditionType.value === 'expression' ? (
             <div class="mt-12px">
               <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionExpression')}</div>
-              <NInput
+              <ExpressionField
                 value={expression.value}
                 onUpdateValue={onExpressionChange}
-                placeholder={t('bpmnPanel.placeholders.conditionExpression')}
-                size={props.formSize}
-                type="textarea"
-                rows={3}
+                formSize={props.formSize}
+                textarea
               />
             </div>
           ) : (
-            <div class="mt-12px flex flex-col gap-12px">
-              <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptFormat')}</div>
-                <NSelect
-                  value={scriptFormat.value}
-                  onUpdateValue={onScriptFormatChange}
-                  options={scriptFormatOptions}
-                  size={props.formSize}
-                />
-              </div>
-              <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptValue')}</div>
-                <NInput
-                  value={scriptValue.value}
-                  onUpdateValue={onScriptValueChange}
-                  placeholder={t('bpmnPanel.placeholders.listenerScript')}
-                  size={props.formSize}
-                  type="textarea"
-                  rows={3}
-                />
-              </div>
+            <div class="mt-12px">
+              <ScriptFields
+                scriptFormat={scriptFormat.value}
+                scriptValue={scriptValue.value}
+                onUpdateScriptFormat={onScriptFormatChange}
+                onUpdateScriptValue={onScriptValueChange}
+                formSize={props.formSize}
+              />
             </div>
           )}
         </div>

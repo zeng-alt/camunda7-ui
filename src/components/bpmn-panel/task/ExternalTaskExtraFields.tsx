@@ -1,0 +1,99 @@
+import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { NInput, NInputNumber } from 'naive-ui'
+import { useCamundaI18n } from '../../../locales'
+import type { ExtraFieldTab } from '../base'
+import ErrorFields from '../base/ErrorFields'
+
+export const externalTaskTabs: ExtraFieldTab[] = [
+  { name: 'external', labelKey: 'bpmnPanel.tabs.external' },
+]
+
+export default defineComponent({
+  name: 'ExternalTaskExtraFields',
+  props: {
+    businessObject: { type: Object as PropType<any>, default: null },
+    element: { type: Object as PropType<any>, default: null },
+    bpmnModeler: { type: Object, default: null },
+    formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    tabName: { type: String, default: 'external' },
+  },
+  setup(props) {
+    const { t } = useCamundaI18n()
+
+    const topic = ref('')
+    const priority = ref<number | null>(null)
+
+    function syncFromModel() {
+      const bo = props.businessObject
+      if (!bo) return
+      topic.value = bo.topic || ''
+      priority.value = bo.taskPriority ?? null
+    }
+
+    watch(() => props.businessObject, syncFromModel, { immediate: true })
+    watch(() => props.element, syncFromModel, { immediate: true })
+
+    function updateProperty(key: string, value: any) {
+      if (!props.bpmnModeler || !props.element) return
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { [key]: value })
+    }
+
+    function onTopicChange(val: string | null) {
+      topic.value = val ?? ''
+      const bo = props.businessObject
+      if (!props.bpmnModeler || !props.element || !bo) return
+      const modeling = props.bpmnModeler.get('modeling')
+      if (val) {
+        modeling.updateProperties(toRaw(props.element), { topic: val, type: 'external' })
+      } else {
+        modeling.updateProperties(toRaw(props.element), { topic: undefined, type: undefined })
+      }
+    }
+
+    function onPriorityChange(val: number | null) {
+      priority.value = val
+      updateProperty('taskPriority', val)
+    }
+
+    return () => {
+      if (props.tabName !== 'external') return null
+
+      return (
+        <div class="pt-8px">
+          <div class="mb-8px">
+            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.topic')}</div>
+            <NInput
+              value={topic.value}
+              onUpdateValue={onTopicChange}
+              placeholder={t('bpmnPanel.placeholders.topic')}
+              size={props.formSize}
+            />
+          </div>
+
+          <div class="mb-8px">
+            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.externalTaskPriority')}</div>
+            <NInputNumber
+              value={priority.value}
+              onUpdateValue={onPriorityChange}
+              placeholder={t('bpmnPanel.placeholders.taskPriority')}
+              size={props.formSize}
+              min={0}
+              class="w-full"
+            />
+          </div>
+
+          <div class="mt-16px">
+            <div class="text-12px font-bold mb-8px">{t('bpmnPanel.fields.errors')}</div>
+            <ErrorFields
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+            />
+          </div>
+        </div>
+      )
+    }
+  },
+})

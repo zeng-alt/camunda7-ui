@@ -3,6 +3,7 @@ import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from '../base'
 import FormPanel from '../base/FormPanel'
+import EventDefinitionPanel from './EventDefinitionPanel'
 
 export const startEventTabs: ExtraFieldTab[] = [
   { name: 'startEvent', labelKey: 'bpmnPanel.tabs.startEvent' },
@@ -65,6 +66,15 @@ export default defineComponent({
               onUpdateValue={onInitiatorChange}
               placeholder={t('bpmnPanel.placeholders.initiator')}
               size={props.formSize}
+            />
+          </div>
+          <div class="mt-16px">
+            <div class="mb-8px text-12px text-#666">{t('bpmnPanel.fields.eventDefinition')}</div>
+            <EventDefinitionPanel
+              businessObject={props.businessObject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
             />
           </div>
         </div>

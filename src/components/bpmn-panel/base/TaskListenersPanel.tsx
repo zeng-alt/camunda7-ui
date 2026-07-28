@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NButton, NInput, NSelect, NEmpty } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { ScriptFields, JavaClassField, ExpressionField, DelegateExpressionField } from '.'
 
 interface FieldInjectionItem {
   _key: number
@@ -38,15 +39,6 @@ const listenerTypeOptions = [
   { label: 'Expression', value: 'expression' },
   { label: 'Delegate Expression', value: 'delegateExpression' },
   { label: 'Script', value: 'script' },
-]
-
-const scriptFormatOptions = [
-  { label: 'JavaScript (js)', value: 'js' },
-  { label: 'Groovy', value: 'groovy' },
-  { label: 'Python', value: 'python' },
-  { label: 'Ruby', value: 'ruby' },
-  { label: 'JRuby', value: 'jruby' },
-  { label: 'BeanShell', value: 'beanshell' },
 ]
 
 const fieldTypeOptions = [
@@ -293,50 +285,35 @@ export default defineComponent({
                 </div>
 
                 {item.listenerType === 'class' && (
-                  <NInput
+                  <JavaClassField
                     value={item.klass}
-                    onUpdateValue={(v: string | null) => updateListener(index, 'klass', v ?? '')}
-                    placeholder={t('bpmnPanel.placeholders.listenerClass')}
-                    size={props.formSize}
+                    onUpdateValue={(v: string) => updateListener(index, 'klass', v)}
+                    formSize={props.formSize}
                   />
                 )}
                 {item.listenerType === 'expression' && (
-                  <NInput
+                  <ExpressionField
                     value={item.expression}
-                    onUpdateValue={(v: string | null) => updateListener(index, 'expression', v ?? '')}
-                    placeholder={t('bpmnPanel.placeholders.listenerExpression')}
-                    size={props.formSize}
+                    onUpdateValue={(v: string) => updateListener(index, 'expression', v)}
+                    formSize={props.formSize}
                   />
                 )}
                 {item.listenerType === 'delegateExpression' && (
-                  <NInput
+                  <DelegateExpressionField
                     value={item.delegateExpression}
-                    onUpdateValue={(v: string | null) => updateListener(index, 'delegateExpression', v ?? '')}
-                    placeholder={t('bpmnPanel.placeholders.listenerDelegateExpression')}
-                    size={props.formSize}
+                    onUpdateValue={(v: string) => updateListener(index, 'delegateExpression', v)}
+                    formSize={props.formSize}
                   />
                 )}
                 {item.listenerType === 'script' && (
-                  <div class="flex flex-col gap-4px">
-                    <div class="flex gap-8px items-center">
-                      <div class="text-12px text-#888">{t('bpmnPanel.fields.scriptFormat')}:</div>
-                      <NSelect
-                        value={item.scriptFormat}
-                        onUpdateValue={(v: string | null) => updateListener(index, 'scriptFormat', v ?? 'js')}
-                        options={scriptFormatOptions}
-                        size={props.formSize}
-                        style="width:140px"
-                      />
-                    </div>
-                    <NInput
-                      value={item.scriptValue}
-                      onUpdateValue={(v: string | null) => updateListener(index, 'scriptValue', v ?? '')}
-                      placeholder={t('bpmnPanel.placeholders.listenerScript')}
-                      size={props.formSize}
-                      type="textarea"
-                      rows={3}
-                    />
-                  </div>
+                  <ScriptFields
+                    scriptFormat={item.scriptFormat}
+                    scriptValue={item.scriptValue}
+                    onUpdateScriptFormat={(v: string) => updateListener(index, 'scriptFormat', v)}
+                    onUpdateScriptValue={(v: string) => updateListener(index, 'scriptValue', v)}
+                    formSize={props.formSize}
+                    compact
+                  />
                 )}
 
                 <div class="border-t border-dashed border-light_border dark:border-dark_border pt-6px mt-2px">

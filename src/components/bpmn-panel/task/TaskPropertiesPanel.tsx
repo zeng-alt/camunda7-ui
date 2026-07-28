@@ -3,6 +3,8 @@ import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { InputsPanel, OutputsPanel, GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel, AsyncCheckboxes } from '../base'
 import UserTaskExtraFields, { userTaskTabs } from './UserTaskExtraFields'
+import ServiceTaskExtraFields, { serviceTaskTabs } from './ServiceTaskExtraFields'
+
 
 function getTaskSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -90,6 +92,17 @@ export default defineComponent({
             {type === 'user-task' && userTaskTabs.map(tab => (
               <NTabPane name={tab.name} tab={t(tab.labelKey)}>
                 <UserTaskExtraFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  tabName={tab.name}
+                />
+              </NTabPane>
+            ))}
+            {type === 'service-task' && serviceTaskTabs.map(tab => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <ServiceTaskExtraFields
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

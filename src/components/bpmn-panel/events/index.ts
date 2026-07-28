@@ -1,2 +1,7 @@
 export { default as EventPropertiesPanel } from './EventPropertiesPanel'
 export { default as StartEventExtraFields } from './StartEventExtraFields'
+export { default as IntermediateCatchEventExtraFields } from './IntermediateCatchEventExtraFields'
+export { default as IntermediateThrowEventExtraFields } from './IntermediateThrowEventExtraFields'
+export { default as BoundaryEventExtraFields } from './BoundaryEventExtraFields'
+export { default as EndEventExtraFields } from './EndEventExtraFields'
+export { default as EventDefinitionPanel, getEventDefType, getEventDefLabelKey, getCategoryLabelKey, getEventIcon } from './EventDefinitionPanel'

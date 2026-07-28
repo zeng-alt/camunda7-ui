@@ -1,0 +1,67 @@
+import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { NInput } from 'naive-ui'
+import { useCamundaI18n } from '../../../locales'
+
+export default defineComponent({
+  name: 'ExpressionField',
+  props: {
+    value: { type: String, default: '' },
+    onUpdateValue: { type: Function as PropType<(val: string) => void>, default: null },
+    formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    textarea: { type: Boolean, default: false },
+    businessObject: { type: Object as PropType<any>, default: null },
+    element: { type: Object as PropType<any>, default: null },
+    bpmnModeler: { type: Object, default: null },
+    propertyKey: { type: String, default: '' },
+  },
+  setup(props) {
+    const { t } = useCamundaI18n()
+    const local = ref('')
+
+    const isAuto = () => props.businessObject && props.propertyKey
+
+    function syncFromModel() {
+      if (!isAuto()) return
+      const bo = props.businessObject
+      local.value = bo ? bo[props.propertyKey] || '' : ''
+    }
+
+    watch(() => props.businessObject, syncFromModel, { immediate: true })
+    watch(() => props.element, syncFromModel, { immediate: true })
+
+    function onChange(val: string) {
+      if (isAuto()) {
+        local.value = val
+        if (props.bpmnModeler && props.element) {
+          const modeling = props.bpmnModeler.get('modeling')
+          modeling.updateProperties(toRaw(props.element), { [props.propertyKey]: val || undefined })
+        }
+      } else if (props.onUpdateValue) {
+        props.onUpdateValue(val)
+      }
+    }
+
+    return () => {
+      if (props.textarea) {
+        return (
+          <NInput
+            type="textarea"
+            rows={3}
+            value={isAuto() ? local.value : props.value}
+            onUpdateValue={(v: string | null) => onChange(v ?? '')}
+            placeholder={t('bpmnPanel.placeholders.conditionExpression')}
+            size={props.formSize}
+          />
+        )
+      }
+      return (
+        <NInput
+          value={isAuto() ? local.value : props.value}
+          onUpdateValue={(v: string | null) => onChange(v ?? '')}
+          placeholder={t('bpmnPanel.placeholders.listenerExpression')}
+          size={props.formSize}
+        />
+      )
+    }
+  },
+})
