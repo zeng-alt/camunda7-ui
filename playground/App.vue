@@ -9,6 +9,22 @@ const extraTabLabels = ref({
   'end-event': '自定义配置',
 })
 
+const localeMessages = {
+  'de-DE': {
+    bpmnPanel: {
+      types: {
+        process: 'Prozess',
+      },
+    },
+  },
+}
+
+const availableLocales = [
+  { label: '中文', value: 'zh-CN' },
+  { label: 'English', value: 'en-US' },
+  { label: 'Deutsch', value: 'de-DE' },
+]
+
 const mockUsers = [
   { label: '张三', value: 'zhangsan' },
   { label: '李四', value: 'lisi' },
@@ -58,6 +74,30 @@ const mockJavaClasses = [
   { label: '缓存管理器', value: 'com.example.cache.CacheManager' },
   { label: '任务分配器', value: 'com.example.assignment.TaskAssigner' },
   { label: '积分计算器', value: 'com.example.score.ScoreCalculator' },
+]
+
+const mockDecisions = [
+  { label: '信用评估', value: 'Decision_credit_score', version: ['1.0', '1.1'] },
+  { label: '贷款审批', value: 'Decision_loan_approval', version: ['2.0', '2.1'] },
+  { label: '风险评级', value: 'Decision_risk_rating', version: ['1.0'] },
+  { label: '欺诈检测', value: 'Decision_fraud_detection', version: ['3.0'] },
+  { label: '定价策略', value: 'Decision_pricing', version: ['1.0', '1.2', '2.0'] },
+]
+
+const mockFormRefs = [
+  { label: '请假申请表单', value: 'form-leave-request', version: ['1.0', '1.1'] },
+  { label: '报销表单', value: 'form-expense-claim', version: ['2.0'] },
+  { label: '入职登记表', value: 'form-onboarding', version: ['1.0'] },
+  { label: '合同审批表单', value: 'form-contract-approval', version: ['1.0', '1.2'] },
+  { label: '客户反馈表单', value: 'form-feedback', version: ['1.0'] },
+]
+
+const mockFormKeys = [
+  { label: '请假申请', value: 'embedded:app:leave-request.html' },
+  { label: '报销申请', value: 'embedded:app:expense-claim.html' },
+  { label: '入职登记', value: 'embedded:app:onboarding.html' },
+  { label: '合同审批', value: 'embedded:app:contract-approval.html' },
+  { label: '出差申请', value: 'embedded:app:travel-request.html' },
 ]
 
 const mockTopics = [
@@ -150,6 +190,33 @@ async function onFetchProcessList() {
   return mockProcessList
 }
 
+async function onSearchDecisionRefs(name: string) {
+  await delay(200)
+  if (!name) return mockDecisions
+  return mockDecisions.filter(
+    (d) =>
+      d.label.includes(name) || d.value.toLowerCase().includes(name.toLowerCase()),
+  )
+}
+
+async function onSearchFormRefs(name: string) {
+  await delay(200)
+  if (!name) return mockFormRefs
+  return mockFormRefs.filter(
+    (f) =>
+      f.label.includes(name) || f.value.toLowerCase().includes(name.toLowerCase()),
+  )
+}
+
+async function onSearchFormKeys(name: string) {
+  await delay(150)
+  if (!name) return mockFormKeys
+  return mockFormKeys.filter(
+    (f) =>
+      f.label.includes(name) || f.value.toLowerCase().includes(name.toLowerCase()),
+  )
+}
+
 async function onSearchDelegateExpressions(name: string) {
   await delay(150)
   if (!name) return mockDelegateExpressions
@@ -171,6 +238,11 @@ async function onSearchDelegateExpressions(name: string) {
       :onSearchDelegateExpressions="onSearchDelegateExpressions"
       :onSearchExternalTopics="onSearchExternalTopics"
       :onFetchProcessList="onFetchProcessList"
+      :onSearchDecisionRefs="onSearchDecisionRefs"
+      :onSearchFormRefs="onSearchFormRefs"
+      :onSearchFormKeys="onSearchFormKeys"
+      :localeMessages="localeMessages"
+      :availableLocales="availableLocales"
     >
       <template #buttons="{ modeler }">
         <NButton ghost >

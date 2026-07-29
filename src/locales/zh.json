@@ -156,6 +156,7 @@
       "formType": "表单类型",
       "formRef": "表单引用",
       "formRefBinding": "绑定方式",
+      "formRefVersion": "版本",
       "formFieldId": "字段 ID",
       "formFieldLabel": "标签",
       "formFieldType": "类型",
@@ -275,6 +276,7 @@
       "searchJavaClass": "搜索 Java 类...",
       "searchDelegateExpression": "搜索委托表达式...",
       "searchTopic": "搜索主题...",
+      "searchFormKey": "搜索表单 Key...",
       "expression": "输入表达式...",
       "enter": "按下enter"
     },

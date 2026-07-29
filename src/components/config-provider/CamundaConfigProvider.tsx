@@ -9,7 +9,7 @@ import {
   type GlobalThemeOverrides,
 } from 'naive-ui'
 import { configProviderInjectionKey, type LocaleType, type ThemeType } from './context'
-import { setLocale } from '../../locales'
+import { setLocale, setLocaleMessages, resolveNaiveLocale, resolveNaiveDateLocale } from '../../locales'
 
 export default defineComponent({
   name: 'CamundaConfigProvider',
@@ -26,6 +26,14 @@ export default defineComponent({
       type: String as PropType<LocaleType>,
       default: undefined,
     },
+    localeFallback: {
+      type: String as PropType<LocaleType>,
+      default: undefined,
+    },
+    localeMessages: {
+      type: Object as PropType<Record<string, Record<string, any>>>,
+      default: undefined,
+    },
     timeFormat: {
       type: String,
       default: undefined,
@@ -36,6 +44,12 @@ export default defineComponent({
 
     const mergedTheme = computed(() => props.theme ?? parentConfig?.themeRef.value ?? 'light')
     const mergedLocale = computed(() => props.locale ?? parentConfig?.localeRef.value ?? 'zh-CN')
+    const mergedLocaleFallback = computed(
+      () => props.localeFallback ?? parentConfig?.localeFallbackRef.value ?? 'en-US',
+    )
+    const mergedLocaleMessages = computed(
+      () => props.localeMessages ?? parentConfig?.localeMessagesRef.value,
+    )
     const mergedTimeFormat = computed(
       () => props.timeFormat ?? parentConfig?.timeFormatRef.value ?? 'YYYY-MM-DD HH:mm:ss',
     )
@@ -45,6 +59,8 @@ export default defineComponent({
 
     const themeRef = computed(() => mergedTheme.value)
     const localeRef = computed(() => mergedLocale.value)
+    const localeFallbackRef = computed(() => mergedLocaleFallback.value)
+    const localeMessagesRef = computed(() => mergedLocaleMessages.value)
     const timeFormatRef = computed(() => mergedTimeFormat.value)
     const themeOverridesRef = computed(() => mergedThemeOverrides.value)
 
@@ -53,20 +69,27 @@ export default defineComponent({
     })
 
     const currentNaiveLocale = computed(() => {
-      return mergedLocale.value === 'zh-CN' ? naiveZhCN : naiveEnUS
+      return resolveNaiveLocale(mergedLocale.value)
     })
 
     const currentNaiveDateLocale = computed(() => {
-      return mergedLocale.value === 'zh-CN' ? naiveDateZhCN : naiveDateEnUS
+      return resolveNaiveDateLocale(mergedLocale.value)
     })
 
     watchEffect(() => {
-      // Update internal vue-i18n locale whenever locale changes
       setLocale(mergedLocale.value)
     })
 
     watchEffect(() => {
-      // Only the root provider should modify the document root class
+      if (mergedLocaleMessages.value) {
+        const msgs = mergedLocaleMessages.value[mergedLocale.value]
+        if (msgs) {
+          setLocaleMessages(mergedLocale.value, msgs)
+        }
+      }
+    })
+
+    watchEffect(() => {
       if (typeof document !== 'undefined' && !parentConfig) {
         if (mergedTheme.value === 'dark') {
           document.documentElement.classList.add('dark')
@@ -79,6 +102,8 @@ export default defineComponent({
     provide(configProviderInjectionKey, {
       themeRef,
       localeRef,
+      localeFallbackRef,
+      localeMessagesRef,
       timeFormatRef,
       themeOverridesRef,
     })

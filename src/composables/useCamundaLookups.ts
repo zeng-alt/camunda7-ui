@@ -29,6 +29,9 @@ export interface CamundaLookups {
   searchExternalTopics:
     | ((name: string) => Promise<CamundaLookupItem[]> | CamundaLookupItem[])
     | null
+  searchDecisionRefs: ((name: string) => Promise<ProcessLookupItem[]> | ProcessLookupItem[]) | null
+  searchFormRefs: ((name: string) => Promise<ProcessLookupItem[]> | ProcessLookupItem[]) | null
+  searchFormKeys: ((name: string) => Promise<CamundaLookupItem[]> | CamundaLookupItem[]) | null
 }
 
 const state = reactive<CamundaLookups>({
@@ -38,6 +41,9 @@ const state = reactive<CamundaLookups>({
   searchJavaClasses: null,
   searchDelegateExpressions: null,
   searchExternalTopics: null,
+  searchDecisionRefs: null,
+  searchFormRefs: null,
+  searchFormKeys: null,
 })
 
 export function useCamundaLookups() {

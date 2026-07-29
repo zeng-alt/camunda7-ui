@@ -156,6 +156,7 @@
       "formType": "Form Type",
       "formRef": "Form Ref",
       "formRefBinding": "Binding",
+      "formRefVersion": "Version",
       "formFieldId": "Field ID",
       "formFieldLabel": "Label",
       "formFieldType": "Type",
@@ -277,6 +278,7 @@
       "searchJavaClass": "Search Java class...",
       "searchDelegateExpression": "Search delegate expression...",
       "searchTopic": "Search topic...",
+      "searchFormKey": "Search form key...",
       "expression": "Enter expression...",
       "enter": "Press down enter"
     },

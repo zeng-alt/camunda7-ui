@@ -3,8 +3,9 @@ import { CamundaConfigProvider } from '../config-provider'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
 import { useCamundaLookups } from '@/composables'
-import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider } from 'naive-ui'
+import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider, NPopselect } from 'naive-ui'
 import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
+import type { LocaleOption } from '../config-provider/context'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
 import './bpmn.css'
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler'
@@ -35,6 +36,21 @@ export default defineComponent({
     locale: {
       type: String as PropType<LocaleType>,
       default: undefined,
+    },
+    localeFallback: {
+      type: String as PropType<LocaleType>,
+      default: undefined,
+    },
+    localeMessages: {
+      type: Object as PropType<Record<string, Record<string, any>>>,
+      default: undefined,
+    },
+    availableLocales: {
+      type: Array as PropType<LocaleOption[]>,
+      default: () => [
+        { label: '中文', value: 'zh-CN' },
+        { label: 'English', value: 'en-US' },
+      ],
     },
     extraTabLabels: {
       type: Object as PropType<Record<string, string>>,
@@ -73,6 +89,24 @@ export default defineComponent({
       default: null,
     },
     onSearchExternalTopics: {
+      type: Function as PropType<
+        (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+      >,
+      default: null,
+    },
+    onSearchDecisionRefs: {
+      type: Function as PropType<
+        (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
+      >,
+      default: null,
+    },
+    onSearchFormRefs: {
+      type: Function as PropType<
+        (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
+      >,
+      default: null,
+    },
+    onSearchFormKeys: {
       type: Function as PropType<
         (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
       >,
@@ -222,11 +256,10 @@ export default defineComponent({
       emit('update:theme', currentTheme.value)
     }
 
-    function toggleLocale() {
-      const next = currentLocaleRef.value === 'zh-CN' ? 'en-US' : 'zh-CN'
-      currentLocaleRef.value = next
-      setLocale(next)
-      emit('update:locale', next)
+    function handleLocaleChange(value: string) {
+      currentLocaleRef.value = value as LocaleType
+      setLocale(value as LocaleType)
+      emit('update:locale', value)
       bpmnModeler?.get('eventBus')?.fire('i18n.changed')
     }
 
@@ -238,6 +271,9 @@ export default defineComponent({
       searchJavaClasses: props.onSearchJavaClasses,
       searchDelegateExpressions: props.onSearchDelegateExpressions,
       searchExternalTopics: props.onSearchExternalTopics,
+      searchDecisionRefs: props.onSearchDecisionRefs,
+      searchFormRefs: props.onSearchFormRefs,
+      searchFormKeys: props.onSearchFormKeys,
     })
 
     const extraTabs: Record<string, any> = {
@@ -250,7 +286,12 @@ export default defineComponent({
     }
 
     return () => (
-      <CamundaConfigProvider theme={currentTheme.value} locale={currentLocaleRef.value}>
+      <CamundaConfigProvider
+        theme={currentTheme.value}
+        locale={currentLocaleRef.value}
+        localeFallback={props.localeFallback}
+        localeMessages={props.localeMessages}
+      >
         {{
           default: () => (
             <NLayout has-sider sider-placement="right" position="absolute">
@@ -300,11 +341,18 @@ export default defineComponent({
                       </NIcon>
                     </NButton>
                     {slots.buttons?.({ modeler: modelerRef.value })}
-                    <NButton ghost onClick={toggleLocale}>
-                      <NIcon>
-                        <span class="i-ic-baseline-language" />
-                      </NIcon>
-                    </NButton>
+                    <NPopselect
+                      value={currentLocaleRef.value}
+                      options={props.availableLocales as any}
+                      onUpdateValue={handleLocaleChange}
+                      trigger="click"
+                    >
+                      <NButton ghost>
+                        <NIcon>
+                          <span class="i-ic-baseline-language" />
+                        </NIcon>
+                      </NButton>
+                    </NPopselect>
                     <NButton ghost onClick={toggleTheme}>
                       <NIcon>
                         <span

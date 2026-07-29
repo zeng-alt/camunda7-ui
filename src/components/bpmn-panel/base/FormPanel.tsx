@@ -15,6 +15,9 @@ import FormPreview from './FormPreview'
 import type { PreviewField } from './FormPreview'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from './index'
+import FormRefPicker from './FormRefPicker'
+import FormKeyPicker from './FormKeyPicker'
+import type { ProcessLookupItem } from '@/composables'
 
 type FormType = 'none' | 'camunda' | 'external' | 'generated'
 type FieldTypeVal = 'string' | 'long' | 'boolean' | 'date' | 'enum'
@@ -186,6 +189,8 @@ export default defineComponent({
     const formKey = ref('')
     const formRef = ref('')
     const formRefBinding = ref('deployment')
+    const formRefVersion = ref('')
+    const selectedFormRef = ref<ProcessLookupItem | null>(null)
     const items = ref<FormFieldItem[]>([])
 
     const showPreview = ref(false)
@@ -203,6 +208,10 @@ export default defineComponent({
       { label: t('bpmnPanel.options.bindingLatest'), value: 'latest' },
       { label: t('bpmnPanel.options.bindingVersion'), value: 'version' },
     ])
+
+    const versionOptions = computed(() =>
+      (selectedFormRef.value?.version || []).map((v) => ({ label: v, value: v })),
+    )
 
     const dateFormatOptions = computed<SelectOption[]>(() =>
       dateFormatKeys.map((d) => ({ label: t(d.labelKey), value: d.value })),
@@ -257,6 +266,7 @@ export default defineComponent({
       formKey.value = bo.formKey || ''
       formRef.value = bo.formRef || ''
       formRefBinding.value = bo.formRefBinding || 'deployment'
+      formRefVersion.value = bo.formRefVersion || ''
 
       const ext = bo.extensionElements
       const formData = ext?.values?.find((v: any) => v.$type === 'camunda:FormData')
@@ -284,6 +294,7 @@ export default defineComponent({
       if (type === 'camunda') {
         updates.formRef = formRef.value || null
         updates.formRefBinding = formRefBinding.value || 'deployment'
+        updates.formRefVersion = formRefBinding.value === 'version' ? (formRefVersion.value || null) : undefined
         updates.formKey = formKey.value || null
       } else if (type === 'external') {
         updates.formKey = formKey.value || null
@@ -408,8 +419,27 @@ export default defineComponent({
       save()
     }
 
+    function onFormRefItemChange(item: ProcessLookupItem | null) {
+      selectedFormRef.value = item
+      if (item && formRefBinding.value === 'version') {
+        const versions = item.version || []
+        if (versions.length > 0 && !versions.includes(formRefVersion.value)) {
+          formRefVersion.value = versions[0] || ''
+          save()
+        }
+      }
+    }
+
     function onFormRefBindingChange(val: string | null) {
       formRefBinding.value = val ?? 'deployment'
+      if (val !== 'version') {
+        formRefVersion.value = ''
+      }
+      save()
+    }
+
+    function onFormRefVersionChange(val: string | null) {
+      formRefVersion.value = val ?? ''
       save()
     }
 
@@ -960,11 +990,11 @@ export default defineComponent({
             <div>
               <div class="mt-8px">
                 <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRef')}</div>
-                <NInput
+                <FormRefPicker
                   value={formRef.value}
-                  onUpdateValue={onFormRefChange}
-                  placeholder={t('bpmnPanel.placeholders.formRef')}
-                  size={props.formSize}
+                  onUpdate:value={onFormRefChange}
+                  onUpdate:item={onFormRefItemChange}
+                  formSize={props.formSize}
                 />
               </div>
               <div class="mt-8px">
@@ -976,17 +1006,37 @@ export default defineComponent({
                   size={props.formSize}
                 />
               </div>
+              {formRefBinding.value === 'version' && (
+                <div class="mt-8px">
+                  <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRefVersion')}</div>
+                  {versionOptions.value.length > 0 ? (
+                    <NSelect
+                      value={formRefVersion.value || null}
+                      onUpdateValue={onFormRefVersionChange}
+                      options={versionOptions.value}
+                      size={props.formSize}
+                      clearable
+                    />
+                  ) : (
+                    <NInput
+                      value={formRefVersion.value}
+                      onUpdateValue={onFormRefVersionChange}
+                      placeholder="1.0"
+                      size={props.formSize}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          {(type === 'camunda' || type === 'external') && (
+          {type === 'external' && (
             <div class="mt-8px">
               <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formKey')}</div>
-              <NInput
+              <FormKeyPicker
                 value={formKey.value}
-                onUpdateValue={onFormKeyChange}
-                placeholder={t('bpmnPanel.placeholders.formKey')}
-                size={props.formSize}
+                onUpdate:value={onFormKeyChange}
+                formSize={props.formSize}
               />
             </div>
           )}

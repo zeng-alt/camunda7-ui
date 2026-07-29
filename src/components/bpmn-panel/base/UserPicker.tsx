@@ -210,7 +210,6 @@ export default defineComponent({
                 size={props.formSize}
                 type={isExpression.value ? 'default' : 'primary'}
                 onClick={toggleMode}
-                class="w-[60px]"
               >
                 {isExpression.value
                   ? t('bpmnPanel.buttons.variable')
@@ -252,7 +251,6 @@ export default defineComponent({
                 size={props.formSize}
                 type={isExpression.value ? 'default' : 'primary'}
                 onClick={toggleMode}
-                class="w-[60px]"
                 style="border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: -1px;"
               >
                 {isExpression.value
