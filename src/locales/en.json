@@ -276,6 +276,7 @@
       "searchGroup": "Search group...",
       "searchJavaClass": "Search Java class...",
       "searchDelegateExpression": "Search delegate expression...",
+      "searchTopic": "Search topic...",
       "expression": "Enter expression...",
       "enter": "Press down enter"
     },

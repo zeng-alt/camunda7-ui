@@ -1,10 +1,12 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
 import { NInput, NSelect, NCheckbox } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import ExpressionField from '../base/ExpressionField'
 import JavaClassField from '../base/JavaClassField'
 import DelegateExpressionField from '../base/DelegateExpressionField'
+import ProcessListPicker from '../base/ProcessListPicker'
 import type { ExtraFieldTab } from '../base'
+import type { ProcessLookupItem } from '../../../composables'
 
 export const callActivityTabs: ExtraFieldTab[] = [
   { name: 'callActivity', labelKey: 'bpmnPanel.tabs.callActivity' },
@@ -55,6 +57,11 @@ export default defineComponent({
     const caseRef = ref('')
     const calledElementBinding = ref('latest')
     const calledElementVersion = ref('')
+    const selectedProcess = ref<ProcessLookupItem | null>(null)
+
+    const versionOptions = computed(() =>
+      (selectedProcess.value?.version || []).map((v) => ({ label: v, value: v })),
+    )
     const calledElementTenantId = ref('')
     const businessKey = ref(false)
     const businessKeyExpression = ref('#{execution.processBusinessKey}')
@@ -120,6 +127,17 @@ export default defineComponent({
     function onCalledElementChange(val: string | null) {
       calledElement.value = val ?? ''
       updateProperty('calledElement', calledElement.value)
+    }
+
+    function onProcessItemChange(item: ProcessLookupItem | null) {
+      selectedProcess.value = item
+      if (item && calledElementBinding.value === 'version') {
+        const versions = item.version || []
+        if (versions.length > 0 && !versions.includes(calledElementVersion.value)) {
+          calledElementVersion.value = versions[0] || ''
+          updateProperty('calledElementVersion', calledElementVersion.value)
+        }
+      }
     }
 
     function onCaseRefChange(val: string | null) {
@@ -262,11 +280,11 @@ export default defineComponent({
         {currentType.value === 'bpmn' && (
           <div>
             <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElement')}</div>
-            <NInput
+            <ProcessListPicker
               value={calledElement.value}
-              onUpdateValue={onCalledElementChange}
-              placeholder={t('bpmnPanel.placeholders.calledElement')}
-              size={props.formSize}
+              onUpdate:value={onCalledElementChange}
+              onUpdate:item={onProcessItemChange}
+              formSize={props.formSize}
             />
           </div>
         )}
@@ -299,12 +317,23 @@ export default defineComponent({
                 <div class="mb-4px text-12px text-#666">
                   {t('bpmnPanel.fields.calledElementVersion')}
                 </div>
-                <NInput
-                  value={calledElementVersion.value}
-                  onUpdateValue={onVersionChange}
-                  placeholder={t('bpmnPanel.placeholders.calledElementVersion')}
-                  size={props.formSize}
-                />
+                {versionOptions.value.length > 0 ? (
+                  <NSelect
+                    value={calledElementVersion.value || null}
+                    onUpdateValue={onVersionChange}
+                    options={versionOptions.value}
+                    placeholder={t('bpmnPanel.placeholders.calledElementVersion')}
+                    size={props.formSize}
+                    clearable
+                  />
+                ) : (
+                  <NInput
+                    value={calledElementVersion.value}
+                    onUpdateValue={onVersionChange}
+                    placeholder={t('bpmnPanel.placeholders.calledElementVersion')}
+                    size={props.formSize}
+                  />
+                )}
               </div>
             )}
             <div>

@@ -5,7 +5,7 @@ import { useCamundaLookups } from '../../../composables'
 import type { CamundaLookupItem } from '../../../composables'
 
 export default defineComponent({
-  name: 'DelegateExpressionPicker',
+  name: 'ExternalTopicPicker',
   props: {
     value: { type: String, default: '' },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
@@ -21,7 +21,7 @@ export default defineComponent({
     const items = ref<CamundaLookupItem[]>([])
     const loaded = ref(false)
 
-    const hasSearchFn = computed(() => !!lookups.searchDelegateExpressions)
+    const hasSearchFn = computed(() => !!lookups.searchExternalTopics)
 
     const selectOptions = computed(() =>
       items.value.map((item) => ({
@@ -31,9 +31,9 @@ export default defineComponent({
     )
 
     async function loadItems() {
-      if (!lookups.searchDelegateExpressions || loaded.value) return
+      if (!lookups.searchExternalTopics || loaded.value) return
       try {
-        items.value = await lookups.searchDelegateExpressions('')
+        items.value = await lookups.searchExternalTopics('')
         loaded.value = true
       } catch {
         items.value = []
@@ -52,9 +52,7 @@ export default defineComponent({
       () =>
         props.placeholder ||
         t(
-          hasSearchFn.value
-            ? 'bpmnPanel.placeholders.searchDelegateExpression'
-            : 'bpmnPanel.placeholders.listenerDelegateExpression',
+          hasSearchFn.value ? 'bpmnPanel.placeholders.searchTopic' : 'bpmnPanel.placeholders.topic',
         ),
     )
 

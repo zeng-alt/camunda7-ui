@@ -1,5 +1,5 @@
 import { defineComponent, ref, computed, type PropType } from 'vue'
-import { NInput, NAutoComplete } from 'naive-ui'
+import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useCamundaLookups } from '../../../composables'
 import type { CamundaLookupItem } from '../../../composables'
@@ -18,39 +18,37 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const { lookups } = useCamundaLookups()
 
-    const searchResults = ref<CamundaLookupItem[]>([])
-    let searchTimer: ReturnType<typeof setTimeout> | null = null
+    const items = ref<CamundaLookupItem[]>([])
+    const loaded = ref(false)
 
     const hasSearchFn = computed(() => !!lookups.searchJavaClasses)
 
-    const autoCompleteOptions = computed(() =>
-      searchResults.value.map((item) => ({
+    const selectOptions = computed(() =>
+      items.value.map((item) => ({
         label: `${item.label} (${item.value})`,
         value: item.value,
       })),
     )
 
-    function onChange(val: string) {
-      emit('update:value', val)
-    }
-
-    function onSearch(query: string) {
-      if (!lookups.searchJavaClasses) return
-      if (searchTimer) clearTimeout(searchTimer)
-      if (!query) {
-        searchResults.value = []
-        return
+    async function loadItems() {
+      if (!lookups.searchJavaClasses || loaded.value) return
+      try {
+        items.value = await lookups.searchJavaClasses('')
+        loaded.value = true
+      } catch {
+        items.value = []
       }
-      searchTimer = setTimeout(async () => {
-        try {
-          searchResults.value = await lookups.searchJavaClasses!(query)
-        } catch {
-          searchResults.value = []
-        }
-      }, 200)
     }
 
-    const placeholder = computed(
+    function onOpen() {
+      loadItems()
+    }
+
+    function onChange(val: string | null) {
+      emit('update:value', val ?? '')
+    }
+
+    const placeholderText = computed(
       () =>
         props.placeholder ||
         t(
@@ -64,20 +62,23 @@ export default defineComponent({
       <div>
         {props.label && <div class="mb-4px text-12px text-#666">{props.label}</div>}
         {hasSearchFn.value ? (
-          <NAutoComplete
-            value={props.value}
+          <NSelect
+            value={props.value || null}
             onUpdateValue={onChange}
-            options={autoCompleteOptions.value}
-            onInput={onSearch}
-            placeholder={placeholder.value}
+            options={selectOptions.value}
+            placeholder={placeholderText.value}
             size={props.formSize}
+            filterable
             clearable
+            tag
+            onFocus={onOpen}
+            onScroll={onOpen}
           />
         ) : (
           <NInput
             value={props.value}
             onUpdateValue={(v: string | null) => onChange(v ?? '')}
-            placeholder={placeholder.value}
+            placeholder={placeholderText.value}
             size={props.formSize}
           />
         )}

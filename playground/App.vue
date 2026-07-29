@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { BpmnModelerProcess, type ThemeType } from 'camunda7-ui'
 import { ref } from 'vue'
+import type { ProcessLookupItem } from 'camunda7-ui'
 
 const theme = ref<ThemeType>('dark')
 const extraTabLabels = ref({
@@ -59,6 +60,30 @@ const mockJavaClasses = [
   { label: '积分计算器', value: 'com.example.score.ScoreCalculator' },
 ]
 
+const mockTopics = [
+  { label: '订单处理', value: 'order-processing' },
+  { label: '支付回调', value: 'payment-callback' },
+  { label: '邮件发送', value: 'email-sending' },
+  { label: '消息通知', value: 'notification' },
+  { label: '数据同步', value: 'data-sync' },
+  { label: '报表生成', value: 'report-generation' },
+  { label: '用户注册', value: 'user-registration' },
+  { label: '审批流转', value: 'approval-workflow' },
+]
+
+const mockProcessList: ProcessLookupItem[] = [
+  { label: '采购审批流程', value: 'Process_purchase_approval', version: ['1.0', '1.1'] },
+  { label: '请假审批流程', value: 'Process_leave_approval', version: ['2.0'] },
+  { label: '报销流程', value: 'Process_expense_claim', version: ['1.0', '1.2', '2.0'] },
+  { label: '入职办理流程', value: 'Process_onboarding', version: ['1.0'] },
+  { label: '合同管理流程', value: 'Process_contract_mgmt', version: ['3.0', '3.1'] },
+  { label: '订单处理流程', value: 'Process_order_fulfillment', version: ['1.0'] },
+  { label: '退款流程', value: 'Process_refund', version: ['2.0', '2.1'] },
+  { label: '风险控制流程', value: 'Process_risk_control', version: ['1.0'] },
+  { label: '客户投诉处理', value: 'Process_complaint', version: ['1.0', '1.1', '1.2'] },
+  { label: '项目立项流程', value: 'Process_project_init', version: ['1.0'] },
+]
+
 const mockDelegateExpressions = [
   { label: '用户服务委托', value: '${userService}' },
   { label: '订单服务委托', value: '${orderService}' },
@@ -111,6 +136,20 @@ async function onSearchJavaClasses(name: string) {
   )
 }
 
+async function onSearchExternalTopics(name: string) {
+  await delay(150)
+  if (!name) return mockTopics
+  return mockTopics.filter(
+    (t) =>
+      t.label.includes(name) || t.value.toLowerCase().includes(name.toLowerCase()),
+  )
+}
+
+async function onFetchProcessList() {
+  await delay(300)
+  return mockProcessList
+}
+
 async function onSearchDelegateExpressions(name: string) {
   await delay(150)
   if (!name) return mockDelegateExpressions
@@ -130,6 +169,8 @@ async function onSearchDelegateExpressions(name: string) {
       :onSearchUserGroups="onSearchUserGroups"
       :onSearchJavaClasses="onSearchJavaClasses"
       :onSearchDelegateExpressions="onSearchDelegateExpressions"
+      :onSearchExternalTopics="onSearchExternalTopics"
+      :onFetchProcessList="onFetchProcessList"
     >
       <template #buttons="{ modeler }">
         <NButton ghost >

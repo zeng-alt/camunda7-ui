@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NInput, NInputNumber } from 'naive-ui'
+import { NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import ExternalTopicPicker from './ExternalTopicPicker'
 
 export default defineComponent({
   name: 'ExternalTaskFields',
@@ -48,11 +49,10 @@ export default defineComponent({
       <>
         <div class="mb-8px">
           <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.topic')}</div>
-          <NInput
+          <ExternalTopicPicker
             value={topic.value}
-            onUpdateValue={onTopicChange}
-            placeholder={t('bpmnPanel.placeholders.topic')}
-            size={props.formSize}
+            onUpdate:value={onTopicChange}
+            formSize={props.formSize}
           />
         </div>
         <div class="mb-8px">

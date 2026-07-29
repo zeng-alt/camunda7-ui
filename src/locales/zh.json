@@ -274,6 +274,7 @@
       "searchGroup": "搜索组...",
       "searchJavaClass": "搜索 Java 类...",
       "searchDelegateExpression": "搜索委托表达式...",
+      "searchTopic": "搜索主题...",
       "expression": "输入表达式...",
       "enter": "按下enter"
     },
