@@ -32,19 +32,24 @@ export default defineComponent({
     labelWidth: {
       type: Number,
       default: 80,
+    },
+    showName: {
+      type: Boolean,
+      default: true,
     }
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const name = ref('')
     const id = ref('')
-    const isExecutable = ref(false)
+    const isExecutable = ref(true)
 
     function syncFromModel() {
       const bo = props.businessObject
       if (!bo) return
       name.value = bo.name || ''
       id.value = (bo.id || props.element?.id) ?? ''
+      debugger
       isExecutable.value = bo.isExecutable !== false
     }
 
@@ -84,13 +89,17 @@ export default defineComponent({
                 placeholder={t('bpmnPanel.placeholders.elementId')}
               />
             </NFormItem>
-            <NFormItem label={t('bpmnPanel.fields.name')} path="name">
-              <NInput
-                value={name.value}
-                onUpdateValue={onNameChange}
-                placeholder={t('bpmnPanel.placeholders.elementName')}
-              />
-            </NFormItem>
+            {props.showName && (
+              <NFormItem label={t('bpmnPanel.fields.name')} path="name">
+                <NInput
+                  type="textarea"
+                  autosize={{ minRows: 1, maxRows: 4 }}
+                  value={name.value}
+                  onUpdateValue={onNameChange}
+                  placeholder={t('bpmnPanel.placeholders.elementName')}
+                />
+              </NFormItem>
+            )}
             {props.showExecutable && (
               <NFormItem label={t('bpmnPanel.fields.executable')} path="isExecutable">
                 <NSwitch value={isExecutable.value} onUpdateValue={onExecutableChange} />

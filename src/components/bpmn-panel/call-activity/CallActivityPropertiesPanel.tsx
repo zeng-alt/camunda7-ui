@@ -1,7 +1,7 @@
-import { defineComponent, computed, ref, watch, toRaw, type PropType } from 'vue'
-import { NTabs, NTabPane, NCheckbox } from 'naive-ui'
+import { defineComponent, computed, ref, type PropType } from 'vue'
+import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel } from '../base'
+import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel, AsyncCheckboxes } from '../base'
 import CallActivityExtraFields, { callActivityTabs } from './CallActivityExtraFields'
 
 function getCallActivitySubType(businessObject: any): string {
@@ -40,42 +40,6 @@ export default defineComponent({
     const taskType = computed(() => getCallActivitySubType(props.businessObject))
     const tabValue = ref('general')
 
-    const asyncBefore = ref(false)
-    const asyncAfter = ref(false)
-    const exclusive = ref(false)
-
-    function syncAsyncState() {
-      const bo = props.businessObject
-      if (!bo) return
-      asyncBefore.value = bo.asyncBefore === true
-      asyncAfter.value = bo.asyncAfter === true
-      exclusive.value = bo.exclusive !== false
-    }
-
-    watch(() => props.businessObject, syncAsyncState, { immediate: true })
-    watch(() => props.element, syncAsyncState, { immediate: true })
-
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
-
-    function onAsyncBeforeChange(val: boolean) {
-      asyncBefore.value = val
-      updateProperty('asyncBefore', val)
-    }
-
-    function onAsyncAfterChange(val: boolean) {
-      asyncAfter.value = val
-      updateProperty('asyncAfter', val)
-    }
-
-    function onExclusiveChange(val: boolean) {
-      exclusive.value = val
-      updateProperty('exclusive', val)
-    }
-
     return () => {
       const type = taskType.value
 
@@ -104,28 +68,19 @@ export default defineComponent({
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
                 />
-                <div class="mt-12px flex gap-16px">
-                  <NCheckbox
-                    checked={asyncBefore.value}
-                    onUpdateChecked={onAsyncBeforeChange}
-                    size={props.formSize === 'small' ? 'small' : 'medium'}
-                  >
-                    {t('bpmnPanel.fields.asyncBefore')}
-                  </NCheckbox>
-                  <NCheckbox
-                    checked={asyncAfter.value}
-                    onUpdateChecked={onAsyncAfterChange}
-                    size={props.formSize === 'small' ? 'small' : 'medium'}
-                  >
-                    {t('bpmnPanel.fields.asyncAfter')}
-                  </NCheckbox>
-                  <NCheckbox
-                    checked={exclusive.value}
-                    onUpdateChecked={onExclusiveChange}
-                    size={props.formSize === 'small' ? 'small' : 'medium'}
-                  >
-                    {t('bpmnPanel.fields.exclusive')}
-                  </NCheckbox>
+                <DocumentationPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+                <div class="mt-12px">
+                  <AsyncCheckboxes
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                  />
                 </div>
               </div>
             </NTabPane>
@@ -152,16 +107,6 @@ export default defineComponent({
             <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
               <div class="pt-8px">
                 <ExtensionPropertiesPanel
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                />
-              </div>
-            </NTabPane>
-            <NTabPane name="documentation" tab={t('bpmnPanel.tabs.documentation')}>
-              <div class="pt-8px">
-                <DocumentationPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

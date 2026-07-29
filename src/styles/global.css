@@ -118,6 +118,11 @@ body {
 .dark .camunda-props-scroll .n-tabs-nav {
   background: #18181c;
 }
+.camunda-props-scroll .n-tabs,
+.camunda-props-scroll .n-tabs .n-tabs-tab-pane-wrapper,
+.camunda-props-scroll .n-tabs .n-tabs-tab-pane {
+  overflow: visible !important;
+}
 
 .default-flow-icon {
   position: relative;

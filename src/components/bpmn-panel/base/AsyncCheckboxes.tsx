@@ -40,7 +40,7 @@ export default defineComponent({
       asyncAfter.value = bo.asyncAfter === true
       exclusive.value = bo.exclusive !== false
       retryTimeCycle.value = bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
-      jobPriority.value = bo.jobPriority ?? ''
+      jobPriority.value = bo.jobPriority ?? null
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })

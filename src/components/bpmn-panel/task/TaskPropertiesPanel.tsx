@@ -14,7 +14,6 @@ import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
 function getTaskSubType(businessObject: any): string {
   if (!businessObject) return ''
   const type: string = businessObject.$type || ''
-  debugger
   if (type.includes('UserTask')) return 'user-task'
   if (type.includes('ServiceTask')) return 'service-task'
   if (type.includes('SendTask')) return 'send-task'

@@ -59,7 +59,7 @@ export default defineComponent({
           <NTabs
             value={tabValue.value}
             onUpdateValue={(v: string) => { tabValue.value = v }}
-            size="small"
+            size={props.formSize}
             type="line"
           >
             <NTabPane name="general" tab={t('bpmnPanel.tabs.general')}>
