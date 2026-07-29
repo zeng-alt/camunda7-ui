@@ -117,7 +117,7 @@ export function setupDialog(NDialog: ExtendedDialogApi) {
   NDialog.confirm = function (option: ExtendedDialogOptions = {}) {
     const showIcon = !isNullOrUndef(option.title)
     const type = option.type || 'warning'
-    
+
     return NDialog[type]({
       showIcon,
       positiveText: t('common.confirm'),

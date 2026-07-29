@@ -40,24 +40,31 @@ export default defineComponent({
 
     return () => (
       <div class="p-8px">
-        <NTabs value={tabValue.value} onUpdateValue={(v: string) => { tabValue.value = v }} size={props.formSize} type="line">
+        <NTabs
+          value={tabValue.value}
+          onUpdateValue={(v: string) => {
+            tabValue.value = v
+          }}
+          size={props.formSize}
+          type="line"
+        >
           <NTabPane name="general" tab={t('bpmnPanel.tabs.general')}>
             <div class="pt-8px">
-                <GeneralPanel
-                  showName={false}
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-                <DocumentationPanel
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                />
-              </div>
+              <GeneralPanel
+                showName={false}
+                businessObject={props.businessObject}
+                element={props.element}
+                bpmnModeler={props.bpmnModeler}
+                formSize={props.formSize}
+                labelPlacement={props.labelPlacement}
+              />
+              <DocumentationPanel
+                businessObject={props.businessObject}
+                element={props.element}
+                bpmnModeler={props.bpmnModeler}
+                formSize={props.formSize}
+              />
+            </div>
           </NTabPane>
           <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
             <ExtensionPropertiesPanel

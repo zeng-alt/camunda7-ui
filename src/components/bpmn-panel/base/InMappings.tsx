@@ -43,11 +43,12 @@ export default defineComponent({
 
     function syncFromModel() {
       const bo = props.businessObject
-      if (!bo) { items.value = []; return }
+      if (!bo) {
+        items.value = []
+        return
+      }
       const extValues = bo.extensionElements?.values || []
-      const inEls = extValues.filter(
-        (v: any) => v.$type === 'camunda:In' && !v.variables
-      )
+      const inEls = extValues.filter((v: any) => v.$type === 'camunda:In' && !v.variables)
       items.value = inEls.map((el: any) => ({
         _key: keySeq++,
         type: el.sourceExpression !== undefined ? 'sourceExpression' : 'source',
@@ -73,7 +74,7 @@ export default defineComponent({
       }
 
       const others = bo.extensionElements.values.filter(
-        (v: any) => !(v.$type === 'camunda:In' && !v.variables)
+        (v: any) => !(v.$type === 'camunda:In' && !v.variables),
       )
 
       for (const item of itemList) {
@@ -148,7 +149,9 @@ export default defineComponent({
                   </NButton>
                 </div>
                 <div class="text-12px text-#666">
-                  {item.type === 'source' ? t('bpmnPanel.fields.inMappingSource') : t('bpmnPanel.fields.inMappingSourceExpression')}
+                  {item.type === 'source'
+                    ? t('bpmnPanel.fields.inMappingSource')
+                    : t('bpmnPanel.fields.inMappingSourceExpression')}
                 </div>
                 {item.type === 'source' ? (
                   <NInput
@@ -160,7 +163,9 @@ export default defineComponent({
                 ) : (
                   <NInput
                     value={item.sourceExpression}
-                    onUpdateValue={(v: string | null) => updateItem(index, 'sourceExpression', v ?? '')}
+                    onUpdateValue={(v: string | null) =>
+                      updateItem(index, 'sourceExpression', v ?? '')
+                    }
                     placeholder={t('bpmnPanel.placeholders.inMappingSourceExpression')}
                     size={props.formSize}
                   />

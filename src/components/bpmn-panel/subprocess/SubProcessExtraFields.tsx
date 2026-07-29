@@ -1,8 +1,7 @@
 import { defineComponent, type PropType } from 'vue'
 import { type ExtraFieldTab } from '../base'
 
-export const subProcessTabs: ExtraFieldTab[] = [
-]
+export const subProcessTabs: ExtraFieldTab[] = []
 
 export default defineComponent({
   name: 'SubProcessExtraFields',

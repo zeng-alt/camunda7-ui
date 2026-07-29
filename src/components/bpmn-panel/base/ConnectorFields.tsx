@@ -24,9 +24,7 @@ function createDefaultOutput(): OutputParam {
   return { _key: keySeq++, name: '', value: '' }
 }
 
-const connectorIdOptions = [
-  { label: 'HTTP Connector', value: 'http-connector' },
-]
+const connectorIdOptions = [{ label: 'HTTP Connector', value: 'http-connector' }]
 
 const httpMethodOptions = [
   { label: 'GET', value: 'GET' },
@@ -62,9 +60,7 @@ export default defineComponent({
       const bo = props.businessObject
       if (!bo) return
 
-      const conn = bo.extensionElements?.values?.find(
-        (v: any) => v.$type === 'camunda:Connector'
-      )
+      const conn = bo.extensionElements?.values?.find((v: any) => v.$type === 'camunda:Connector')
       if (!conn) {
         connectorId.value = ''
         method.value = 'GET'
@@ -93,8 +89,7 @@ export default defineComponent({
               key: e.key || '',
               value: e.value || '',
             }))
-          }
-          else if (p.name === 'body') body.value = p.value || ''
+          } else if (p.name === 'body') body.value = p.value || ''
         }
 
         const outputs: any[] = Array.isArray(io.outputParameters) ? io.outputParameters : []
@@ -122,14 +117,12 @@ export default defineComponent({
         bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
       }
 
-      let connector = bo.extensionElements.values.find(
-        (v: any) => v.$type === 'camunda:Connector'
-      )
+      let connector = bo.extensionElements.values.find((v: any) => v.$type === 'camunda:Connector')
 
       if (!connectorId.value) {
         if (connector) {
           bo.extensionElements.values = bo.extensionElements.values.filter(
-            (v: any) => v !== connector
+            (v: any) => v !== connector,
           )
           modeling.updateProperties(toRaw(props.element), {
             extensionElements: bo.extensionElements,
@@ -154,40 +147,36 @@ export default defineComponent({
       const inputParams: any[] = []
       if (method.value) {
         inputParams.push(
-          moddle.create('camunda:InputParameter', { name: 'method', value: method.value })
+          moddle.create('camunda:InputParameter', { name: 'method', value: method.value }),
         )
       }
       if (url.value) {
-        inputParams.push(
-          moddle.create('camunda:InputParameter', { name: 'url', value: url.value })
-        )
+        inputParams.push(moddle.create('camunda:InputParameter', { name: 'url', value: url.value }))
       }
 
       const validHeaders = headers.value.filter((h) => h.key)
       if (validHeaders.length > 0) {
         const entries = validHeaders.map((h) =>
-          moddle.create('camunda:Entry', { key: h.key, value: h.value })
+          moddle.create('camunda:Entry', { key: h.key, value: h.value }),
         )
         inputParams.push(
           moddle.create('camunda:InputParameter', {
             name: 'headers',
             definition: moddle.create('camunda:Map', { entries }),
-          })
+          }),
         )
       }
 
       if (body.value) {
         inputParams.push(
-          moddle.create('camunda:InputParameter', { name: 'body', value: body.value })
+          moddle.create('camunda:InputParameter', { name: 'body', value: body.value }),
         )
       }
 
       io.inputParameters = inputParams
       io.outputParameters = outputParams.value
         .filter((p) => p.name)
-        .map((p) =>
-          moddle.create('camunda:OutputParameter', { name: p.name, value: p.value })
-        )
+        .map((p) => moddle.create('camunda:OutputParameter', { name: p.name, value: p.value }))
 
       modeling.updateProperties(toRaw(props.element), {
         extensionElements: bo.extensionElements,
@@ -206,21 +195,44 @@ export default defineComponent({
       save()
     }
 
-    function onMethodChange(val: string | null) { method.value = val ?? 'GET'; save() }
-    function onUrlChange(val: string | null) { url.value = val ?? ''; save() }
-    function onBodyChange(val: string | null) { body.value = val ?? ''; save() }
+    function onMethodChange(val: string | null) {
+      method.value = val ?? 'GET'
+      save()
+    }
+    function onUrlChange(val: string | null) {
+      url.value = val ?? ''
+      save()
+    }
+    function onBodyChange(val: string | null) {
+      body.value = val ?? ''
+      save()
+    }
 
-    function addHeader() { headers.value = [...headers.value, createDefaultHeader()]; save() }
-    function removeHeader(index: number) { headers.value = headers.value.filter((_, i) => i !== index); save() }
+    function addHeader() {
+      headers.value = [...headers.value, createDefaultHeader()]
+      save()
+    }
+    function removeHeader(index: number) {
+      headers.value = headers.value.filter((_, i) => i !== index)
+      save()
+    }
     function updateHeader(index: number, field: 'key' | 'value', val: string) {
       headers.value = headers.value.map((h, i) => (i === index ? { ...h, [field]: val } : h))
       save()
     }
 
-    function addOutput() { outputParams.value = [...outputParams.value, createDefaultOutput()]; save() }
-    function removeOutput(index: number) { outputParams.value = outputParams.value.filter((_, i) => i !== index); save() }
+    function addOutput() {
+      outputParams.value = [...outputParams.value, createDefaultOutput()]
+      save()
+    }
+    function removeOutput(index: number) {
+      outputParams.value = outputParams.value.filter((_, i) => i !== index)
+      save()
+    }
     function updateOutput(index: number, field: 'name' | 'value', val: string) {
-      outputParams.value = outputParams.value.map((p, i) => (i === index ? { ...p, [field]: val } : p))
+      outputParams.value = outputParams.value.map((p, i) =>
+        i === index ? { ...p, [field]: val } : p,
+      )
       save()
     }
 

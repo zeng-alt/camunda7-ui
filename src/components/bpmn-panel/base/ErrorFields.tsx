@@ -1,5 +1,5 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NInput, NSelect, NButton, NEmpty } from 'naive-ui'
+import { NInput, NSelect, NButton } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { ExpressionField } from '.'
 
@@ -46,9 +46,7 @@ export default defineComponent({
 
     function getGlobalErrorOptions(): { label: string; value: string }[] {
       const definitions = getDefinitions(toRaw(props.businessObject))
-      const elements = definitions?.rootElements?.filter(
-        (e: any) => e.$type === 'bpmn:Error'
-      ) || []
+      const elements = definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Error') || []
       return elements.map((el: any) => ({
         label: el.name || el.id || 'Unnamed',
         value: el.id,
@@ -66,9 +64,7 @@ export default defineComponent({
 
     function findPropertiesContainer(extensionElements: any): any {
       if (!extensionElements?.values) return null
-      return extensionElements.values.find(
-        (v: any) => v.$type === 'camunda:Properties'
-      ) || null
+      return extensionElements.values.find((v: any) => v.$type === 'camunda:Properties') || null
     }
 
     function syncFromModel() {
@@ -205,9 +201,7 @@ export default defineComponent({
 
     function onNameChange(index: number, val: string | null) {
       const item = items.value[index]
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, name: val ?? '' } : item,
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, name: val ?? '' } : item))
       items.value = next
       save()
 
@@ -225,9 +219,7 @@ export default defineComponent({
 
     function onCodeChange(index: number, val: string | null) {
       const item = items.value[index]
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, code: val ?? '' } : item,
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, code: val ?? '' } : item))
       items.value = next
       save()
 
@@ -293,7 +285,9 @@ export default defineComponent({
                 </div>
                 <div class="flex gap-4px">
                   <div style="flex:1">
-                    <div class="mb-2px text-12px text-#666">{t('bpmnPanel.fields.listenerClass')}</div>
+                    <div class="mb-2px text-12px text-#666">
+                      {t('bpmnPanel.fields.listenerClass')}
+                    </div>
                     <NInput
                       value={item.name}
                       onUpdateValue={(v: string | null) => onNameChange(index, v)}
@@ -321,7 +315,9 @@ export default defineComponent({
                   />
                 </div>
                 <div>
-                  <div class="mb-2px text-12px text-#666">{t('bpmnPanel.fields.errorThrowExpression')}</div>
+                  <div class="mb-2px text-12px text-#666">
+                    {t('bpmnPanel.fields.errorThrowExpression')}
+                  </div>
                   <ExpressionField
                     value={item.throwExpression}
                     onUpdateValue={(v: string) => onThrowExpressionChange(index, v)}

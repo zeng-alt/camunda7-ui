@@ -38,9 +38,7 @@ const assignmentTypeOptions = [
 
 function findInputOutput(extensionElements: any): any {
   if (!extensionElements?.values) return null
-  return extensionElements.values.find(
-    (v: any) => v.$type === 'camunda:InputOutput'
-  ) || null
+  return extensionElements.values.find((v: any) => v.$type === 'camunda:InputOutput') || null
 }
 
 function createDefaultItem(): ParamItem {
@@ -92,10 +90,13 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const items = ref<ParamItem[]>([])
 
-    const titleKey = props.direction === 'input' ? 'bpmnPanel.fields.inputs' : 'bpmnPanel.fields.outputs'
+    const titleKey =
+      props.direction === 'input' ? 'bpmnPanel.fields.inputs' : 'bpmnPanel.fields.outputs'
     const paramField = props.direction === 'input' ? 'inputParameters' : 'outputParameters'
-    const paramType = props.direction === 'input' ? 'camunda:InputParameter' : 'camunda:OutputParameter'
-    const addLabel = props.direction === 'input' ? 'bpmnPanel.buttons.addInput' : 'bpmnPanel.buttons.addOutput'
+    const paramType =
+      props.direction === 'input' ? 'camunda:InputParameter' : 'camunda:OutputParameter'
+    const addLabel =
+      props.direction === 'input' ? 'bpmnPanel.buttons.addInput' : 'bpmnPanel.buttons.addOutput'
 
     function readParam(p: any): ParamItem {
       const definition = p.definition
@@ -226,9 +227,7 @@ export default defineComponent({
     }
 
     function updateItem(index: number, field: string, val: any) {
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, [field]: val } : item
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, [field]: val } : item))
       items.value = next
       save(next)
     }
@@ -237,7 +236,7 @@ export default defineComponent({
       const next = items.value.map((item, i) =>
         i === paramIndex
           ? { ...item, listItems: [...item.listItems, createDefaultListItem()] }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -247,7 +246,7 @@ export default defineComponent({
       const next = items.value.map((item, i) =>
         i === paramIndex
           ? { ...item, listItems: item.listItems.filter((_, li) => li !== listIndex) }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -259,10 +258,10 @@ export default defineComponent({
           ? {
               ...item,
               listItems: item.listItems.map((li, liIdx) =>
-                liIdx === listIndex ? { ...li, value: val } : li
+                liIdx === listIndex ? { ...li, value: val } : li,
               ),
             }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -272,7 +271,7 @@ export default defineComponent({
       const next = items.value.map((item, i) =>
         i === paramIndex
           ? { ...item, mapEntries: [...item.mapEntries, createDefaultMapEntry()] }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -282,22 +281,27 @@ export default defineComponent({
       const next = items.value.map((item, i) =>
         i === paramIndex
           ? { ...item, mapEntries: item.mapEntries.filter((_, ei) => ei !== entryIndex) }
-          : item
+          : item,
       )
       items.value = next
       save(next)
     }
 
-    function updateMapEntry(paramIndex: number, entryIndex: number, field: 'key' | 'value', val: string) {
+    function updateMapEntry(
+      paramIndex: number,
+      entryIndex: number,
+      field: 'key' | 'value',
+      val: string,
+    ) {
       const next = items.value.map((item, i) =>
         i === paramIndex
           ? {
               ...item,
               mapEntries: item.mapEntries.map((me, mei) =>
-                mei === entryIndex ? { ...me, [field]: val } : me
+                mei === entryIndex ? { ...me, [field]: val } : me,
               ),
             }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -324,13 +328,19 @@ export default defineComponent({
                     <NInput
                       value={item.name}
                       onUpdateValue={(v: string | null) => updateItem(index, 'name', v ?? '')}
-                      placeholder={props.direction === 'input' ? t('bpmnPanel.placeholders.inputName') : t('bpmnPanel.placeholders.outputName')}
+                      placeholder={
+                        props.direction === 'input'
+                          ? t('bpmnPanel.placeholders.inputName')
+                          : t('bpmnPanel.placeholders.outputName')
+                      }
                       size={props.formSize}
                       style="flex:3;min-width:100px"
                     />
                     <NSelect
                       value={item.assignmentType}
-                      onUpdateValue={(v: string | null) => updateItem(index, 'assignmentType', v ?? 'value')}
+                      onUpdateValue={(v: string | null) =>
+                        updateItem(index, 'assignmentType', v ?? 'value')
+                      }
                       options={assignmentTypeOptions}
                       size={props.formSize}
                       style="min-width:120px"
@@ -354,12 +364,19 @@ export default defineComponent({
                           <span class="text-12px text-#888 w-16px">{liIdx + 1}.</span>
                           <NInput
                             value={li.value}
-                            onUpdateValue={(v: string | null) => updateListItem(index, liIdx, v ?? '')}
+                            onUpdateValue={(v: string | null) =>
+                              updateListItem(index, liIdx, v ?? '')
+                            }
                             placeholder={t('bpmnPanel.placeholders.parameterValue')}
                             size={props.formSize}
                             style="flex:1"
                           />
-                          <NButton text type="error" size="tiny" onClick={() => removeListItem(index, liIdx)}>
+                          <NButton
+                            text
+                            type="error"
+                            size="tiny"
+                            onClick={() => removeListItem(index, liIdx)}
+                          >
                             {t('bpmnPanel.buttons.delete')}
                           </NButton>
                         </div>
@@ -375,7 +392,9 @@ export default defineComponent({
                         <div class="flex gap-4px items-center">
                           <NInput
                             value={me.key}
-                            onUpdateValue={(v: string | null) => updateMapEntry(index, mei, 'key', v ?? '')}
+                            onUpdateValue={(v: string | null) =>
+                              updateMapEntry(index, mei, 'key', v ?? '')
+                            }
                             placeholder={t('bpmnPanel.placeholders.parameterKey')}
                             size={props.formSize}
                             style="flex:1"
@@ -383,12 +402,19 @@ export default defineComponent({
                           <span class="text-12px text-#888">:</span>
                           <NInput
                             value={me.value}
-                            onUpdateValue={(v: string | null) => updateMapEntry(index, mei, 'value', v ?? '')}
+                            onUpdateValue={(v: string | null) =>
+                              updateMapEntry(index, mei, 'value', v ?? '')
+                            }
                             placeholder={t('bpmnPanel.placeholders.parameterValue')}
                             size={props.formSize}
                             style="flex:1"
                           />
-                          <NButton text type="error" size="tiny" onClick={() => removeMapEntry(index, mei)}>
+                          <NButton
+                            text
+                            type="error"
+                            size="tiny"
+                            onClick={() => removeMapEntry(index, mei)}
+                          >
                             {t('bpmnPanel.buttons.delete')}
                           </NButton>
                         </div>

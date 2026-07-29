@@ -17,7 +17,8 @@ export interface CamundaConfigContext extends CamundaConfig {
   themeOverridesRef: Ref<Record<string, any> | undefined>
 }
 
-export const configProviderInjectionKey: InjectionKey<CamundaConfigContext> = Symbol('CamundaConfigProvider')
+export const configProviderInjectionKey: InjectionKey<CamundaConfigContext> =
+  Symbol('CamundaConfigProvider')
 
 export function useCamundaConfig() {
   const config = inject(configProviderInjectionKey, null)

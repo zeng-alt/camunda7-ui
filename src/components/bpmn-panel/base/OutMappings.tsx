@@ -43,11 +43,12 @@ export default defineComponent({
 
     function syncFromModel() {
       const bo = props.businessObject
-      if (!bo) { items.value = []; return }
+      if (!bo) {
+        items.value = []
+        return
+      }
       const extValues = bo.extensionElements?.values || []
-      const outEls = extValues.filter(
-        (v: any) => v.$type === 'camunda:Out' && !v.variables
-      )
+      const outEls = extValues.filter((v: any) => v.$type === 'camunda:Out' && !v.variables)
       items.value = outEls.map((el: any) => ({
         _key: keySeq++,
         type: el.sourceExpression !== undefined ? 'sourceExpression' : 'source',
@@ -73,7 +74,7 @@ export default defineComponent({
       }
 
       const others = bo.extensionElements.values.filter(
-        (v: any) => !(v.$type === 'camunda:Out' && !v.variables)
+        (v: any) => !(v.$type === 'camunda:Out' && !v.variables),
       )
 
       for (const item of itemList) {
@@ -148,7 +149,9 @@ export default defineComponent({
                   </NButton>
                 </div>
                 <div class="text-12px text-#666">
-                  {item.type === 'source' ? t('bpmnPanel.fields.outMappingSource') : t('bpmnPanel.fields.outMappingSourceExpression')}
+                  {item.type === 'source'
+                    ? t('bpmnPanel.fields.outMappingSource')
+                    : t('bpmnPanel.fields.outMappingSourceExpression')}
                 </div>
                 {item.type === 'source' ? (
                   <NInput
@@ -160,7 +163,9 @@ export default defineComponent({
                 ) : (
                   <NInput
                     value={item.sourceExpression}
-                    onUpdateValue={(v: string | null) => updateItem(index, 'sourceExpression', v ?? '')}
+                    onUpdateValue={(v: string | null) =>
+                      updateItem(index, 'sourceExpression', v ?? '')
+                    }
                     placeholder={t('bpmnPanel.placeholders.outMappingSourceExpression')}
                     size={props.formSize}
                   />

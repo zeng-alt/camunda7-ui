@@ -36,7 +36,7 @@ export default defineComponent({
     showName: {
       type: Boolean,
       default: true,
-    }
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -49,7 +49,6 @@ export default defineComponent({
       if (!bo) return
       name.value = bo.name || ''
       id.value = (bo.id || props.element?.id) ?? ''
-      debugger
       isExecutable.value = bo.isExecutable !== false
     }
 
@@ -81,32 +80,36 @@ export default defineComponent({
       if (!props.businessObject) return null
 
       return (
-          <NForm size={props.formSize} label-placement={props.labelPlacement} label-align="left" label-width={props.labelWidth}>
-            <NFormItem label={t('bpmnPanel.fields.id')} path="id">
+        <NForm
+          size={props.formSize}
+          label-placement={props.labelPlacement}
+          label-align="left"
+          label-width={props.labelWidth}
+        >
+          <NFormItem label={t('bpmnPanel.fields.id')} path="id">
+            <NInput
+              value={id.value}
+              onUpdateValue={onIdChange}
+              placeholder={t('bpmnPanel.placeholders.elementId')}
+            />
+          </NFormItem>
+          {props.showName && (
+            <NFormItem label={t('bpmnPanel.fields.name')} path="name">
               <NInput
-                value={id.value}
-                onUpdateValue={onIdChange}
-                placeholder={t('bpmnPanel.placeholders.elementId')}
+                type="textarea"
+                autosize={{ minRows: 1, maxRows: 4 }}
+                value={name.value}
+                onUpdateValue={onNameChange}
+                placeholder={t('bpmnPanel.placeholders.elementName')}
               />
             </NFormItem>
-            {props.showName && (
-              <NFormItem label={t('bpmnPanel.fields.name')} path="name">
-                <NInput
-                  type="textarea"
-                  autosize={{ minRows: 1, maxRows: 4 }}
-                  value={name.value}
-                  onUpdateValue={onNameChange}
-                  placeholder={t('bpmnPanel.placeholders.elementName')}
-                />
-              </NFormItem>
-            )}
-            {props.showExecutable && (
-              <NFormItem label={t('bpmnPanel.fields.executable')} path="isExecutable">
-                <NSwitch value={isExecutable.value} onUpdateValue={onExecutableChange} />
-              </NFormItem>
-            )}
-          </NForm>
-
+          )}
+          {props.showExecutable && (
+            <NFormItem label={t('bpmnPanel.fields.executable')} path="isExecutable">
+              <NSwitch value={isExecutable.value} onUpdateValue={onExecutableChange} />
+            </NFormItem>
+          )}
+        </NForm>
       )
     }
   },

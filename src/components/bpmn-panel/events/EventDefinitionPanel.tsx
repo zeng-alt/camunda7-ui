@@ -91,9 +91,19 @@ type RefConfig = {
 }
 
 const refTypeConfig: Record<string, RefConfig> = {
-  Error: { refKey: 'errorRef', bpmnType: 'bpmn:Error', labelAttr: 'errorCode', displayAttr: 'errorCode' },
+  Error: {
+    refKey: 'errorRef',
+    bpmnType: 'bpmn:Error',
+    labelAttr: 'errorCode',
+    displayAttr: 'errorCode',
+  },
   Signal: { refKey: 'signalRef', bpmnType: 'bpmn:Signal', labelAttr: 'name', displayAttr: 'name' },
-  Escalation: { refKey: 'escalationRef', bpmnType: 'bpmn:Escalation', labelAttr: 'escalationCode', displayAttr: 'escalationCode' },
+  Escalation: {
+    refKey: 'escalationRef',
+    bpmnType: 'bpmn:Escalation',
+    labelAttr: 'escalationCode',
+    displayAttr: 'escalationCode',
+  },
 }
 
 export default defineComponent({
@@ -149,13 +159,17 @@ export default defineComponent({
       const moddle = getModeler().get('moddle')
 
       if (!value) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { [cfg.refKey]: undefined })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
+          [cfg.refKey]: undefined,
+        })
         return
       }
 
       const existingRef = ed[cfg.refKey]
       if (existingRef) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(existingRef), { [cfg.labelAttr]: value })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(existingRef), {
+          [cfg.labelAttr]: value,
+        })
         return
       }
 
@@ -176,60 +190,110 @@ export default defineComponent({
       const type = defType.value
 
       if (type === 'none') {
-        return (
-          <div class="pt-8px text-12px text-#888">
-            {t('bpmnPanel.eventDef.noEventDef')}
-          </div>
-        )
+        return <div class="pt-8px text-12px text-#888">{t('bpmnPanel.eventDef.noEventDef')}</div>
       }
 
       if (type === 'Timer') {
-        return <TimerDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
-      }
-
-      if (type === 'Conditional') {
-        return <ConditionalDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} showVariableEvents={props.showVariableEvents} />
-      }
-
-      if (type === 'Link') {
-        return <LinkDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
-      }
-
-      if (type === 'Cancel' || type === 'Terminate') {
         return (
-          <div class="text-12px text-#888">
-            {t('bpmnPanel.eventDef.noConfig')}
-          </div>
+          <TimerDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
         )
       }
 
+      if (type === 'Conditional') {
+        return (
+          <ConditionalDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+            showVariableEvents={props.showVariableEvents}
+          />
+        )
+      }
+
+      if (type === 'Link') {
+        return (
+          <LinkDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
+      }
+
+      if (type === 'Cancel' || type === 'Terminate') {
+        return <div class="text-12px text-#888">{t('bpmnPanel.eventDef.noConfig')}</div>
+      }
+
       if (type === 'Compensate') {
-        return <CompensationDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return (
+          <CompensationDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
       }
 
       if (type === 'Message') {
-        return <MessageDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return (
+          <MessageDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
       }
 
       if (type === 'Signal') {
-        return <SignalDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return (
+          <SignalDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
       }
 
       if (type === 'Error') {
-        return <ErrorDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return (
+          <ErrorDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
       }
 
       if (type === 'Escalation') {
-        return <EscalationDefinitionFields businessObject={props.businessObject} element={props.element} bpmnModeler={props.bpmnModeler} formSize={props.formSize} />
+        return (
+          <EscalationDefinitionFields
+            businessObject={props.businessObject}
+            element={props.element}
+            bpmnModeler={props.bpmnModeler}
+            formSize={props.formSize}
+          />
+        )
       }
 
       if (type === 'Multiple' || type === 'ParallelMultiple') {
         const ed = props.businessObject?.eventDefinitions?.[0]
         const childDefs = ed?.eventDefinitions
-        const childTypes = childDefs?.map((d: any) => {
-          const raw = (d.$type || '').replace('bpmn:', '').replace('EventDefinition', '')
-          return t(getEventDefLabelKey(raw))
-        }) || []
+        const childTypes =
+          childDefs?.map((d: any) => {
+            const raw = (d.$type || '').replace('bpmn:', '').replace('EventDefinition', '')
+            return t(getEventDefLabelKey(raw))
+          }) || []
 
         return (
           <div>
@@ -240,9 +304,7 @@ export default defineComponent({
                 ))}
               </div>
             ) : (
-              <div class="text-12px text-#888">
-                {t('bpmnPanel.eventDef.multipleEmpty')}
-              </div>
+              <div class="text-12px text-#888">{t('bpmnPanel.eventDef.multipleEmpty')}</div>
             )}
           </div>
         )

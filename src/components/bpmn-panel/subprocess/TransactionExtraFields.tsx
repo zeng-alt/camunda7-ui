@@ -2,9 +2,7 @@ import { defineComponent, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
 import { type ExtraFieldTab } from '../base'
 
-export const transactionTabs: ExtraFieldTab[] = [
-
-]
+export const transactionTabs: ExtraFieldTab[] = []
 
 export default defineComponent({
   name: 'TransactionExtraFields',
@@ -19,7 +17,6 @@ export default defineComponent({
     const { t } = useCamundaI18n()
 
     return () => {
-
       return null
     }
   },

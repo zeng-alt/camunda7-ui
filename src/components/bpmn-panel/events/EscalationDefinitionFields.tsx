@@ -28,7 +28,8 @@ export default defineComponent({
 
     function buildEscalationOptions() {
       const definitions = getDefinitions(toRaw(props.businessObject))
-      const elements = definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Escalation') || []
+      const elements =
+        definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Escalation') || []
       const opts: { label: string; value: string }[] = [
         { label: t('bpmnPanel.eventDef.none'), value: '__none__' },
         { label: t('bpmnPanel.eventDef.createNew'), value: '__create__' },
@@ -62,7 +63,9 @@ export default defineComponent({
         selectedEscId.value = null
         selectedEscName.value = ''
         selectedEscCode.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { escalationRef: undefined })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
+          escalationRef: undefined,
+        })
         return
       }
 
@@ -130,7 +133,9 @@ export default defineComponent({
               placeholder={t('bpmnPanel.fields.escalationName')}
               size={props.formSize}
             />
-            <div class="mt-8px mb-4px text-12px text-#666">{t('bpmnPanel.fields.escalationCode')}</div>
+            <div class="mt-8px mb-4px text-12px text-#666">
+              {t('bpmnPanel.fields.escalationCode')}
+            </div>
             <NInput
               value={selectedEscCode.value}
               onUpdateValue={onEscalationCodeChange}

@@ -32,7 +32,8 @@ export default defineComponent({
 
     function buildMessageOptions() {
       const definitions = getDefinitions(toRaw(props.businessObject))
-      const elements = definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Message') || []
+      const elements =
+        definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Message') || []
       const opts: { label: string; value: string }[] = [
         { label: t('bpmnPanel.eventDef.none'), value: '__none__' },
         { label: t('bpmnPanel.eventDef.createNew'), value: '__create__' },
@@ -63,7 +64,9 @@ export default defineComponent({
       if (value === '__none__') {
         selectedMsgId.value = null
         selectedMsgName.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(target), { [msgKey()]: undefined })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(target), {
+          [msgKey()]: undefined,
+        })
         return
       }
 

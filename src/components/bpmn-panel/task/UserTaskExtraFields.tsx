@@ -2,7 +2,7 @@ import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from '../base'
-import FormPanel from '../base/FormPanel'
+import { UserPicker, GroupPicker, FormPanel } from '../base'
 
 export const userTaskTabs: ExtraFieldTab[] = [
   { name: 'userTask', labelKey: 'bpmnPanel.tabs.userTask' },
@@ -48,14 +48,14 @@ export default defineComponent({
       modeling.updateProperties(toRaw(props.element), { [key]: value })
     }
 
-    function onAssigneeChange(val: string | null) {
-      assignee.value = val ?? ''
-      updateProperty('assignee', val ?? '')
+    function onAssigneeChange(val: string) {
+      assignee.value = val
+      updateProperty('assignee', val)
     }
 
-    function onCandidateUsersChange(val: string | null) {
-      candidateUsers.value = val ?? ''
-      updateProperty('candidateUsers', val ?? '')
+    function onCandidateUsersChange(val: string) {
+      candidateUsers.value = val
+      updateProperty('candidateUsers', val)
     }
 
     function onCandidateGroupsChange(val: string | null) {
@@ -95,30 +95,33 @@ export default defineComponent({
       return (
         <div class="pt-8px">
           <div class="mt-12px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.assignee')}</div>
-            <NInput
+            <UserPicker
               value={assignee.value}
-              onUpdateValue={onAssigneeChange}
+              onUpdate:value={onAssigneeChange}
+              multiple={false}
+              formSize={props.formSize}
+              label={t('bpmnPanel.fields.assignee')}
               placeholder={t('bpmnPanel.placeholders.assignee')}
-              size={props.formSize}
             />
           </div>
           <div class="mt-12px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.candidateUsers')}</div>
-            <NInput
+            <UserPicker
               value={candidateUsers.value}
-              onUpdateValue={onCandidateUsersChange}
+              onUpdate:value={onCandidateUsersChange}
+              multiple
+              formSize={props.formSize}
+              label={t('bpmnPanel.fields.candidateUsers')}
               placeholder={t('bpmnPanel.placeholders.candidateUsers')}
-              size={props.formSize}
             />
           </div>
           <div class="mt-12px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.candidateGroups')}</div>
-            <NInput
+            <GroupPicker
               value={candidateGroups.value}
-              onUpdateValue={onCandidateGroupsChange}
+              onUpdate:value={onCandidateGroupsChange}
+              multiple
+              formSize={props.formSize}
+              label={t('bpmnPanel.fields.candidateGroups')}
               placeholder={t('bpmnPanel.placeholders.candidateGroups')}
-              size={props.formSize}
             />
           </div>
           <div class="mt-12px">

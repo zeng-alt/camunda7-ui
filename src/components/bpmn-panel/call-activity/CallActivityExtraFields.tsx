@@ -66,7 +66,9 @@ export default defineComponent({
       const bo = props.businessObject
       if (!bo) return null
       const extValues = bo.extensionElements?.values || []
-      return extValues.find((v: any) => v.$type === 'camunda:In' && v.businessKey !== undefined) || null
+      return (
+        extValues.find((v: any) => v.$type === 'camunda:In' && v.businessKey !== undefined) || null
+      )
     }
 
     function syncFromModel() {
@@ -177,13 +179,15 @@ export default defineComponent({
       }
 
       const others = bo.extensionElements.values.filter(
-        (v: any) => !(v.$type === 'camunda:In' && v.businessKey !== undefined)
+        (v: any) => !(v.$type === 'camunda:In' && v.businessKey !== undefined),
       )
 
       if (businessKey.value) {
-        others.push(moddle.create('camunda:In', {
-          businessKey: businessKeyExpression.value,
-        }))
+        others.push(
+          moddle.create('camunda:In', {
+            businessKey: businessKeyExpression.value,
+          }),
+        )
       }
 
       bo.extensionElements.values = others
@@ -217,7 +221,8 @@ export default defineComponent({
       if (newType === 'class') {
         attrs.variableMappingClass = variableMappingClass.value || undefined
       } else if (newType === 'delegateExpression') {
-        attrs.variableMappingDelegateExpression = variableMappingDelegateExpression.value || undefined
+        attrs.variableMappingDelegateExpression =
+          variableMappingDelegateExpression.value || undefined
       }
 
       if (props.bpmnModeler && props.element) {
@@ -242,7 +247,9 @@ export default defineComponent({
 
     return () => (
       <div class="flex flex-col gap-12px pt-8px">
-        <div class="text-12px font-bold text-#333 dark:text-#ccc">{t('bpmnPanel.fields.calledElement')}</div>
+        <div class="text-12px font-bold text-#333 dark:text-#ccc">
+          {t('bpmnPanel.fields.calledElement')}
+        </div>
         <div>
           <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElementType')}</div>
           <NSelect
@@ -277,7 +284,9 @@ export default defineComponent({
         {currentType.value !== 'none' && (
           <>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElementBinding')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.calledElementBinding')}
+              </div>
               <NSelect
                 value={calledElementBinding.value}
                 onUpdateValue={onBindingChange}
@@ -287,7 +296,9 @@ export default defineComponent({
             </div>
             {calledElementBinding.value === 'version' && (
               <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElementVersion')}</div>
+                <div class="mb-4px text-12px text-#666">
+                  {t('bpmnPanel.fields.calledElementVersion')}
+                </div>
                 <NInput
                   value={calledElementVersion.value}
                   onUpdateValue={onVersionChange}
@@ -297,7 +308,9 @@ export default defineComponent({
               </div>
             )}
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElementTenantId')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.calledElementTenantId')}
+              </div>
               <NInput
                 value={calledElementTenantId.value}
                 onUpdateValue={onTenantIdChange}
@@ -319,7 +332,9 @@ export default defineComponent({
         </div>
         {businessKey.value && (
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.calledElementBusinessKeyExpression')}</div>
+            <div class="mb-4px text-12px text-#666">
+              {t('bpmnPanel.fields.calledElementBusinessKeyExpression')}
+            </div>
             <ExpressionField
               value={businessKeyExpression.value}
               onUpdateValue={onBusinessKeyExpressionChange}
@@ -331,7 +346,9 @@ export default defineComponent({
           <>
             <div class="border-t border-solid border-light_border dark:border-dark_border my-4px" />
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.delegateVariableMapping')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.delegateVariableMapping')}
+              </div>
               <NSelect
                 value={delegateMappingType.value}
                 onUpdateValue={onDelegateMappingTypeChange}
@@ -341,7 +358,9 @@ export default defineComponent({
             </div>
             {delegateMappingType.value === 'class' && (
               <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.variableMappingClass')}</div>
+                <div class="mb-4px text-12px text-#666">
+                  {t('bpmnPanel.fields.variableMappingClass')}
+                </div>
                 <JavaClassField
                   value={variableMappingClass.value}
                   onUpdateValue={onDelegateMappingClassChange}
@@ -351,7 +370,9 @@ export default defineComponent({
             )}
             {delegateMappingType.value === 'delegateExpression' && (
               <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.variableMappingDelegateExpression')}</div>
+                <div class="mb-4px text-12px text-#666">
+                  {t('bpmnPanel.fields.variableMappingDelegateExpression')}
+                </div>
                 <DelegateExpressionField
                   value={variableMappingDelegateExpression.value}
                   onUpdateValue={onDelegateMappingExpressionChange}

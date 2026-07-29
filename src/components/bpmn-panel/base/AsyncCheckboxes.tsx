@@ -39,7 +39,8 @@ export default defineComponent({
       asyncBefore.value = bo.asyncBefore === true
       asyncAfter.value = bo.asyncAfter === true
       exclusive.value = bo.exclusive !== false
-      retryTimeCycle.value = bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+      retryTimeCycle.value =
+        bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
       jobPriority.value = bo.jobPriority ?? null
     }
 
@@ -80,7 +81,13 @@ export default defineComponent({
     return () => (
       <div>
         <div class="flex flex-row gap-8px">
-          <NFormItem label={t('bpmnPanel.fields.asyncContinuousExecution')} size={props.formSize} label-placement="top" label-align="left" label-width="80">
+          <NFormItem
+            label={t('bpmnPanel.fields.asyncContinuousExecution')}
+            size={props.formSize}
+            label-placement="top"
+            label-align="left"
+            label-width="80"
+          >
             <NCheckbox
               checked={asyncBefore.value}
               onUpdateChecked={onAsyncBeforeChange}

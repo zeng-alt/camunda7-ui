@@ -72,7 +72,9 @@ export default defineComponent({
           </div>
 
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.externalTaskPriority')}</div>
+            <div class="mb-4px text-12px text-#666">
+              {t('bpmnPanel.fields.externalTaskPriority')}
+            </div>
             <NInputNumber
               value={priority.value}
               onUpdateValue={onPriorityChange}

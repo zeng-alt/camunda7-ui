@@ -53,7 +53,12 @@ export default defineComponent({
         conditionType.value = 'expression'
       }
       const raw = def['camunda:variableEvents'] || def.variableEvents || ''
-      variableEvents.value = raw ? raw.split(',').map((s: string) => s.trim()).filter(Boolean) : []
+      variableEvents.value = raw
+        ? raw
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter(Boolean)
+        : []
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true, deep: true })

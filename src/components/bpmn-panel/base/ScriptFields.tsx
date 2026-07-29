@@ -92,9 +92,10 @@ export default defineComponent({
       }
     }
 
-    const displayFormat = () => isAuto() ? localFormat.value : props.scriptFormat
-    const displayValue = () => isAuto() ? localValue.value : props.scriptValue
-    const displayResultVariable = () => isResultVarAuto() ? localResultVariable.value : props.resultVariable
+    const displayFormat = () => (isAuto() ? localFormat.value : props.scriptFormat)
+    const displayValue = () => (isAuto() ? localValue.value : props.scriptValue)
+    const displayResultVariable = () =>
+      isResultVarAuto() ? localResultVariable.value : props.resultVariable
 
     function renderBody() {
       return (
@@ -122,7 +123,9 @@ export default defineComponent({
             </div>
           )}
           <div>
-            {!props.compact && <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptValue')}</div>}
+            {!props.compact && (
+              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptValue')}</div>
+            )}
             <NInput
               value={displayValue()}
               onUpdateValue={(v: string | null) => onValueChange(v ?? '')}
@@ -147,9 +150,7 @@ export default defineComponent({
     }
 
     return () => (
-      <div class={`flex flex-col gap-${props.compact ? '4px' : '8px'}`}>
-        {renderBody()}
-      </div>
+      <div class={`flex flex-col gap-${props.compact ? '4px' : '8px'}`}>{renderBody()}</div>
     )
   },
 })

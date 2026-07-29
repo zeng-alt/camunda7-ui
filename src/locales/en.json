@@ -189,7 +189,9 @@
       "outMappingTarget": "Target",
       "linkName": "Link Name",
       "escalationName": "Escalation Name",
-      "escalationCode": "Escalation Code"
+      "escalationCode": "Escalation Code",
+      "userSelection": "User Selection",
+      "groupSelection": "Group Selection"
     },
     "placeholders": {
       "elementId": "Element ID",
@@ -269,7 +271,13 @@
       "inMappingTarget": "e.g. targetVariable",
       "outMappingSource": "e.g. myVariable",
       "outMappingSourceExpression": "e.g. ${expression}",
-      "outMappingTarget": "e.g. targetVariable"
+      "outMappingTarget": "e.g. targetVariable",
+      "searchUser": "Search user...",
+      "searchGroup": "Search group...",
+      "searchJavaClass": "Search Java class...",
+      "searchDelegateExpression": "Search delegate expression...",
+      "expression": "Enter expression...",
+      "enter": "Press down enter"
     },
     "buttons": {
       "delete": "Delete",
@@ -287,7 +295,12 @@
       "addError": "Add Error",
       "preview": "Preview",
       "addInMapping": "Add In Mapping",
-      "addOutMapping": "Add Out Mapping"
+      "addOutMapping": "Add Out Mapping",
+      "fixedValue": "Fixed Value",
+      "variable": "Variable",
+      "search": "Search",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
     },
     "categories": {
       "startEvent": "Start Event",
@@ -340,7 +353,8 @@
       "input": "Inputs",
       "output": "Outputs",
       "implementation": "Implementation",
-      "fieldInjections": "Field Injections"
+      "fieldInjections": "Field Injections",
+      "custom": "Custom"
     },
     "options": {
       "formTypeNone": "None",
@@ -366,7 +380,8 @@
       "noSelection": "Select an element to edit its properties",
       "noProcess": "No process selected",
       "comingSoon": "properties (coming soon)",
-      "noFields": "No fields yet"
+      "noFields": "No fields yet",
+      "noData": "No data"
     },
     "formPreview": {
       "noFields": "No form fields configured",
@@ -393,7 +408,10 @@
       "timerDate": "A specific point in time defined as ISO 8601 combined date and time representation.\n\n2019-10-01T12:00:00Z - UTC time\n2019-10-02T08:09:40+02:00 - UTC plus 2 hours zone offset",
       "timerDuration": "A time duration defined as ISO 8601 durations format.\n\nPT15S - 15 seconds\nPT1H30M - 1 hour and 30 minutes\nP14D - 14 days",
       "timerCycle": "A cycle defined as ISO 8601 repeating intervals format, or a cron expression.\n\nR5/PT10S - every 10 seconds, up to 5 times\nR/P1D - every day, infinitely\n0 0 9-17 * * MON-FRI - every hour on the hour from 9-5 p.m. UTC Monday-Friday",
-      "variableEvents": "Specify more than one variable change event as a comma separated list.<br/><br/>Variable change events are:<br/><br/>create<br/>update<br/>delete<br/><br/>Documentation: <a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>"
+      "variableEvents": "Specify more than one variable change event as a comma separated list.<br/><br/>Variable change events are:<br/><br/>create<br/>update<br/>delete<br/><br/>Documentation: <a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>",
+      "toggleMode": "Toggle fixed value / expression mode",
+      "selectUser": "Select user",
+      "selectGroup": "Select group"
     }
   }
 }

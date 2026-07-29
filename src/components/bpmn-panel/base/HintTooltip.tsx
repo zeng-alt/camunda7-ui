@@ -28,7 +28,9 @@ export default defineComponent({
             }
             return (
               <div
-                ref={(el: any) => { if (el && el.innerHTML !== props.hintHtml) el.innerHTML = props.hintHtml }}
+                ref={(el: any) => {
+                  if (el && el.innerHTML !== props.hintHtml) el.innerHTML = props.hintHtml
+                }}
                 style="white-space: pre-wrap; word-break: break-word; max-width: 360px; line-height: 1.6; font-size: 12px;"
               />
             )

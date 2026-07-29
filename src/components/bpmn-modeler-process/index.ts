@@ -1,1 +1,1 @@
-export { default as BpmnModelerProcess } from './BpmnModelerProcess';
+export { default as BpmnModelerProcess } from './BpmnModelerProcess'

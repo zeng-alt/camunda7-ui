@@ -1,5 +1,16 @@
 import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
-import { NButton, NInput, NSelect, NCheckbox, NInputNumber, NSwitch, NDatePicker, NEmpty, NModal, type SelectOption } from 'naive-ui'
+import {
+  NButton,
+  NInput,
+  NSelect,
+  NCheckbox,
+  NInputNumber,
+  NSwitch,
+  NDatePicker,
+  NEmpty,
+  NModal,
+  type SelectOption,
+} from 'naive-ui'
 import FormPreview from './FormPreview'
 import type { PreviewField } from './FormPreview'
 import { useCamundaI18n } from '../../../locales'
@@ -42,9 +53,7 @@ interface FormFieldItem {
   enumValues: EnumEntry[]
 }
 
-export const formTabs: ExtraFieldTab[] = [
-  { name: 'forms', labelKey: 'bpmnPanel.tabs.forms' },
-]
+export const formTabs: ExtraFieldTab[] = [{ name: 'forms', labelKey: 'bpmnPanel.tabs.forms' }]
 
 const dateFormatKeys: { labelKey: string; value: string }[] = [
   { labelKey: 'bpmnPanel.options.dateFormatYmd', value: 'yyyy-MM-dd' },
@@ -94,20 +103,39 @@ function createField(): FormFieldItem {
 
 function readConstraints(validation: any): ConstraintState {
   const c: ConstraintState = {
-    required: false, readOnly: false, minLength: null,
-    maxLength: null, min: null, max: null, validator: '',
+    required: false,
+    readOnly: false,
+    minLength: null,
+    maxLength: null,
+    min: null,
+    max: null,
+    validator: '',
   }
   if (!validation?.constraints) return c
   const list: any[] = Array.isArray(validation.constraints) ? validation.constraints : []
   for (const ct of list) {
     switch (ct.name) {
-      case 'required': c.required = true; break
-      case 'readonly': c.readOnly = true; break
-      case 'minlength': c.minLength = Number(ct.config) || null; break
-      case 'maxlength': c.maxLength = Number(ct.config) || null; break
-      case 'min': c.min = Number(ct.config) || null; break
-      case 'max': c.max = Number(ct.config) || null; break
-      case 'validator': c.validator = ct.config || ''; break
+      case 'required':
+        c.required = true
+        break
+      case 'readonly':
+        c.readOnly = true
+        break
+      case 'minlength':
+        c.minLength = Number(ct.config) || null
+        break
+      case 'maxlength':
+        c.maxLength = Number(ct.config) || null
+        break
+      case 'min':
+        c.min = Number(ct.config) || null
+        break
+      case 'max':
+        c.max = Number(ct.config) || null
+        break
+      case 'validator':
+        c.validator = ct.config || ''
+        break
     }
   }
   return c
@@ -115,7 +143,9 @@ function readConstraints(validation: any): ConstraintState {
 
 function readField(f: any): FormFieldItem {
   const rawProps: any[] = f.properties?.values
-    ? (Array.isArray(f.properties.values) ? f.properties.values : [])
+    ? Array.isArray(f.properties.values)
+      ? f.properties.values
+      : []
     : []
   const dateProp = rawProps.find((p: any) => p.name === 'datePattern')
   const propsArr = rawProps.filter((p: any) => p.name !== 'datePattern')
@@ -129,10 +159,14 @@ function readField(f: any): FormFieldItem {
     datePattern: dateProp?.value || f.datePattern || '',
     constraints: readConstraints(f.validation),
     properties: propsArr.map((p: any) => ({
-      _key: keySeq++, name: p.name || '', value: p.value || '',
+      _key: keySeq++,
+      name: p.name || '',
+      value: p.value || '',
     })),
     enumValues: valsArr.map((v: any) => ({
-      _key: keySeq++, id: v.id || '', name: v.name || '',
+      _key: keySeq++,
+      id: v.id || '',
+      name: v.name || '',
     })),
   }
 }
@@ -175,25 +209,31 @@ export default defineComponent({
     )
 
     const previewFields = computed<PreviewField[]>(() =>
-      items.value.filter(f => f.id).map(f => ({
-        id: f.id,
-        label: f.label,
-        type: f.type,
-        defaultValue: f.defaultValue,
-        datePattern: f.datePattern,
-        required: f.constraints.required,
-        readOnly: f.constraints.readOnly,
-        minLength: f.constraints.minLength,
-        maxLength: f.constraints.maxLength,
-        min: f.constraints.min,
-        max: f.constraints.max,
-        validator: f.constraints.validator,
-        enumValues: f.enumValues.filter(ev => ev.id).map(ev => ({ id: ev.id, name: ev.name })),
-        properties: f.properties.filter(p => p.name).reduce<Record<string, string>>((acc, p) => {
-          acc[p.name] = p.value
-          return acc
-        }, {}),
-      })),
+      items.value
+        .filter((f) => f.id)
+        .map((f) => ({
+          id: f.id,
+          label: f.label,
+          type: f.type,
+          defaultValue: f.defaultValue,
+          datePattern: f.datePattern,
+          required: f.constraints.required,
+          readOnly: f.constraints.readOnly,
+          minLength: f.constraints.minLength,
+          maxLength: f.constraints.maxLength,
+          min: f.constraints.min,
+          max: f.constraints.max,
+          validator: f.constraints.validator,
+          enumValues: f.enumValues
+            .filter((ev) => ev.id)
+            .map((ev) => ({ id: ev.id, name: ev.name })),
+          properties: f.properties
+            .filter((p) => p.name)
+            .reduce<Record<string, string>>((acc, p) => {
+              acc[p.name] = p.value
+              return acc
+            }, {}),
+        })),
     )
 
     function detectFormType(): FormType {
@@ -274,31 +314,69 @@ export default defineComponent({
             }
             if (item.defaultValue) attrs.defaultValue = item.defaultValue
             const constraints: any[] = []
-            if (item.constraints.required) constraints.push(moddle.create('camunda:Constraint', { name: 'required' }))
-            if (item.constraints.readOnly) constraints.push(moddle.create('camunda:Constraint', { name: 'readonly' }))
-            if (item.constraints.minLength !== null) constraints.push(moddle.create('camunda:Constraint', { name: 'minlength', config: String(item.constraints.minLength) }))
-            if (item.constraints.maxLength !== null) constraints.push(moddle.create('camunda:Constraint', { name: 'maxlength', config: String(item.constraints.maxLength) }))
-            if (item.constraints.min !== null) constraints.push(moddle.create('camunda:Constraint', { name: 'min', config: String(item.constraints.min) }))
-            if (item.constraints.max !== null) constraints.push(moddle.create('camunda:Constraint', { name: 'max', config: String(item.constraints.max) }))
-            if (item.constraints.validator) constraints.push(moddle.create('camunda:Constraint', { name: 'validator', config: item.constraints.validator }))
+            if (item.constraints.required)
+              constraints.push(moddle.create('camunda:Constraint', { name: 'required' }))
+            if (item.constraints.readOnly)
+              constraints.push(moddle.create('camunda:Constraint', { name: 'readonly' }))
+            if (item.constraints.minLength !== null)
+              constraints.push(
+                moddle.create('camunda:Constraint', {
+                  name: 'minlength',
+                  config: String(item.constraints.minLength),
+                }),
+              )
+            if (item.constraints.maxLength !== null)
+              constraints.push(
+                moddle.create('camunda:Constraint', {
+                  name: 'maxlength',
+                  config: String(item.constraints.maxLength),
+                }),
+              )
+            if (item.constraints.min !== null)
+              constraints.push(
+                moddle.create('camunda:Constraint', {
+                  name: 'min',
+                  config: String(item.constraints.min),
+                }),
+              )
+            if (item.constraints.max !== null)
+              constraints.push(
+                moddle.create('camunda:Constraint', {
+                  name: 'max',
+                  config: String(item.constraints.max),
+                }),
+              )
+            if (item.constraints.validator)
+              constraints.push(
+                moddle.create('camunda:Constraint', {
+                  name: 'validator',
+                  config: item.constraints.validator,
+                }),
+              )
 
             if (constraints.length > 0) {
               attrs.validation = moddle.create('camunda:Validation', { constraints })
             }
 
-            const propEntries: { name: string; value: string }[] = item.properties.filter((p) => p.name)
+            const propEntries: { name: string; value: string }[] = item.properties.filter(
+              (p) => p.name,
+            )
             if (item.type === 'date' && item.datePattern) {
               propEntries.push({ name: 'datePattern', value: item.datePattern })
             }
             if (propEntries.length > 0) {
               attrs.properties = moddle.create('camunda:Properties', {
-                values: propEntries.map((p) => moddle.create('camunda:Property', { name: p.name, value: p.value })),
+                values: propEntries.map((p) =>
+                  moddle.create('camunda:Property', { name: p.name, value: p.value }),
+                ),
               })
             }
 
             const validValues = item.enumValues.filter((v) => v.id)
             if (validValues.length > 0) {
-              attrs.values = validValues.map((v) => moddle.create('camunda:Value', { id: v.id, name: v.name }))
+              attrs.values = validValues.map((v) =>
+                moddle.create('camunda:Value', { id: v.id, name: v.name }),
+              )
             }
 
             return moddle.create('camunda:FormField', attrs)
@@ -352,18 +430,14 @@ export default defineComponent({
     }
 
     function updateFieldItem(index: number, field: string, val: any) {
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, [field]: val } : item,
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, [field]: val } : item))
       items.value = next
       save()
     }
 
     function updateConstraint(index: number, field: keyof ConstraintState, val: any) {
       const next = items.value.map((item, i) =>
-        i === index
-          ? { ...item, constraints: { ...item.constraints, [field]: val } }
-          : item,
+        i === index ? { ...item, constraints: { ...item.constraints, [field]: val } } : item,
       )
       items.value = next
       save()
@@ -389,7 +463,12 @@ export default defineComponent({
       save()
     }
 
-    function updateProp(fieldIndex: number, propIndex: number, field: 'name' | 'value', val: string) {
+    function updateProp(
+      fieldIndex: number,
+      propIndex: number,
+      field: 'name' | 'value',
+      val: string,
+    ) {
       const next = items.value.map((item, i) =>
         i === fieldIndex
           ? {
@@ -424,7 +503,12 @@ export default defineComponent({
       save()
     }
 
-    function updateEnumValue(fieldIndex: number, enumIndex: number, field: 'id' | 'name', val: string) {
+    function updateEnumValue(
+      fieldIndex: number,
+      enumIndex: number,
+      field: 'id' | 'name',
+      val: string,
+    ) {
       const next = items.value.map((item, i) =>
         i === fieldIndex
           ? {
@@ -453,7 +537,7 @@ export default defineComponent({
             items.value.map((item, index) => (
               <div class="flex flex-col gap-6px p-10px border border-solid border-light_border dark:border-dark_border rounded-4px bg-#fafafa dark:bg-#1a1a1a">
                 <div class="flex justify-between items-center">
-                  <span class="text-12px font-bold">{item.id || ('Field ' + (index + 1))}</span>
+                  <span class="text-12px font-bold">{item.id || 'Field ' + (index + 1)}</span>
                   <NButton text type="error" size="tiny" onClick={() => removeField(index)}>
                     {t('bpmnPanel.buttons.delete')}
                   </NButton>
@@ -468,7 +552,9 @@ export default defineComponent({
                   />
                 </div>
                 <div>
-                  <div class="mb-4px text-12px text-#888">{t('bpmnPanel.fields.formFieldLabel')}</div>
+                  <div class="mb-4px text-12px text-#888">
+                    {t('bpmnPanel.fields.formFieldLabel')}
+                  </div>
                   <NInput
                     value={item.label}
                     onUpdateValue={(v: string | null) => updateFieldItem(index, 'label', v ?? '')}
@@ -477,33 +563,45 @@ export default defineComponent({
                   />
                 </div>
                 <div>
-                  <div class="mb-4px text-12px text-#888">{t('bpmnPanel.fields.formFieldType')}</div>
+                  <div class="mb-4px text-12px text-#888">
+                    {t('bpmnPanel.fields.formFieldType')}
+                  </div>
                   <NSelect
                     value={item.type}
-                    onUpdateValue={(v: string | null) => updateFieldItem(index, 'type', v ?? 'string')}
+                    onUpdateValue={(v: string | null) =>
+                      updateFieldItem(index, 'type', v ?? 'string')
+                    }
                     options={fieldTypeOptions.value}
                     size={props.formSize}
                   />
                 </div>
                 <div class="flex gap-8px items-end">
                   <div style="flex:1">
-                    <div class="mb-4px text-12px text-#888">{t('bpmnPanel.fields.formFieldDefault')}</div>
+                    <div class="mb-4px text-12px text-#888">
+                      {t('bpmnPanel.fields.formFieldDefault')}
+                    </div>
                     {item.type === 'long' ? (
                       <NInputNumber
                         value={item.defaultValue ? Number(item.defaultValue) : null}
-                        onUpdateValue={(v: number | null) => updateFieldItem(index, 'defaultValue', v !== null ? String(v) : '')}
+                        onUpdateValue={(v: number | null) =>
+                          updateFieldItem(index, 'defaultValue', v !== null ? String(v) : '')
+                        }
                         size={props.formSize}
                         style="width:100%"
                       />
                     ) : item.type === 'boolean' ? (
                       <NSwitch
                         value={item.defaultValue === 'true'}
-                        onUpdateValue={(v: boolean) => updateFieldItem(index, 'defaultValue', v ? 'true' : 'false')}
+                        onUpdateValue={(v: boolean) =>
+                          updateFieldItem(index, 'defaultValue', v ? 'true' : 'false')
+                        }
                       />
                     ) : item.type === 'date' ? (
                       <NDatePicker
                         value={toTimestamp(item.defaultValue)}
-                        onUpdateValue={(v: number | null) => updateFieldItem(index, 'defaultValue', v !== null ? String(v) : '')}
+                        onUpdateValue={(v: number | null) =>
+                          updateFieldItem(index, 'defaultValue', v !== null ? String(v) : '')
+                        }
                         type={getDatePickerType(item.datePattern)}
                         format={item.datePattern || 'yyyy-MM-dd'}
                         size={props.formSize}
@@ -512,8 +610,12 @@ export default defineComponent({
                     ) : item.type === 'enum' ? (
                       <NSelect
                         value={item.defaultValue || null}
-                        onUpdateValue={(v: string | null) => updateFieldItem(index, 'defaultValue', v ?? '')}
-                        options={item.enumValues.filter(ev => ev.id).map(ev => ({ label: ev.name || ev.id, value: ev.id }))}
+                        onUpdateValue={(v: string | null) =>
+                          updateFieldItem(index, 'defaultValue', v ?? '')
+                        }
+                        options={item.enumValues
+                          .filter((ev) => ev.id)
+                          .map((ev) => ({ label: ev.name || ev.id, value: ev.id }))}
                         placeholder={t('bpmnPanel.placeholders.formFieldDefault')}
                         size={props.formSize}
                         clearable
@@ -521,7 +623,9 @@ export default defineComponent({
                     ) : (
                       <NInput
                         value={item.defaultValue}
-                        onUpdateValue={(v: string | null) => updateFieldItem(index, 'defaultValue', v ?? '')}
+                        onUpdateValue={(v: string | null) =>
+                          updateFieldItem(index, 'defaultValue', v ?? '')
+                        }
                         placeholder={t('bpmnPanel.placeholders.formFieldDefault')}
                         size={props.formSize}
                       />
@@ -529,10 +633,14 @@ export default defineComponent({
                   </div>
                   {item.type === 'date' && (
                     <div style="width:160px">
-                      <div class="mb-4px text-12px text-#888">{t('bpmnPanel.fields.formFieldDatePattern')}</div>
+                      <div class="mb-4px text-12px text-#888">
+                        {t('bpmnPanel.fields.formFieldDatePattern')}
+                      </div>
                       <NSelect
                         value={item.datePattern || null}
-                        onUpdateValue={(v: string | null) => updateFieldItem(index, 'datePattern', v ?? '')}
+                        onUpdateValue={(v: string | null) =>
+                          updateFieldItem(index, 'datePattern', v ?? '')
+                        }
                         options={dateFormatOptions.value}
                         size={props.formSize}
                         placeholder={t('bpmnPanel.placeholders.formFieldDatePattern')}
@@ -548,7 +656,11 @@ export default defineComponent({
                     {item.enumValues.length === 0 ? (
                       <div class="flex flex-col items-center gap-8px py-8px">
                         <NEmpty description={t('bpmnPanel.panel.noFields')} size="small" />
-                        <NButton size="tiny" onClick={() => addEnumValue(index)} class="w-full justify-center">
+                        <NButton
+                          size="tiny"
+                          onClick={() => addEnumValue(index)}
+                          class="w-full justify-center"
+                        >
                           {t('bpmnPanel.buttons.addEnumValue')}
                         </NButton>
                       </div>
@@ -557,29 +669,46 @@ export default defineComponent({
                         {item.enumValues.map((ev, ei) => (
                           <div class="flex gap-4px items-end">
                             <div style="flex:1">
-                              <div class="mb-2px text-12px text-#888">{t('bpmnPanel.fields.formFieldId')}</div>
+                              <div class="mb-2px text-12px text-#888">
+                                {t('bpmnPanel.fields.formFieldId')}
+                              </div>
                               <NInput
                                 value={ev.id}
-                                onUpdateValue={(v: string | null) => updateEnumValue(index, ei, 'id', v ?? '')}
+                                onUpdateValue={(v: string | null) =>
+                                  updateEnumValue(index, ei, 'id', v ?? '')
+                                }
                                 placeholder={t('bpmnPanel.placeholders.formFieldId')}
                                 size={props.formSize}
                               />
                             </div>
                             <div style="flex:2">
-                              <div class="mb-2px text-12px text-#888">{t('bpmnPanel.fields.formFieldLabel')}</div>
+                              <div class="mb-2px text-12px text-#888">
+                                {t('bpmnPanel.fields.formFieldLabel')}
+                              </div>
                               <NInput
                                 value={ev.name}
-                                onUpdateValue={(v: string | null) => updateEnumValue(index, ei, 'name', v ?? '')}
+                                onUpdateValue={(v: string | null) =>
+                                  updateEnumValue(index, ei, 'name', v ?? '')
+                                }
                                 placeholder={t('bpmnPanel.placeholders.formFieldLabel')}
                                 size={props.formSize}
                               />
                             </div>
-                            <NButton text type="error" size="tiny" onClick={() => removeEnumValue(index, ei)}>
+                            <NButton
+                              text
+                              type="error"
+                              size="tiny"
+                              onClick={() => removeEnumValue(index, ei)}
+                            >
                               {t('bpmnPanel.buttons.delete')}
                             </NButton>
                           </div>
                         ))}
-                        <NButton size="tiny" onClick={() => addEnumValue(index)} class="w-full justify-center">
+                        <NButton
+                          size="tiny"
+                          onClick={() => addEnumValue(index)}
+                          class="w-full justify-center"
+                        >
                           {t('bpmnPanel.buttons.addEnumValue')}
                         </NButton>
                       </div>
@@ -612,20 +741,28 @@ export default defineComponent({
                         {(ft === 'string' || ft === 'long') && (
                           <div class="flex gap-8px mb-4px">
                             <div class="flex items-center gap-4px" style="flex:1">
-                              <span class="text-12px text-#888 whitespace-nowrap">{t('bpmnPanel.fields.constraintMinLength')}:</span>
+                              <span class="text-12px text-#888 whitespace-nowrap">
+                                {t('bpmnPanel.fields.constraintMinLength')}:
+                              </span>
                               <NInputNumber
                                 value={item.constraints.minLength}
-                                onUpdateValue={(v: number | null) => updateConstraint(index, 'minLength', v)}
+                                onUpdateValue={(v: number | null) =>
+                                  updateConstraint(index, 'minLength', v)
+                                }
                                 size={props.formSize}
                                 min={0}
                                 style="width:100%"
                               />
                             </div>
                             <div class="flex items-center gap-4px" style="flex:1">
-                              <span class="text-12px text-#888 whitespace-nowrap">{t('bpmnPanel.fields.constraintMaxLength')}:</span>
+                              <span class="text-12px text-#888 whitespace-nowrap">
+                                {t('bpmnPanel.fields.constraintMaxLength')}:
+                              </span>
                               <NInputNumber
                                 value={item.constraints.maxLength}
-                                onUpdateValue={(v: number | null) => updateConstraint(index, 'maxLength', v)}
+                                onUpdateValue={(v: number | null) =>
+                                  updateConstraint(index, 'maxLength', v)
+                                }
                                 size={props.formSize}
                                 min={0}
                                 style="width:100%"
@@ -636,11 +773,19 @@ export default defineComponent({
                         {(ft === 'long' || ft === 'date') && (
                           <div class="flex gap-8px mb-4px">
                             <div class="flex items-center gap-4px" style="flex:1">
-                              <span class="text-12px text-#888 whitespace-nowrap">{t('bpmnPanel.fields.constraintMin')}:</span>
+                              <span class="text-12px text-#888 whitespace-nowrap">
+                                {t('bpmnPanel.fields.constraintMin')}:
+                              </span>
                               {ft === 'date' ? (
                                 <NDatePicker
-                                  value={toTimestamp(item.constraints.min !== null ? String(item.constraints.min) : '')}
-                                  onUpdateValue={(v: number | null) => updateConstraint(index, 'min', v !== null ? v : null)}
+                                  value={toTimestamp(
+                                    item.constraints.min !== null
+                                      ? String(item.constraints.min)
+                                      : '',
+                                  )}
+                                  onUpdateValue={(v: number | null) =>
+                                    updateConstraint(index, 'min', v !== null ? v : null)
+                                  }
                                   type={getDatePickerType(item.datePattern)}
                                   format={item.datePattern || 'yyyy-MM-dd'}
                                   size={props.formSize}
@@ -650,18 +795,28 @@ export default defineComponent({
                               ) : (
                                 <NInputNumber
                                   value={item.constraints.min}
-                                  onUpdateValue={(v: number | null) => updateConstraint(index, 'min', v)}
+                                  onUpdateValue={(v: number | null) =>
+                                    updateConstraint(index, 'min', v)
+                                  }
                                   size={props.formSize}
                                   style="width:100%"
                                 />
                               )}
                             </div>
                             <div class="flex items-center gap-4px" style="flex:1">
-                              <span class="text-12px text-#888 whitespace-nowrap">{t('bpmnPanel.fields.constraintMax')}:</span>
+                              <span class="text-12px text-#888 whitespace-nowrap">
+                                {t('bpmnPanel.fields.constraintMax')}:
+                              </span>
                               {ft === 'date' ? (
                                 <NDatePicker
-                                  value={toTimestamp(item.constraints.max !== null ? String(item.constraints.max) : '')}
-                                  onUpdateValue={(v: number | null) => updateConstraint(index, 'max', v !== null ? v : null)}
+                                  value={toTimestamp(
+                                    item.constraints.max !== null
+                                      ? String(item.constraints.max)
+                                      : '',
+                                  )}
+                                  onUpdateValue={(v: number | null) =>
+                                    updateConstraint(index, 'max', v !== null ? v : null)
+                                  }
                                   type={getDatePickerType(item.datePattern)}
                                   format={item.datePattern || 'yyyy-MM-dd'}
                                   size={props.formSize}
@@ -671,7 +826,9 @@ export default defineComponent({
                               ) : (
                                 <NInputNumber
                                   value={item.constraints.max}
-                                  onUpdateValue={(v: number | null) => updateConstraint(index, 'max', v)}
+                                  onUpdateValue={(v: number | null) =>
+                                    updateConstraint(index, 'max', v)
+                                  }
                                   size={props.formSize}
                                   style="width:100%"
                                 />
@@ -683,10 +840,14 @@ export default defineComponent({
                     )
                   })()}
                   <div class="flex items-center gap-4px">
-                    <span class="text-12px text-#888">{t('bpmnPanel.fields.constraintValidator')}:</span>
+                    <span class="text-12px text-#888">
+                      {t('bpmnPanel.fields.constraintValidator')}:
+                    </span>
                     <NInput
                       value={item.constraints.validator}
-                      onUpdateValue={(v: string | null) => updateConstraint(index, 'validator', v ?? '')}
+                      onUpdateValue={(v: string | null) =>
+                        updateConstraint(index, 'validator', v ?? '')
+                      }
                       placeholder={t('bpmnPanel.placeholders.constraintValidator')}
                       size={props.formSize}
                       style="flex:1"
@@ -698,7 +859,11 @@ export default defineComponent({
                   <div class="text-12px font-bold mb-4px">{t('bpmnPanel.fields.properties')}</div>
                   {item.properties.length === 0 ? (
                     <div class="flex flex-col items-center gap-8px py-8px">
-                      <NButton size="tiny" onClick={() => addProp(index)} class="w-full justify-center">
+                      <NButton
+                        size="tiny"
+                        onClick={() => addProp(index)}
+                        class="w-full justify-center"
+                      >
                         {t('bpmnPanel.buttons.addProperty')}
                       </NButton>
                     </div>
@@ -708,24 +873,37 @@ export default defineComponent({
                         <div class="flex gap-4px items-center">
                           <NInput
                             value={prop.name}
-                            onUpdateValue={(v: string | null) => updateProp(index, pi, 'name', v ?? '')}
+                            onUpdateValue={(v: string | null) =>
+                              updateProp(index, pi, 'name', v ?? '')
+                            }
                             placeholder={t('bpmnPanel.placeholders.propertyName')}
                             size={props.formSize}
                             style="flex:1"
                           />
                           <NInput
                             value={prop.value}
-                            onUpdateValue={(v: string | null) => updateProp(index, pi, 'value', v ?? '')}
+                            onUpdateValue={(v: string | null) =>
+                              updateProp(index, pi, 'value', v ?? '')
+                            }
                             placeholder={t('bpmnPanel.placeholders.propertyValue')}
                             size={props.formSize}
                             style="flex:1"
                           />
-                          <NButton text type="error" size="tiny" onClick={() => removeProp(index, pi)}>
+                          <NButton
+                            text
+                            type="error"
+                            size="tiny"
+                            onClick={() => removeProp(index, pi)}
+                          >
                             {t('bpmnPanel.buttons.delete')}
                           </NButton>
                         </div>
                       ))}
-                      <NButton size="tiny" onClick={() => addProp(index)} class="w-full justify-center">
+                      <NButton
+                        size="tiny"
+                        onClick={() => addProp(index)}
+                        class="w-full justify-center"
+                      >
                         {t('bpmnPanel.buttons.addProperty')}
                       </NButton>
                     </div>
@@ -755,7 +933,7 @@ export default defineComponent({
           <div class="flex items-center gap-8px">
             <div style="flex:1">
               <div class="text-12px font-bold mb-8px">{t('bpmnPanel.fields.formType')}</div>
-              <div class="flex flex-row"> 
+              <div class="flex flex-row">
                 <NSelect
                   value={type}
                   onUpdateValue={onFormTypeChange}
@@ -769,15 +947,16 @@ export default defineComponent({
                 />
                 {type === 'generated' && items.value.length > 0 && (
                   <div class="ml-8">
-                    <NButton size={props.formSize} type="primary" onClick={openPreview}>{t('bpmnPanel.buttons.preview')}</NButton>
+                    <NButton size={props.formSize} type="primary" onClick={openPreview}>
+                      {t('bpmnPanel.buttons.preview')}
+                    </NButton>
                   </div>
                 )}
               </div>
             </div>
-            
           </div>
 
-          {(type === 'camunda') && (
+          {type === 'camunda' && (
             <div>
               <div class="mt-8px">
                 <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRef')}</div>
@@ -816,7 +995,9 @@ export default defineComponent({
 
           <NModal
             show={showPreview.value}
-            onUpdateShow={(v: boolean) => { showPreview.value = v }}
+            onUpdateShow={(v: boolean) => {
+              showPreview.value = v
+            }}
             preset="card"
             title={t('bpmnPanel.buttons.preview')}
             style="width:1000px; max-width:95vw"

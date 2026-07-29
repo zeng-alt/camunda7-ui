@@ -52,9 +52,7 @@ export default defineComponent({
       const bo = props.businessObject
       if (!bo) return
 
-      const doc = val
-        ? [{ text: val }]
-        : []
+      const doc = val ? [{ text: val }] : []
 
       modeling.updateProperties(toRaw(props.element), {
         documentation: doc,
@@ -66,7 +64,11 @@ export default defineComponent({
 
       return (
         <div class="pt-8px">
-          <NFormItem size={props.formSize} label-placement={props.labelPlacement} label={t('bpmnPanel.fields.documentation')}>
+          <NFormItem
+            size={props.formSize}
+            label-placement={props.labelPlacement}
+            label={t('bpmnPanel.fields.documentation')}
+          >
             <NInput
               value={documentation.value}
               onUpdateValue={updateDocumentation}

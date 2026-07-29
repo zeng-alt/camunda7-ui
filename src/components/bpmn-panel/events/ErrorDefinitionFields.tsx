@@ -5,9 +5,7 @@ import { uid, getDefinitions } from './eventHelpers'
 
 function findPropertiesContainer(extensionElements: any): any {
   if (!extensionElements?.values) return null
-  return extensionElements.values.find(
-    (v: any) => v.$type === 'camunda:Properties'
-  ) || null
+  return extensionElements.values.find((v: any) => v.$type === 'camunda:Properties') || null
 }
 
 export default defineComponent({
@@ -49,9 +47,15 @@ export default defineComponent({
 
     function loadMessageFromProperties() {
       const bo = props.businessObject
-      if (!bo || !bo.extensionElements) { selectedErrorMessage.value = ''; return }
+      if (!bo || !bo.extensionElements) {
+        selectedErrorMessage.value = ''
+        return
+      }
       const container = findPropertiesContainer(bo.extensionElements)
-      if (!container) { selectedErrorMessage.value = ''; return }
+      if (!container) {
+        selectedErrorMessage.value = ''
+        return
+      }
       const prop = container.values?.find((p: any) => p.name === 'errorMessage')
       selectedErrorMessage.value = prop?.value || ''
     }
@@ -189,7 +193,9 @@ export default defineComponent({
               placeholder={t('bpmnPanel.fields.errorCode')}
               size={props.formSize}
             />
-            <div class="mt-8px mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorMessage')}</div>
+            <div class="mt-8px mb-4px text-12px text-#666">
+              {t('bpmnPanel.fields.errorMessage')}
+            </div>
             <NInput
               value={selectedErrorMessage.value}
               onUpdateValue={onErrorMessageChange}

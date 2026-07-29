@@ -63,7 +63,7 @@ export default defineComponent({
     const formData = ref<Record<string, string>>({})
     const errors = ref<Record<string, string>>({})
 
-    const validFields = computed(() => props.fields.filter(f => f.id))
+    const validFields = computed(() => props.fields.filter((f) => f.id))
 
     const defaultsMap = computed(() => {
       const map: Record<string, string> = {}
@@ -73,10 +73,14 @@ export default defineComponent({
       return map
     })
 
-    watch(validFields, () => {
-      const map = defaultsMap.value
-      formData.value = Object.keys(map).length > 0 ? { ...map } : {}
-    }, { immediate: true })
+    watch(
+      validFields,
+      () => {
+        const map = defaultsMap.value
+        formData.value = Object.keys(map).length > 0 ? { ...map } : {}
+      },
+      { immediate: true },
+    )
 
     function validate(): boolean {
       const errs: Record<string, string> = {}
@@ -91,9 +95,15 @@ export default defineComponent({
         }
         if (field.type === 'string') {
           if (field.minLength != null && val.length < field.minLength)
-            errs[field.id] = t('bpmnPanel.formPreview.minLength').replace('{min}', String(field.minLength))
+            errs[field.id] = t('bpmnPanel.formPreview.minLength').replace(
+              '{min}',
+              String(field.minLength),
+            )
           if (field.maxLength != null && val.length > field.maxLength)
-            errs[field.id] = t('bpmnPanel.formPreview.maxLength').replace('{max}', String(field.maxLength))
+            errs[field.id] = t('bpmnPanel.formPreview.maxLength').replace(
+              '{max}',
+              String(field.maxLength),
+            )
         }
         if (field.type === 'long' && val) {
           const num = Number(val)
@@ -101,25 +111,40 @@ export default defineComponent({
             errs[field.id] = t('bpmnPanel.formPreview.mustBeNumber')
           } else {
             if (field.min != null && num < field.min)
-              errs[field.id] = t('bpmnPanel.formPreview.minValue').replace('{min}', String(field.min))
+              errs[field.id] = t('bpmnPanel.formPreview.minValue').replace(
+                '{min}',
+                String(field.min),
+              )
             if (field.max != null && num > field.max)
-              errs[field.id] = t('bpmnPanel.formPreview.maxValue').replace('{max}', String(field.max))
+              errs[field.id] = t('bpmnPanel.formPreview.maxValue').replace(
+                '{max}',
+                String(field.max),
+              )
           }
         }
         if (field.type === 'date' && val) {
           const ts = Number(val)
           if (!isNaN(ts)) {
             if (field.min != null && ts < field.min)
-              errs[field.id] = t('bpmnPanel.formPreview.minDate').replace('{date}', new Date(field.min).toLocaleDateString())
+              errs[field.id] = t('bpmnPanel.formPreview.minDate').replace(
+                '{date}',
+                new Date(field.min).toLocaleDateString(),
+              )
             if (field.max != null && ts > field.max)
-              errs[field.id] = t('bpmnPanel.formPreview.maxDate').replace('{date}', new Date(field.max).toLocaleDateString())
+              errs[field.id] = t('bpmnPanel.formPreview.maxDate').replace(
+                '{date}',
+                new Date(field.max).toLocaleDateString(),
+              )
           }
         }
         if (field.validator && val) {
           try {
             const regex = new RegExp(field.validator)
             if (!regex.test(val))
-              errs[field.id] = t('bpmnPanel.formPreview.regexMismatch').replace('{pattern}', field.validator)
+              errs[field.id] = t('bpmnPanel.formPreview.regexMismatch').replace(
+                '{pattern}',
+                field.validator,
+              )
           } catch {
             errs[field.id] = t('bpmnPanel.formPreview.regexInvalid')
           }
@@ -139,12 +164,20 @@ export default defineComponent({
       emit('reset')
     }
 
-    const placeholderEnter = (field: PreviewField) => t('bpmnPanel.formPreview.placeholderEnter').replace('{field}', field.label || field.id)
-    const placeholderSelect = (field: PreviewField) => t('bpmnPanel.formPreview.placeholderSelect').replace('{field}', field.label || field.id)
+    const placeholderEnter = (field: PreviewField) =>
+      t('bpmnPanel.formPreview.placeholderEnter').replace('{field}', field.label || field.id)
+    const placeholderSelect = (field: PreviewField) =>
+      t('bpmnPanel.formPreview.placeholderSelect').replace('{field}', field.label || field.id)
 
     return () => {
       if (validFields.value.length === 0) {
-        return <NEmpty class="h-full flex justify-center items-center" description={t('bpmnPanel.formPreview.noFields')} size={props.size} />
+        return (
+          <NEmpty
+            class="h-full flex justify-center items-center"
+            description={t('bpmnPanel.formPreview.noFields')}
+            size={props.size}
+          />
+        )
       }
 
       return (
@@ -163,8 +196,14 @@ export default defineComponent({
                     return (
                       <NInputNumber
                         {...p}
-                        value={formData.value[field.id] !== undefined ? Number(formData.value[field.id]) : null}
-                        onUpdateValue={(v: number | null) => { formData.value[field.id] = v !== null ? String(v) : '' }}
+                        value={
+                          formData.value[field.id] !== undefined
+                            ? Number(formData.value[field.id])
+                            : null
+                        }
+                        onUpdateValue={(v: number | null) => {
+                          formData.value[field.id] = v !== null ? String(v) : ''
+                        }}
                         placeholder={placeholderEnter(field)}
                         size={props.size}
                         style="width:100%"
@@ -178,7 +217,9 @@ export default defineComponent({
                       <NSwitch
                         {...p}
                         value={formData.value[field.id] === 'true'}
-                        onUpdateValue={(v: boolean) => { formData.value[field.id] = v ? 'true' : 'false' }}
+                        onUpdateValue={(v: boolean) => {
+                          formData.value[field.id] = v ? 'true' : 'false'
+                        }}
                         disabled={field.readOnly}
                       />
                     )
@@ -188,7 +229,9 @@ export default defineComponent({
                       <NDatePicker
                         {...p}
                         value={toTimestamp(formData.value[field.id] ?? '')}
-                        onUpdateValue={(v: number | null) => { formData.value[field.id] = v !== null ? String(v) : '' }}
+                        onUpdateValue={(v: number | null) => {
+                          formData.value[field.id] = v !== null ? String(v) : ''
+                        }}
                         type={getDatePickerType(field.datePattern || '')}
                         format={field.datePattern || 'yyyy-MM-dd'}
                         size={props.size}
@@ -204,8 +247,12 @@ export default defineComponent({
                       <NSelect
                         {...p}
                         value={formData.value[field.id] || null}
-                        onUpdateValue={(v: string | null) => { formData.value[field.id] = v ?? '' }}
-                        options={(field.enumValues || []).filter(ev => ev.id).map(ev => ({ label: ev.name || ev.id, value: ev.id }))}
+                        onUpdateValue={(v: string | null) => {
+                          formData.value[field.id] = v ?? ''
+                        }}
+                        options={(field.enumValues || [])
+                          .filter((ev) => ev.id)
+                          .map((ev) => ({ label: ev.name || ev.id, value: ev.id }))}
                         placeholder={placeholderSelect(field)}
                         size={props.size}
                         status={err ? 'error' : undefined}
@@ -218,7 +265,9 @@ export default defineComponent({
                     <NInput
                       {...p}
                       value={formData.value[field.id] ?? ''}
-                      onUpdateValue={(v: string | null) => { formData.value[field.id] = v ?? '' }}
+                      onUpdateValue={(v: string | null) => {
+                        formData.value[field.id] = v ?? ''
+                      }}
                       placeholder={placeholderEnter(field)}
                       size={props.size}
                       status={err ? 'error' : undefined}
@@ -232,10 +281,14 @@ export default defineComponent({
           })}
           <div class="flex justify-end gap-8px">
             {props.showReset && (
-              <NButton size={props.size} onClick={handleReset}>{props.resetLabel || t('bpmnPanel.formPreview.reset')}</NButton>
+              <NButton size={props.size} onClick={handleReset}>
+                {props.resetLabel || t('bpmnPanel.formPreview.reset')}
+              </NButton>
             )}
             {props.showSubmit && (
-              <NButton size={props.size} type="primary" onClick={handleSubmit}>{props.submitLabel || t('bpmnPanel.formPreview.submit')}</NButton>
+              <NButton size={props.size} type="primary" onClick={handleSubmit}>
+                {props.submitLabel || t('bpmnPanel.formPreview.submit')}
+              </NButton>
             )}
           </div>
         </div>

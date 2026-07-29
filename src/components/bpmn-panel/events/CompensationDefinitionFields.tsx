@@ -14,7 +14,10 @@ function collectActivityIds(bo: any): string[] {
         walkElements(el.flowElements)
       }
       const t = el.$type?.replace('bpmn:', '')
-      if (t && (t.endsWith('Task') || t === 'SubProcess' || t === 'CallActivity' || t === 'Transaction')) {
+      if (
+        t &&
+        (t.endsWith('Task') || t === 'SubProcess' || t === 'CallActivity' || t === 'Transaction')
+      ) {
         if (el.id) ids.push(el.id)
       }
     }

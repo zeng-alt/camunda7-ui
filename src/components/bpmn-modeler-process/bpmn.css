@@ -4,22 +4,22 @@
 
 /* ---------- 基础变量 ---------- */
 .dark {
-  --bpmn-bg:           #282a36;
-  --bpmn-surface:      #44475a;
-  --bpmn-surface-alt:  #383a4a;
-  --bpmn-border:       #6272a4;
+  --bpmn-bg: #282a36;
+  --bpmn-surface: #44475a;
+  --bpmn-surface-alt: #383a4a;
+  --bpmn-border: #6272a4;
   --bpmn-border-muted: #4a5070;
-  --bpmn-text:         #f8f8f2;
-  --bpmn-text-muted:   #a0aac4;
-  --bpmn-accent:       #bd93f9;   /* Dracula purple */
-  --bpmn-accent-alt:   #8be9fd;  /* Dracula cyan */
-  --bpmn-green:        #50fa7b;
-  --bpmn-yellow:       #f1fa8c;
-  --bpmn-orange:       #ffb86c;
-  --bpmn-red:          #ff5555;
-  --bpmn-pink:         #ff79c6;
-  --bpmn-shadow:       0 4px 16px rgba(0, 0, 0, 0.5);
-  --bpmn-shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.35);
+  --bpmn-text: #f8f8f2;
+  --bpmn-text-muted: #a0aac4;
+  --bpmn-accent: #bd93f9; /* Dracula purple */
+  --bpmn-accent-alt: #8be9fd; /* Dracula cyan */
+  --bpmn-green: #50fa7b;
+  --bpmn-yellow: #f1fa8c;
+  --bpmn-orange: #ffb86c;
+  --bpmn-red: #ff5555;
+  --bpmn-pink: #ff79c6;
+  --bpmn-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --bpmn-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* ---------- 整体容器 ---------- */
@@ -30,7 +30,7 @@
   overflow: hidden;
 }
 
-.dark .bpmn-container .properties-container{
+.dark .bpmn-container .properties-container {
   background-color: var(--bpmn-bg);
 }
 
@@ -140,7 +140,9 @@
   border: 1px solid var(--bpmn-border-muted) !important;
   border-radius: 4px !important;
   box-shadow: var(--bpmn-shadow-sm) !important;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
 .dark .bpmn-container .djs-context-pad .group .entry:hover {
@@ -247,15 +249,15 @@
 }
 
 /* 泳道标题区 */
-.dark .bpmn-container .djs-element [class*="Lane"] .djs-visual rect,
-.dark .bpmn-container .djs-element [class*="Pool"] .djs-visual rect {
+.dark .bpmn-container .djs-element [class*='Lane'] .djs-visual rect,
+.dark .bpmn-container .djs-element [class*='Pool'] .djs-visual rect {
   fill: var(--bpmn-surface-alt) !important;
   stroke: var(--bpmn-border) !important;
 }
 
 /* ---------- Search / Highlight ---------- */
 .dark .bpmn-container .highlight .djs-visual > :is(rect, circle, polygon) {
-  fill: rgba(241, 250, 140, 0.15) !important;  /* Dracula yellow tint */
+  fill: rgba(241, 250, 140, 0.15) !important; /* Dracula yellow tint */
   stroke: var(--bpmn-yellow) !important;
 }
 
@@ -400,7 +402,6 @@
   gap: 12px;
 }
 
-
 /* ---------- Text Annotation 内联编辑器 ---------- */
 
 /* 编辑器主容器 */
@@ -413,7 +414,7 @@
 
 /* contenteditable 文本区域 */
 .dark .bpmn-container .djs-direct-editing-parent .djs-direct-editing-content,
-.dark .bpmn-container [contenteditable="true"] {
+.dark .bpmn-container [contenteditable='true'] {
   background-color: var(--bpmn-surface) !important;
   color: var(--bpmn-text) !important;
   caret-color: var(--bpmn-accent) !important;

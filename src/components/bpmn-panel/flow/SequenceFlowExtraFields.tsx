@@ -26,13 +26,16 @@ export default defineComponent({
   setup(props) {
     const { t } = useCamundaI18n()
 
-    const isDefault = computed(() => props.element ? isDefaultFlow(props.element) : false)
+    const isDefault = computed(() => (props.element ? isDefaultFlow(props.element) : false))
     const conditionType = ref<'expression' | 'script'>('expression')
     const conditionExpr = ref<any>(null)
 
     function syncFromModel() {
       const bo = props.businessObject
-      if (!bo) { conditionExpr.value = null; return }
+      if (!bo) {
+        conditionExpr.value = null
+        return
+      }
       const expr = bo.conditionExpression
       conditionExpr.value = expr || null
       conditionType.value = expr?.language ? 'script' : 'expression'
@@ -80,7 +83,9 @@ export default defineComponent({
           </div>
           {conditionType.value === 'expression' && conditionExpr.value && (
             <div class="mt-12px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionExpression')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.conditionExpression')}
+              </div>
               <ExpressionField
                 businessObject={conditionExpr.value}
                 element={props.element}

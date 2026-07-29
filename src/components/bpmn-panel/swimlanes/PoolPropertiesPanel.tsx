@@ -18,13 +18,13 @@ const ProcessTabContent = defineComponent({
       return (
         <div class="pt-8px">
           {bo && (
-              <ProcessContent
-                element={props.element}
-                processBobject={bo}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                showBasic
-              />
+            <ProcessContent
+              element={props.element}
+              processBobject={bo}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+              showBasic
+            />
           )}
         </div>
       )
@@ -44,10 +44,17 @@ export default defineComponent({
   setup(props) {
     const { t } = useCamundaI18n()
     const tabValue = ref('general')
-    
+
     return () => (
       <div class="p-8px">
-        <NTabs value={tabValue.value} onUpdateValue={(v: string) => { tabValue.value = v }} size={props.formSize} type="line">
+        <NTabs
+          value={tabValue.value}
+          onUpdateValue={(v: string) => {
+            tabValue.value = v
+          }}
+          size={props.formSize}
+          type="line"
+        >
           <NTabPane name="general" tab={t('bpmnPanel.tabs.general')}>
             <div class="pt-8px">
               <GeneralPanel

@@ -1,6 +1,12 @@
 import { defineComponent, computed, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
-import { OutputsPanel, InputsPanel, InMappingPropagation, InMappings, type ExtraFieldTab } from '../base'
+import {
+  OutputsPanel,
+  InputsPanel,
+  InMappingPropagation,
+  InMappings,
+  type ExtraFieldTab,
+} from '../base'
 import EventDefinitionPanel, { getEventDefType } from './EventDefinitionPanel'
 
 export const intermediateThrowEventTabs: ExtraFieldTab[] = [
@@ -17,12 +23,26 @@ export default defineComponent({
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     tabName: { type: String, default: 'intermediateThrow' },
+    extraTabContent: { type: Function, default: null },
+    extraTabLabel: { type: String, default: '' },
+    elementType: { type: String, default: '' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const isSignal = computed(() => getEventDefType(props.businessObject) === 'Signal')
 
     return () => {
+      if (props.tabName === 'custom') {
+        return (
+          <div class="pt-8px">
+            {props.extraTabContent({
+              element: props.element,
+              businessObject: props.businessObject,
+              type: props.elementType,
+            })}
+          </div>
+        )
+      }
       if (props.tabName === 'intermediateThrow') {
         return (
           <div class="pt-8px">
@@ -69,7 +89,6 @@ export default defineComponent({
           </div>
         )
       }
-          
 
       if (props.tabName === 'outputs') {
         return (

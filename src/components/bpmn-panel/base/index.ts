@@ -16,8 +16,15 @@ export { default as JavaClassField } from './JavaClassField'
 export { default as ExpressionField } from './ExpressionField'
 export { default as DelegateExpressionField } from './DelegateExpressionField'
 export { default as ErrorFields } from './ErrorFields'
-export { default as ConnectorFields, connectorIdOptions, httpMethodOptions } from './ConnectorFields'
-export { default as ImplementationExtraFields, implementationTabs } from './ImplementationExtraFields'
+export {
+  default as ConnectorFields,
+  connectorIdOptions,
+  httpMethodOptions,
+} from './ConnectorFields'
+export {
+  default as ImplementationExtraFields,
+  implementationTabs,
+} from './ImplementationExtraFields'
 export { default as DmnFields } from './DmnFields'
 export { default as ExternalTaskFields } from './ExternalTaskFields'
 export { default as FieldInjections, createDefaultField, fieldTypeOptions } from './FieldInjections'
@@ -31,3 +38,7 @@ export { default as OutMappingPropagation } from './OutMappingPropagation'
 export { default as OutMappings } from './OutMappings'
 export type { OutMappingItem } from './OutMappings'
 export { uid, getDefinitions } from '../events/eventHelpers'
+export { default as UserPicker } from './UserPicker'
+export { default as GroupPicker } from './GroupPicker'
+export { default as JavaClassPicker } from './JavaClassPicker'
+export { default as DelegateExpressionPicker } from './DelegateExpressionPicker'

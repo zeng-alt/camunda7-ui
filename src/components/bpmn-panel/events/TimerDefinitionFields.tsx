@@ -51,7 +51,8 @@ export default defineComponent({
         }
       }
       if (bo) {
-        retryTimeCycle.value = bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+        retryTimeCycle.value =
+          bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
         jobPriority.value = bo.jobPriority ?? ''
       }
     }

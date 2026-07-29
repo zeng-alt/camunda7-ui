@@ -36,7 +36,7 @@ export const t = (key: string, locale?: LocaleType) => {
 
 export function useCamundaI18n() {
   const config = useCamundaConfig()
-  
+
   const currentLocale = computed<LocaleType>(() => {
     return config?.localeRef.value || defaultLocale.value
   })
@@ -45,7 +45,7 @@ export function useCamundaI18n() {
 
   return {
     t: tLocal,
-    currentLocale
+    currentLocale,
   }
 }
 
@@ -64,13 +64,13 @@ export function camundaTranslate(template: string, replacements?: Record<string,
   const bpmnMessages = (messages[locale] as any)?.bpmn || {}
   template = bpmnMessages[template] || template
 
-  return template.replace(/{([^}]+)}/g, function(_, key) {
+  return template.replace(/{([^}]+)}/g, function (_, key) {
     return replacements[key] || '{' + key + '}'
   })
 }
 
 export const customTranslateModule = {
-  translate: ['value', camundaTranslate]
+  translate: ['value', camundaTranslate],
 }
 
 export const camundaTranslateModule = customTranslateModule

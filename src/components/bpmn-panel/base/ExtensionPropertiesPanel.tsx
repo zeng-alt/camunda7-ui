@@ -36,9 +36,7 @@ export default defineComponent({
 
     function findPropertiesContainer(extensionElements: any): any {
       if (!extensionElements?.values) return null
-      return extensionElements.values.find(
-        (v: any) => v.$type === 'camunda:Properties'
-      ) || null
+      return extensionElements.values.find((v: any) => v.$type === 'camunda:Properties') || null
     }
 
     function syncFromModel() {
@@ -79,7 +77,7 @@ export default defineComponent({
       }
 
       const values = items.map((item) =>
-        moddle.create('camunda:Property', { name: item.name, value: item.value })
+        moddle.create('camunda:Property', { name: item.name, value: item.value }),
       )
       container.values = values
 
@@ -101,9 +99,7 @@ export default defineComponent({
     }
 
     function update(index: number, field: 'name' | 'value', val: string) {
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, [field]: val } : item
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, [field]: val } : item))
       items.value = next
       save(next)
     }
@@ -122,29 +118,29 @@ export default defineComponent({
               </NButton>
             </div>
           ) : (
-          <div class="flex flex-col gap-4px">
-            {items.value.map((item, index) => (
-              <div class="flex gap-4px items-center">
-                <NInput
-                  value={item.name}
-                  onUpdateValue={(v: string | null) => update(index, 'name', v ?? '')}
-                  placeholder={t('bpmnPanel.placeholders.propertyName')}
-                  size={props.formSize}
-                  style="flex:3;min-width:100px"
-                />
-                <NInput
-                  value={item.value}
-                  onUpdateValue={(v: string | null) => update(index, 'value', v ?? '')}
-                  placeholder={t('bpmnPanel.placeholders.propertyValue')}
-                  size={props.formSize}
-                  style="flex:3;min-width:100px"
-                />
-                <NButton text type="error" size="tiny" onClick={() => remove(index)}>
-                  {t('bpmnPanel.buttons.delete')}
-                </NButton>
-              </div>
-            ))}
-          </div>
+            <div class="flex flex-col gap-4px">
+              {items.value.map((item, index) => (
+                <div class="flex gap-4px items-center">
+                  <NInput
+                    value={item.name}
+                    onUpdateValue={(v: string | null) => update(index, 'name', v ?? '')}
+                    placeholder={t('bpmnPanel.placeholders.propertyName')}
+                    size={props.formSize}
+                    style="flex:3;min-width:100px"
+                  />
+                  <NInput
+                    value={item.value}
+                    onUpdateValue={(v: string | null) => update(index, 'value', v ?? '')}
+                    placeholder={t('bpmnPanel.placeholders.propertyValue')}
+                    size={props.formSize}
+                    style="flex:3;min-width:100px"
+                  />
+                  <NButton text type="error" size="tiny" onClick={() => remove(index)}>
+                    {t('bpmnPanel.buttons.delete')}
+                  </NButton>
+                </div>
+              ))}
+            </div>
           )}
           {items.value.length > 0 && (
             <div class="mt-8px">

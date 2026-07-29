@@ -55,7 +55,9 @@ export default defineComponent({
         <div class="p-8px">
           <NTabs
             value={tabValue.value}
-            onUpdateValue={(v: string) => { tabValue.value = v }}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
             size="small"
             type="line"
           >

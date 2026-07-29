@@ -1,15 +1,17 @@
-import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref } from 'vue';
-import { CamundaConfigProvider } from '../config-provider';
-import { type ThemeType, type LocaleType } from '../config-provider/context';
-import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales';
+import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref } from 'vue'
+import { CamundaConfigProvider } from '../config-provider'
+import { type ThemeType, type LocaleType } from '../config-provider/context'
+import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
+import { useCamundaLookups } from '@/composables'
 import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider } from 'naive-ui'
+import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
 import './bpmn.css'
-import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler';
-import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css';
-import 'camunda-bpmn-js/dist/assets/diagram-js.css';
-import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
-import 'camunda-bpmn-js/dist/assets/bpmn-js.css';
+import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler'
+import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css'
+import 'camunda-bpmn-js/dist/assets/diagram-js.css'
+import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
+import 'camunda-bpmn-js/dist/assets/bpmn-js.css'
 
 const processId = `Process_${Math.random().toString(36).slice(2, 9)}`
 
@@ -21,7 +23,7 @@ const someDiagram = `<?xml version="1.0" encoding="UTF-8"?>
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="${processId}">
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-</bpmn:definitions>`;
+</bpmn:definitions>`
 
 export default defineComponent({
   name: 'BpmnModelerProcess',
@@ -34,17 +36,59 @@ export default defineComponent({
       type: String as PropType<LocaleType>,
       default: undefined,
     },
+    extraTabLabels: {
+      type: Object as PropType<Record<string, string>>,
+      default: () => ({}),
+    },
+    onSaveXml: {
+      type: Function as PropType<(xml: string) => void>,
+      default: null,
+    },
+    onSearchUsers: {
+      type: Function as PropType<
+        (name: string, pageNo?: number, pageSize?: number) => PageResult | Promise<PageResult>
+      >,
+      default: null,
+    },
+    onSearchUserGroups: {
+      type: Function as PropType<
+        (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+      >,
+      default: null,
+    },
+    onFetchProcessList: {
+      type: Function as PropType<() => ProcessLookupItem[] | Promise<ProcessLookupItem[]>>,
+      default: null,
+    },
+    onSearchJavaClasses: {
+      type: Function as PropType<
+        (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+      >,
+      default: null,
+    },
+    onSearchDelegateExpressions: {
+      type: Function as PropType<
+        (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+      >,
+      default: null,
+    },
+    onSearchExternalTopics: {
+      type: Function as PropType<
+        (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+      >,
+      default: null,
+    },
   },
   emits: ['update:theme', 'update:locale'],
-  setup(props, { emit }) {
-    const { t, currentLocale } = useCamundaI18n();
+  setup(props, { emit, slots }) {
+    const { t, currentLocale } = useCamundaI18n()
 
     const currentTheme = ref<ThemeType>(props.theme ?? 'light')
     const currentLocaleRef = ref<LocaleType>(props.locale ?? currentLocale.value ?? 'zh-CN')
 
-    const canvasRef = ref<HTMLElement | null>(null);
-    const modelerRef = ref<any>(null);
-    let bpmnModeler: any = null;
+    const canvasRef = ref<HTMLElement | null>(null)
+    const modelerRef = ref<any>(null)
+    let bpmnModeler: any = null
 
     onMounted(async () => {
       // 修复2：canvasRef.value 现在能正确拿到 DOM 节点（模板里加了 ref={canvasRef}）
@@ -53,94 +97,102 @@ export default defineComponent({
           container: canvasRef.value,
           additionalModules: [
             // 国际化
-            customTranslateModule
+            customTranslateModule,
           ],
-        });
-        modelerRef.value = bpmnModeler;
+        })
+        modelerRef.value = bpmnModeler
 
         try {
-          await bpmnModeler.importXML(someDiagram);
-          console.log('success!');
+          await bpmnModeler.importXML(someDiagram)
+          console.log('success!')
 
-          setupColorManager(bpmnModeler);
+          setupColorManager(bpmnModeler)
 
-          let attempts = 0;
+          let attempts = 0
           const tryFitViewport = () => {
-            if (canvasRef.value && canvasRef.value.clientWidth > 0 && canvasRef.value.clientHeight > 0) {
-              bpmnModeler.get('canvas').zoom('fit-viewport');
+            if (
+              canvasRef.value &&
+              canvasRef.value.clientWidth > 0 &&
+              canvasRef.value.clientHeight > 0
+            ) {
+              bpmnModeler.get('canvas').zoom('fit-viewport')
             } else if (attempts < 10) {
-              attempts++;
-              setTimeout(tryFitViewport, 50);
+              attempts++
+              setTimeout(tryFitViewport, 50)
             }
-          };
-          tryFitViewport();
+          }
+          tryFitViewport()
         } catch (err) {
-          console.error('something went wrong:', err);
+          console.error('something went wrong:', err)
         }
       }
-    });
+    })
 
     onBeforeUnmount(() => {
       if (bpmnModeler) {
-        bpmnModeler.destroy();
+        bpmnModeler.destroy()
       }
-    });
+    })
 
     // 修复3：所有函数统一放在 setup 顶层，缩进一致
     function toggleMinimap() {
       if (bpmnModeler) {
-        const minimap = bpmnModeler.get('minimap');
-        if (minimap) minimap.toggle();
+        const minimap = bpmnModeler.get('minimap')
+        if (minimap) minimap.toggle()
       }
     }
 
     function zoomIn() {
       if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas');
-        const currentZoom = canvas.zoom();
-        canvas.zoom(Math.min(currentZoom * 1.2, 3.0), 'auto');
+        const canvas = bpmnModeler.get('canvas')
+        const currentZoom = canvas.zoom()
+        canvas.zoom(Math.min(currentZoom * 1.2, 3.0), 'auto')
       }
     }
 
     function zoomOut() {
       if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas');
-        const currentZoom = canvas.zoom();
-        canvas.zoom(Math.max(currentZoom / 1.2, 0.2), 'auto');
+        const canvas = bpmnModeler.get('canvas')
+        const currentZoom = canvas.zoom()
+        canvas.zoom(Math.max(currentZoom / 1.2, 0.2), 'auto')
       }
     }
 
     function centerView() {
       if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas');
-        canvas.zoom('fit-viewport');
+        const canvas = bpmnModeler.get('canvas')
+        canvas.zoom('fit-viewport')
       }
     }
 
     function lastStep() {
       if (bpmnModeler) {
-        const commandStack = bpmnModeler.get('commandStack');
-        if (commandStack.canUndo()) commandStack.undo();
+        const commandStack = bpmnModeler.get('commandStack')
+        if (commandStack.canUndo()) commandStack.undo()
       }
     }
 
     function nextStep() {
       if (bpmnModeler) {
-        const commandStack = bpmnModeler.get('commandStack');
-        if (commandStack.canRedo()) commandStack.redo();
+        const commandStack = bpmnModeler.get('commandStack')
+        if (commandStack.canRedo()) commandStack.redo()
       }
     }
 
     const showXml = async () => {
       if (bpmnModeler) {
         try {
-          const { xml } = await bpmnModeler.saveXML({ format: true });
-          console.log(xml);
+          const { xml } = await bpmnModeler.saveXML({ format: true })
+          if (props.onSaveXml) {
+            props.onSaveXml(xml)
+          } else {
+            console.log(xml)
+          }
         } catch (err) {
-          console.error('Error saving XML', err);
+          console.error('Error saving XML', err)
         }
       }
-    };
+    }
 
     function setupColorManager(modeler: any) {
       const elementRegistry = modeler.get('elementRegistry')
@@ -149,8 +201,7 @@ export default defineComponent({
     }
 
     function reapplyElementColor(modeler: any, element: any) {
-      const bo = element.businessObject
-      const di = bo?.di
+      const di = element.di
       if (!di) return
       const fill = di.get('color:background-color') || di.get('bioc:fill') || (di as any).fill
       const stroke = di.get('color:border-color') || di.get('bioc:stroke') || (di as any).stroke
@@ -179,15 +230,40 @@ export default defineComponent({
       bpmnModeler?.get('eventBus')?.fire('i18n.changed')
     }
 
+    const { registerLookups } = useCamundaLookups()
+    registerLookups({
+      searchUsers: props.onSearchUsers,
+      searchUserGroups: props.onSearchUserGroups,
+      fetchProcessList: props.onFetchProcessList,
+      searchJavaClasses: props.onSearchJavaClasses,
+      searchDelegateExpressions: props.onSearchDelegateExpressions,
+      searchExternalTopics: props.onSearchExternalTopics,
+    })
+
+    const extraTabs: Record<string, any> = {
+      'start-event': slots['start-event-extra'],
+      'end-event': slots['end-event-extra'],
+      'intermediate-throw-event': slots['intermediate-throw-event-extra'],
+      'intermediate-catch-event': slots['intermediate-catch-event-extra'],
+      task: slots['task-extra'],
+      gateway: slots['gateway-extra'],
+    }
+
     return () => (
       <CamundaConfigProvider theme={currentTheme.value} locale={currentLocaleRef.value}>
         {{
           default: () => (
             <NLayout has-sider sider-placement="right" position="absolute">
-              <NLayoutContent class="h-full" content-style="height: 100%; display: flex; flex-direction: column;">
+              <NLayoutContent
+                class="h-full"
+                content-style="height: 100%; display: flex; flex-direction: column;"
+              >
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
-                <div class="floating-btn-group" style="position: absolute; top: 24px; right: 8px; z-index: 10;">
-                   <NButtonGroup size="small">
+                <div
+                  class="floating-btn-group"
+                  style="position: absolute; top: 24px; right: 8px; z-index: 10;"
+                >
+                  <NButtonGroup size="small">
                     <NButton ghost onClick={zoomIn}>
                       <NIcon>
                         <span class="i-ic-baseline-add" />
@@ -223,6 +299,7 @@ export default defineComponent({
                         <span class="i-ic-baseline-code" />
                       </NIcon>
                     </NButton>
+                    {slots.buttons?.({ modeler: modelerRef.value })}
                     <NButton ghost onClick={toggleLocale}>
                       <NIcon>
                         <span class="i-ic-baseline-language" />
@@ -230,7 +307,13 @@ export default defineComponent({
                     </NButton>
                     <NButton ghost onClick={toggleTheme}>
                       <NIcon>
-                        <span class={currentTheme.value === 'dark' ? 'i-ic-baseline-bedtime' : 'i-ic-baseline-wb-sunny'} />
+                        <span
+                          class={
+                            currentTheme.value === 'dark'
+                              ? 'i-ic-baseline-bedtime'
+                              : 'i-ic-baseline-wb-sunny'
+                          }
+                        />
                       </NIcon>
                     </NButton>
                   </NButtonGroup>
@@ -246,12 +329,16 @@ export default defineComponent({
                 content-style="padding: 0; display: flex; flex-direction: column; height: 100%;"
                 bordered
               >
-                <CamundaPropertiesPanel bpmnModeler={modelerRef.value} />
+                <CamundaPropertiesPanel
+                  bpmnModeler={modelerRef.value}
+                  extraTabs={extraTabs}
+                  extraTabLabels={props.extraTabLabels}
+                />
               </NLayoutSider>
             </NLayout>
-          )
+          ),
         }}
       </CamundaConfigProvider>
-    );
+    )
   },
-});
+})

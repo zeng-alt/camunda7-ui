@@ -27,7 +27,8 @@ export default defineComponent({
 
     function buildSignalOptions() {
       const definitions = getDefinitions(toRaw(props.businessObject))
-      const elements = definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Signal') || []
+      const elements =
+        definitions?.rootElements?.filter((e: any) => e.$type === 'bpmn:Signal') || []
       const opts: { label: string; value: string }[] = [
         { label: t('bpmnPanel.eventDef.none'), value: '__none__' },
         { label: t('bpmnPanel.eventDef.createNew'), value: '__create__' },

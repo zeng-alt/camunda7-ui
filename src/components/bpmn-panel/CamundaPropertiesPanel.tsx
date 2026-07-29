@@ -1,7 +1,13 @@
 import { defineComponent, ref, onBeforeUnmount, watch, type PropType } from 'vue'
 import { useCamundaI18n } from '../../locales'
 import ProcessPropertiesPancel from './ProcessPropertiesPancel'
-import { EventPropertiesPanel, getEventIcon, getEventDefType, getEventDefLabelKey, getCategoryLabelKey } from './events'
+import {
+  EventPropertiesPanel,
+  getEventIcon,
+  getEventDefType,
+  getEventDefLabelKey,
+  getCategoryLabelKey,
+} from './events'
 import { TaskPropertiesPanel } from './task'
 import { GatewayPropertiesPanel } from './gateways'
 import { CallActivityPropertiesPanel } from './call-activity'
@@ -59,43 +65,43 @@ function getElementType(element: any): string {
 }
 
 const eventTypes = new Set([
-  'start-event', 'end-event', 'intermediate-throw-event',
-  'intermediate-catch-event', 'boundary-event',
+  'start-event',
+  'end-event',
+  'intermediate-throw-event',
+  'intermediate-catch-event',
+  'boundary-event',
 ])
 
 const taskTypes = new Set([
-  'user-task', 'service-task', 'send-task', 'receive-task', 'manual-task',
-  'script-task', 'business-rule-task', 'task',
+  'user-task',
+  'service-task',
+  'send-task',
+  'receive-task',
+  'manual-task',
+  'script-task',
+  'business-rule-task',
+  'task',
 ])
 
-const callActivityTypes = new Set([
-  'call-activity',
-])
+const callActivityTypes = new Set(['call-activity'])
 
-const subProcessTypes = new Set([
-  'sub-process', 'ad-hoc-sub-process', 'transaction',
-])
+const subProcessTypes = new Set(['sub-process', 'ad-hoc-sub-process', 'transaction'])
 
-const swimlaneTypes = new Set([
-  'participant', 'lane',
-])
+const swimlaneTypes = new Set(['participant', 'lane'])
 
 const gatewayTypes = new Set([
-  'exclusive-gateway', 'parallel-gateway', 'inclusive-gateway',
-  'event-based-gateway', 'gateway',
+  'exclusive-gateway',
+  'parallel-gateway',
+  'inclusive-gateway',
+  'event-based-gateway',
+  'gateway',
 ])
 
-const flowTypes = new Set([
-  'sequence-flow',
-])
+const flowTypes = new Set(['sequence-flow'])
 
-const artifactTypes = new Set([
-  'text-annotation', 'group', 'association',
-])
+const artifactTypes = new Set(['text-annotation', 'group', 'association'])
 
-const dataTypes = new Set([
-  'data-object-reference', 'data-store-reference',
-])
+const dataTypes = new Set(['data-object-reference', 'data-store-reference'])
 
 const typeIconMap: Record<string, string> = {
   process: 'bpmn-icon-bpmn-io',
@@ -119,7 +125,7 @@ const typeIconMap: Record<string, string> = {
   'parallel-gateway': 'bpmn-icon-gateway-parallel',
   'inclusive-gateway': 'bpmn-icon-gateway-or',
   'event-based-gateway': 'bpmn-icon-gateway-eventbased',
-  'gateway': 'bpmn-icon-gateway-complex',
+  gateway: 'bpmn-icon-gateway-complex',
   'sequence-flow': 'bpmn-icon-connection',
   collaboration: 'bpmn-icon-participant',
   participant: 'bpmn-icon-participant',
@@ -163,6 +169,14 @@ export default defineComponent({
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
       default: 'top',
+    },
+    extraTabs: {
+      type: Object as PropType<Record<string, any>>,
+      default: () => ({}),
+    },
+    extraTabLabels: {
+      type: Object as PropType<Record<string, string>>,
+      default: () => ({}),
     },
   },
   setup(props) {
@@ -256,7 +270,10 @@ export default defineComponent({
         )
       }
 
-      const isDefault = type === 'sequence-flow' && selectedElement.value ? isDefaultFlow(selectedElement.value) : false
+      const isDefault =
+        type === 'sequence-flow' && selectedElement.value
+          ? isDefaultFlow(selectedElement.value)
+          : false
       const elementName = selectedBusinessObject.value?.name
       const isEvent = eventTypes.has(type)
 
@@ -281,150 +298,158 @@ export default defineComponent({
 
       return (
         <>
-        <div class="h-full flex flex-col">
-          <div class={`flex gap-12px p-12px border-b border-solid border-light_border dark:border-dark_border ${elementName ? 'items-start' : 'items-center'}`}>
-            <i class={`${iconClass} text-24px`} />
-            <div class="flex-1 min-w-0">
-              <div class="text-14px font-bold truncate">{typeLabel}</div>
-              {elementName && (
-                <div class="text-12px text-#888 truncate">{elementName}</div>
+          <div class="h-full flex flex-col">
+            <div
+              class={`flex gap-12px p-12px border-b border-solid border-light_border dark:border-dark_border ${elementName ? 'items-start' : 'items-center'}`}
+            >
+              <i class={`${iconClass} text-24px`} />
+              <div class="flex-1 min-w-0">
+                <div class="text-14px font-bold truncate">{typeLabel}</div>
+                {elementName && <div class="text-12px text-#888 truncate">{elementName}</div>}
+              </div>
+            </div>
+            <div class="flex-1 overflow-auto camunda-props-scroll pb-16px">
+              {type === 'collaboration' ? (
+                <CollaborationPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+              ) : type === 'process' ? (
+                <ProcessPropertiesPancel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+              ) : eventTypes.has(type) ? (
+                <EventPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                  extraTabContent={props.extraTabs[type]}
+                  extraTabLabel={props.extraTabLabels[type] || ''}
+                />
+              ) : subProcessTypes.has(type) ? (
+                <SubProcessPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+              ) : callActivityTypes.has(type) ? (
+                <CallActivityPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+              ) : taskTypes.has(type) ? (
+                <TaskPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                  extraTabContent={props.extraTabs['task']}
+                  extraTabLabel={props.extraTabLabels['task'] || ''}
+                />
+              ) : flowTypes.has(type) ? (
+                <FlowPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+              ) : dataTypes.has(type) ? (
+                type === 'data-object-reference' ? (
+                  <DataObjectReferencePropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                ) : (
+                  <DataStoreReferencePropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                )
+              ) : artifactTypes.has(type) ? (
+                type === 'group' ? (
+                  <GroupPropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                ) : type === 'text-annotation' ? (
+                  <TextAnnotationPropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                ) : (
+                  <AssociationPropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                )
+              ) : swimlaneTypes.has(type) ? (
+                type === 'lane' ? (
+                  <LanePropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                ) : (
+                  <PoolPropertiesPanel
+                    businessObject={selectedBusinessObject.value}
+                    element={selectedElement.value}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    labelPlacement={props.labelPlacement}
+                  />
+                )
+              ) : gatewayTypes.has(type) ? (
+                <GatewayPropertiesPanel
+                  businessObject={selectedBusinessObject.value}
+                  element={selectedElement.value}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                  extraTabContent={props.extraTabs['gateway']}
+                  extraTabLabel={props.extraTabLabels['gateway'] || ''}
+                />
+              ) : (
+                <div class="flex items-center justify-center h-full text-#888 text-13px">
+                  <p>
+                    {typeLabel} {t('bpmnPanel.panel.comingSoon')}
+                  </p>
+                </div>
               )}
             </div>
           </div>
-          <div class="flex-1 overflow-auto camunda-props-scroll pb-16px">
-            {type === 'collaboration' ? (
-              <CollaborationPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : type === 'process' ? (
-              <ProcessPropertiesPancel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : eventTypes.has(type) ? (
-              <EventPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : subProcessTypes.has(type) ? (
-              <SubProcessPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : callActivityTypes.has(type) ? (
-              <CallActivityPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : taskTypes.has(type) ? (
-              <TaskPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : flowTypes.has(type) ? (
-              <FlowPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : dataTypes.has(type) ? (
-              type === 'data-object-reference' ? (
-                <DataObjectReferencePropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              ) : (
-                <DataStoreReferencePropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              )
-            ) : artifactTypes.has(type) ? (
-              type === 'group' ? (
-                <GroupPropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              ) : type === 'text-annotation' ? (
-                <TextAnnotationPropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              ) : (
-                <AssociationPropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              )
-            ) : swimlaneTypes.has(type) ? (
-              type === 'lane' ? (
-                <LanePropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              ) : (
-                <PoolPropertiesPanel
-                  businessObject={selectedBusinessObject.value}
-                  element={selectedElement.value}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  labelPlacement={props.labelPlacement}
-                />
-              )
-            ) : gatewayTypes.has(type) ? (
-              <GatewayPropertiesPanel
-                businessObject={selectedBusinessObject.value}
-                element={selectedElement.value}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                labelPlacement={props.labelPlacement}
-              />
-            ) : (
-              <div class="flex items-center justify-center h-full text-#888 text-13px">
-                <p>{typeLabel} {t('bpmnPanel.panel.comingSoon')}</p>
-              </div>
-            )}
-          </div>
-        </div>
         </>
       )
     }

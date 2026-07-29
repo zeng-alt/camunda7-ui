@@ -1,15 +1,21 @@
 import { defineComponent, computed, ref, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { InputsPanel, OutputsPanel, GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel, AsyncCheckboxes } from '../base'
+import {
+  InputsPanel,
+  OutputsPanel,
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  TaskListenersPanel,
+  AsyncCheckboxes,
+} from '../base'
 import UserTaskExtraFields, { userTaskTabs } from './UserTaskExtraFields'
 import ServiceTaskExtraFields, { serviceTaskTabs } from './ServiceTaskExtraFields'
 import SendTaskExtraFields, { sendTaskTabs } from './SendTaskExtraFields'
 import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraFields'
 import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
 import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
-
-
 
 function getTaskSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -49,6 +55,14 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left',
     },
+    extraTabContent: {
+      type: Function,
+      default: null,
+    },
+    extraTabLabel: {
+      type: String,
+      default: '',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -70,7 +84,9 @@ export default defineComponent({
         <div class="p-8px">
           <NTabs
             value={tabValue.value}
-            onUpdateValue={(v: string) => { tabValue.value = v }}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
             size="small"
             type="line"
           >
@@ -97,72 +113,78 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            {type === 'user-task' && userTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <UserTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
-            {type === 'service-task' && serviceTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <ServiceTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
-            {type === 'send-task' && sendTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <SendTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
-            {type === 'receive-task' && receiveTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <ReceiveTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
-            {type === 'script-task' && scriptTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <ScriptTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
-            {type === 'business-rule-task' && businessRuleTaskTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <BusinessRuleTaskExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                  tabName={tab.name}
-                />
-              </NTabPane>
-            ))}
+            {type === 'user-task' &&
+              userTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <UserTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'service-task' &&
+              serviceTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <ServiceTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'send-task' &&
+              sendTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <SendTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'receive-task' &&
+              receiveTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <ReceiveTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'script-task' &&
+              scriptTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <ScriptTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'business-rule-task' &&
+              businessRuleTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <BusinessRuleTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
             <NTabPane name="input" tab={t('bpmnPanel.tabs.input')}>
               <div class="pt-8px">
                 <InputsPanel
@@ -203,6 +225,17 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
+            {props.extraTabContent && (
+              <NTabPane name="custom" tab={props.extraTabLabel || t('bpmnPanel.tabs.custom')}>
+                <div class="pt-8px">
+                  {props.extraTabContent({
+                    element: props.element,
+                    businessObject: props.businessObject,
+                    type,
+                  })}
+                </div>
+              </NTabPane>
+            )}
           </NTabs>
         </div>
       )

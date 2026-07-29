@@ -100,7 +100,7 @@ export default defineComponent({
         return
       }
       const raw: any[] = extensionElements.values.filter(
-        (v: any) => v.$type === 'camunda:TaskListener'
+        (v: any) => v.$type === 'camunda:TaskListener',
       )
       items.value = raw.map((p: any) => {
         let listenerType: ListenerItem['listenerType'] = 'class'
@@ -124,7 +124,8 @@ export default defineComponent({
           fields: rawFields.map((f: any) => ({
             _key: keySeq++,
             name: f.name || '',
-            fieldType: f.string !== undefined || f.stringValue !== undefined ? 'string' : 'expression',
+            fieldType:
+              f.string !== undefined || f.stringValue !== undefined ? 'string' : 'expression',
             value: f.string || f.stringValue || f.expression || '',
           })),
         }
@@ -154,10 +155,8 @@ export default defineComponent({
           .map((f) =>
             moddle.create('camunda:Field', {
               name: f.name,
-              ...(f.fieldType === 'string'
-                ? { string: f.value }
-                : { expression: f.value }),
-            })
+              ...(f.fieldType === 'string' ? { string: f.value } : { expression: f.value }),
+            }),
           )
 
         if (fields.length > 0) attrs.fields = fields
@@ -179,9 +178,7 @@ export default defineComponent({
       })
 
       const extValues = bo.extensionElements.get('values')
-      const nonListeners = extValues.filter(
-        (v: any) => v.$type !== 'camunda:TaskListener'
-      )
+      const nonListeners = extValues.filter((v: any) => v.$type !== 'camunda:TaskListener')
       extValues.length = 0
       nonListeners.forEach((v: any) => extValues.push(v))
       listeners.forEach((v: any) => extValues.push(v))
@@ -204,18 +201,14 @@ export default defineComponent({
     }
 
     function updateListener(index: number, field: string, val: any) {
-      const next = items.value.map((item, i) =>
-        i === index ? { ...item, [field]: val } : item
-      )
+      const next = items.value.map((item, i) => (i === index ? { ...item, [field]: val } : item))
       items.value = next
       save(next)
     }
 
     function addField(listenerIndex: number) {
       const next = items.value.map((item, i) =>
-        i === listenerIndex
-          ? { ...item, fields: [...item.fields, createDefaultField()] }
-          : item
+        i === listenerIndex ? { ...item, fields: [...item.fields, createDefaultField()] } : item,
       )
       items.value = next
       save(next)
@@ -225,7 +218,7 @@ export default defineComponent({
       const next = items.value.map((item, i) =>
         i === listenerIndex
           ? { ...item, fields: item.fields.filter((_, fi) => fi !== fieldIndex) }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -236,11 +229,9 @@ export default defineComponent({
         i === listenerIndex
           ? {
               ...item,
-              fields: item.fields.map((f, fi) =>
-                fi === fieldIndex ? { ...f, [field]: val } : f
-              ),
+              fields: item.fields.map((f, fi) => (fi === fieldIndex ? { ...f, [field]: val } : f)),
             }
-          : item
+          : item,
       )
       items.value = next
       save(next)
@@ -259,111 +250,138 @@ export default defineComponent({
               </NButton>
             </div>
           ) : (
-          <div class="flex flex-col gap-8px">
-            {items.value.map((item, index) => (
-              <div class="flex flex-col gap-6px p-10px border border-solid border-light_border dark:border-dark_border rounded-4px bg-#fafafa dark:bg-#1a1a1a">
-                <div class="flex gap-8px items-center">
-                  <NSelect
-                    value={item.listenerType}
-                    onUpdateValue={(v: string | null) => updateListener(index, 'listenerType', v ?? 'class')}
-                    options={listenerTypeOptions}
-                    size={props.formSize}
-                    style="min-width:160px"
-                  />
-                  <div class="text-12px text-#888">{t('bpmnPanel.fields.taskListenerEvent')}:</div>
-                  <NSelect
-                    value={item.event}
-                    onUpdateValue={(v: string | null) => updateListener(index, 'event', v ?? 'create')}
-                    options={eventOptions(t)}
-                    size={props.formSize}
-                    style="width:130px"
-                  />
-                  <div class="flex-1" />
-                  <NButton text type="error" size="tiny" onClick={() => remove(index)}>
-                    {t('bpmnPanel.buttons.delete')}
-                  </NButton>
-                </div>
-
-                {item.listenerType === 'class' && (
-                  <JavaClassField
-                    value={item.klass}
-                    onUpdateValue={(v: string) => updateListener(index, 'klass', v)}
-                    formSize={props.formSize}
-                  />
-                )}
-                {item.listenerType === 'expression' && (
-                  <ExpressionField
-                    value={item.expression}
-                    onUpdateValue={(v: string) => updateListener(index, 'expression', v)}
-                    formSize={props.formSize}
-                  />
-                )}
-                {item.listenerType === 'delegateExpression' && (
-                  <DelegateExpressionField
-                    value={item.delegateExpression}
-                    onUpdateValue={(v: string) => updateListener(index, 'delegateExpression', v)}
-                    formSize={props.formSize}
-                  />
-                )}
-                {item.listenerType === 'script' && (
-                  <ScriptFields
-                    scriptFormat={item.scriptFormat}
-                    scriptValue={item.scriptValue}
-                    onUpdateScriptFormat={(v: string) => updateListener(index, 'scriptFormat', v)}
-                    onUpdateScriptValue={(v: string) => updateListener(index, 'scriptValue', v)}
-                    formSize={props.formSize}
-                    compact
-                  />
-                )}
-
-                <div class="border-t border-dashed border-light_border dark:border-dark_border pt-6px mt-2px">
-                  <div class="text-12px font-bold mb-4px">{t('bpmnPanel.fields.fieldInjections')}</div>
-                  {item.fields.length === 0 ? (
-                    <div class="flex flex-col items-center gap-8px py-12px">
-                      <NEmpty description={t('bpmnPanel.panel.noFields')} size="small" />
-                      <NButton size="tiny" onClick={() => addField(index)} class="w-full justify-center">
-                        {t('bpmnPanel.buttons.addField')}
-                      </NButton>
+            <div class="flex flex-col gap-8px">
+              {items.value.map((item, index) => (
+                <div class="flex flex-col gap-6px p-10px border border-solid border-light_border dark:border-dark_border rounded-4px bg-#fafafa dark:bg-#1a1a1a">
+                  <div class="flex gap-8px items-center">
+                    <NSelect
+                      value={item.listenerType}
+                      onUpdateValue={(v: string | null) =>
+                        updateListener(index, 'listenerType', v ?? 'class')
+                      }
+                      options={listenerTypeOptions}
+                      size={props.formSize}
+                      style="min-width:100px"
+                    />
+                    <div class="text-12px text-#888">
+                      {t('bpmnPanel.fields.taskListenerEvent')}:
                     </div>
-                  ) : (
-                  <div class="flex flex-col gap-4px">
-                    {item.fields.map((field, fi) => (
-                      <div class="flex gap-4px items-center">
-                        <NInput
-                          value={field.name}
-                          onUpdateValue={(v: string | null) => updateField(index, fi, 'name', v ?? '')}
-                          placeholder={t('bpmnPanel.placeholders.fieldName')}
-                          size={props.formSize}
-                          style="flex:1"
-                        />
-                        <NSelect
-                          value={field.fieldType}
-                          onUpdateValue={(v: string | null) => updateField(index, fi, 'fieldType', v ?? 'string')}
-                          options={fieldTypeOptions}
-                          size={props.formSize}
-                          style="width:110px"
-                        />
-                        <NInput
-                          value={field.value}
-                          onUpdateValue={(v: string | null) => updateField(index, fi, 'value', v ?? '')}
-                          placeholder={t('bpmnPanel.placeholders.fieldValue')}
-                          size={props.formSize}
-                          style="flex:1"
-                        />
-                        <NButton text type="error" size="tiny" onClick={() => removeField(index, fi)}>
-                          {t('bpmnPanel.buttons.delete')}
-                        </NButton>
-                      </div>
-                    ))}
-                    <NButton size="tiny" onClick={() => addField(index)} class="w-full justify-center">
-                      {t('bpmnPanel.buttons.addField')}
+                    <NSelect
+                      value={item.event}
+                      onUpdateValue={(v: string | null) =>
+                        updateListener(index, 'event', v ?? 'create')
+                      }
+                      options={eventOptions(t)}
+                      size={props.formSize}
+                      style="width:200px"
+                    />
+                    <div class="flex-1" />
+                    <NButton text type="error" size="tiny" onClick={() => remove(index)}>
+                      {t('bpmnPanel.buttons.delete')}
                     </NButton>
                   </div>
+
+                  {item.listenerType === 'class' && (
+                    <JavaClassField
+                      value={item.klass}
+                      onUpdateValue={(v: string) => updateListener(index, 'klass', v)}
+                      formSize={props.formSize}
+                    />
                   )}
+                  {item.listenerType === 'expression' && (
+                    <ExpressionField
+                      value={item.expression}
+                      onUpdateValue={(v: string) => updateListener(index, 'expression', v)}
+                      formSize={props.formSize}
+                    />
+                  )}
+                  {item.listenerType === 'delegateExpression' && (
+                    <DelegateExpressionField
+                      value={item.delegateExpression}
+                      onUpdateValue={(v: string) => updateListener(index, 'delegateExpression', v)}
+                      formSize={props.formSize}
+                    />
+                  )}
+                  {item.listenerType === 'script' && (
+                    <ScriptFields
+                      scriptFormat={item.scriptFormat}
+                      scriptValue={item.scriptValue}
+                      onUpdateScriptFormat={(v: string) => updateListener(index, 'scriptFormat', v)}
+                      onUpdateScriptValue={(v: string) => updateListener(index, 'scriptValue', v)}
+                      formSize={props.formSize}
+                      compact
+                    />
+                  )}
+
+                  <div class="border-t border-dashed border-light_border dark:border-dark_border pt-6px mt-2px">
+                    <div class="text-12px font-bold mb-4px">
+                      {t('bpmnPanel.fields.fieldInjections')}
+                    </div>
+                    {item.fields.length === 0 ? (
+                      <div class="flex flex-col items-center gap-8px py-12px">
+                        <NEmpty description={t('bpmnPanel.panel.noFields')} size="small" />
+                        <NButton
+                          size="tiny"
+                          onClick={() => addField(index)}
+                          class="w-full justify-center"
+                        >
+                          {t('bpmnPanel.buttons.addField')}
+                        </NButton>
+                      </div>
+                    ) : (
+                      <div class="flex flex-col gap-4px">
+                        {item.fields.map((field, fi) => (
+                          <div class="flex gap-4px items-center">
+                            <NInput
+                              value={field.name}
+                              onUpdateValue={(v: string | null) =>
+                                updateField(index, fi, 'name', v ?? '')
+                              }
+                              placeholder={t('bpmnPanel.placeholders.fieldName')}
+                              size={props.formSize}
+                              style="flex:1"
+                            />
+                            <NSelect
+                              value={field.fieldType}
+                              onUpdateValue={(v: string | null) =>
+                                updateField(index, fi, 'fieldType', v ?? 'string')
+                              }
+                              options={fieldTypeOptions}
+                              size={props.formSize}
+                              style="width:110px"
+                            />
+                            <NInput
+                              value={field.value}
+                              onUpdateValue={(v: string | null) =>
+                                updateField(index, fi, 'value', v ?? '')
+                              }
+                              placeholder={t('bpmnPanel.placeholders.fieldValue')}
+                              size={props.formSize}
+                              style="flex:1"
+                            />
+                            <NButton
+                              text
+                              type="error"
+                              size="tiny"
+                              onClick={() => removeField(index, fi)}
+                            >
+                              {t('bpmnPanel.buttons.delete')}
+                            </NButton>
+                          </div>
+                        ))}
+                        <NButton
+                          size="tiny"
+                          onClick={() => addField(index)}
+                          class="w-full justify-center"
+                        >
+                          {t('bpmnPanel.buttons.addField')}
+                        </NButton>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           )}
           {items.value.length > 0 && (
             <div class="mt-8px">

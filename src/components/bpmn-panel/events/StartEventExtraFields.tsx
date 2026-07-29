@@ -18,6 +18,9 @@ export default defineComponent({
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     tabName: { type: String, default: 'startEvent' },
+    extraTabContent: { type: Function, default: null },
+    extraTabLabel: { type: String, default: '' },
+    elementType: { type: String, default: '' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -53,6 +56,18 @@ export default defineComponent({
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
             />
+          </div>
+        )
+      }
+
+      if (props.tabName === 'custom') {
+        return (
+          <div class="pt-8px">
+            {props.extraTabContent({
+              element: props.element,
+              businessObject: props.businessObject,
+              type: props.elementType,
+            })}
           </div>
         )
       }

@@ -44,14 +44,16 @@ export default defineComponent({
       }
 
       const others = bo.extensionElements.values.filter(
-        (v: any) => !(v.$type === 'camunda:In' && v.variables === 'all')
+        (v: any) => !(v.$type === 'camunda:In' && v.variables === 'all'),
       )
 
       if (propagateAll.value) {
-        others.push(moddle.create('camunda:In', {
-          variables: 'all',
-          local: local.value || undefined,
-        }))
+        others.push(
+          moddle.create('camunda:In', {
+            variables: 'all',
+            local: local.value || undefined,
+          }),
+        )
       }
 
       bo.extensionElements.values = others
@@ -85,11 +87,7 @@ export default defineComponent({
             {t('bpmnPanel.options.propagateAllVariables')}
           </NCheckbox>
           {propagateAll.value && (
-            <NCheckbox
-              checked={local.value}
-              onUpdateChecked={onLocalChange}
-              size={checkboxSize}
-            >
+            <NCheckbox checked={local.value} onUpdateChecked={onLocalChange} size={checkboxSize}>
               {t('bpmnPanel.fields.local')}
             </NCheckbox>
           )}
@@ -98,4 +96,3 @@ export default defineComponent({
     )
   },
 })
-

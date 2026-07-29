@@ -4,7 +4,13 @@ export { default as IntermediateCatchEventExtraFields } from './IntermediateCatc
 export { default as IntermediateThrowEventExtraFields } from './IntermediateThrowEventExtraFields'
 export { default as BoundaryEventExtraFields } from './BoundaryEventExtraFields'
 export { default as EndEventExtraFields } from './EndEventExtraFields'
-export { default as EventDefinitionPanel, getEventDefType, getEventDefLabelKey, getCategoryLabelKey, getEventIcon } from './EventDefinitionPanel'
+export {
+  default as EventDefinitionPanel,
+  getEventDefType,
+  getEventDefLabelKey,
+  getCategoryLabelKey,
+  getEventIcon,
+} from './EventDefinitionPanel'
 export { default as TimerDefinitionFields } from './TimerDefinitionFields'
 export { default as ConditionalDefinitionFields } from './ConditionalDefinitionFields'
 export { default as MessageDefinitionFields } from './MessageDefinitionFields'

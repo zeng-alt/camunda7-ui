@@ -18,7 +18,14 @@ export default defineComponent({
 
     return () => (
       <div class="p-8px">
-        <NTabs value={tabValue.value} onUpdateValue={(v: string) => { tabValue.value = v }} type="line" size={props.formSize}>
+        <NTabs
+          value={tabValue.value}
+          onUpdateValue={(v: string) => {
+            tabValue.value = v
+          }}
+          type="line"
+          size={props.formSize}
+        >
           <NTabPane name="general" tab={t('bpmnPanel.tabs.general')}>
             <div class="pt-8px">
               <GeneralPanel

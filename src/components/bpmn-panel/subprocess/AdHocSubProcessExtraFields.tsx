@@ -54,7 +54,9 @@ export default defineComponent({
       const moddle = getModeler().get('moddle')
 
       if (!val) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), { completionCondition: undefined })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), {
+          completionCondition: undefined,
+        })
         return
       }
 
@@ -63,7 +65,9 @@ export default defineComponent({
         modeling.updateModdleProperties(toRaw(props.element), toRaw(existing), { body: val })
       } else {
         const expr = moddle.create('bpmn:FormalExpression', { body: val })
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), { completionCondition: expr })
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), {
+          completionCondition: expr,
+        })
       }
     }
 
@@ -80,7 +84,9 @@ export default defineComponent({
               </NCheckbox>
             </div>
             <div class="mb-12px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.completionCondition')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.completionCondition')}
+              </div>
               <NInput
                 value={completionCondition.value}
                 onUpdateValue={onCompletionConditionChange}

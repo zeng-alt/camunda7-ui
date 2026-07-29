@@ -1,13 +1,23 @@
 import { defineComponent, computed, ref, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, ExecutionListenersPanel, AsyncCheckboxes } from '../base'
+import {
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  ExecutionListenersPanel,
+  AsyncCheckboxes,
+} from '../base'
 import StartEventExtraFields, { startEventTabs } from './StartEventExtraFields'
-import IntermediateCatchEventExtraFields, { intermediateCatchEventTabs } from './IntermediateCatchEventExtraFields'
-import IntermediateThrowEventExtraFields, { intermediateThrowEventTabs } from './IntermediateThrowEventExtraFields'
+import IntermediateCatchEventExtraFields, {
+  intermediateCatchEventTabs,
+} from './IntermediateCatchEventExtraFields'
+import IntermediateThrowEventExtraFields, {
+  intermediateThrowEventTabs,
+} from './IntermediateThrowEventExtraFields'
 import BoundaryEventExtraFields, { boundaryEventTabs } from './BoundaryEventExtraFields'
 import EndEventExtraFields, { endEventTabs } from './EndEventExtraFields'
-import { getEventDefType, getEventDefLabelKey, getCategoryLabelKey } from './EventDefinitionPanel'
+import { getEventDefType } from './EventDefinitionPanel'
 
 function getEventSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -20,10 +30,19 @@ function getEventSubType(businessObject: any): string {
   return ''
 }
 
-const extraFieldsMap: Record<string, { component: any; tabs: { name: string; labelKey: string }[] }> = {
+const extraFieldsMap: Record<
+  string,
+  { component: any; tabs: { name: string; labelKey: string }[] }
+> = {
   'start-event': { component: StartEventExtraFields, tabs: startEventTabs },
-  'intermediate-catch-event': { component: IntermediateCatchEventExtraFields, tabs: intermediateCatchEventTabs },
-  'intermediate-throw-event': { component: IntermediateThrowEventExtraFields, tabs: intermediateThrowEventTabs },
+  'intermediate-catch-event': {
+    component: IntermediateCatchEventExtraFields,
+    tabs: intermediateCatchEventTabs,
+  },
+  'intermediate-throw-event': {
+    component: IntermediateThrowEventExtraFields,
+    tabs: intermediateThrowEventTabs,
+  },
   'boundary-event': { component: BoundaryEventExtraFields, tabs: boundaryEventTabs },
   'end-event': { component: EndEventExtraFields, tabs: endEventTabs },
 }
@@ -36,6 +55,14 @@ export default defineComponent({
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'left' },
+    extraTabContent: {
+      type: Function,
+      default: null,
+    },
+    extraTabLabel: {
+      type: String,
+      default: '',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -58,12 +85,17 @@ export default defineComponent({
 
       const config = extraFieldsMap[type]!
       const tabs = config.tabs
+      const extendedTabs = props.extraTabContent
+        ? [...tabs, { name: 'custom', labelKey: '' }]
+        : tabs
 
       return (
         <div class="p-8px">
           <NTabs
             value={tabValue.value}
-            onUpdateValue={(v: string) => { tabValue.value = v }}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
             size="small"
             type="line"
           >
@@ -90,14 +122,24 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            {tabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+            {extendedTabs.map((tab) => (
+              <NTabPane
+                name={tab.name}
+                tab={
+                  tab.name === 'custom'
+                    ? props.extraTabLabel || t('bpmnPanel.tabs.custom')
+                    : t(tab.labelKey)
+                }
+              >
                 <config.component
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   tabName={tab.name}
+                  extraTabContent={props.extraTabContent}
+                  extraTabLabel={props.extraTabLabel}
+                  elementType={def}
                 />
               </NTabPane>
             ))}

@@ -189,7 +189,9 @@
       "outMappingTarget": "目标",
       "linkName": "链接名称",
       "escalationName": "升级名称",
-      "escalationCode": "升级代码"
+      "escalationCode": "升级代码",
+      "userSelection": "用户选择",
+      "groupSelection": "组选择"
     },
     "placeholders": {
       "elementId": "元素 ID",
@@ -267,7 +269,13 @@
       "inMappingTarget": "例如 targetVariable",
       "outMappingSource": "例如 myVariable",
       "outMappingSourceExpression": "例如 ${expression}",
-      "outMappingTarget": "例如 targetVariable"
+      "outMappingTarget": "例如 targetVariable",
+      "searchUser": "搜索用户...",
+      "searchGroup": "搜索组...",
+      "searchJavaClass": "搜索 Java 类...",
+      "searchDelegateExpression": "搜索委托表达式...",
+      "expression": "输入表达式...",
+      "enter": "按下enter"
     },
     "buttons": {
       "delete": "删除",
@@ -285,7 +293,12 @@
       "addError": "添加错误",
       "preview": "预览",
       "addInMapping": "添加输入映射",
-      "addOutMapping": "添加输出映射"
+      "addOutMapping": "添加输出映射",
+      "fixedValue": "固定值",
+      "variable": "变量",
+      "search": "搜索",
+      "confirm": "确定",
+      "cancel": "取消"
     },
     "categories": {
       "startEvent": "开始事件",
@@ -338,7 +351,8 @@
       "input": "输入参数",
       "output": "输出参数",
       "implementation": "实现者",
-      "fieldInjections": "字段注入"
+      "fieldInjections": "字段注入",
+      "custom": "自定义"
     },
     "options": {
       "formTypeNone": "无",
@@ -364,7 +378,8 @@
       "noSelection": "选择一个元素以编辑属性",
       "noProcess": "未选择流程",
       "comingSoon": "属性编辑（即将支持）",
-      "noFields": "暂无字段"
+      "noFields": "暂无字段",
+      "noData": "暂无数据"
     },
     "formPreview": {
       "noFields": "未配置表单字段",
@@ -391,7 +406,10 @@
       "timerDate": "ISO 8601 组合日期和时间表示法定义的具体时间点。\n\n2019-10-01T12:00:00Z - UTC 时间\n2019-10-02T08:09:40+02:00 - UTC 加 2 小时时区偏移",
       "timerDuration": "ISO 8601 持续时间格式定义的时间段。\n\nPT15S - 15 秒\nPT1H30M - 1 小时 30 分钟\nP14D - 14 天",
       "timerCycle": "ISO 8601 重复间隔格式或 cron 表达式定义的循环。\n\nR5/PT10S - 每 10 秒，最多 5 次\nR/P1D - 每天，无限次\n0 0 9-17 * * MON-FRI - 周一至周五 9-17 点（UTC）每小时整点",
-      "variableEvents": "指定多个变量变更事件，以逗号分隔。<br/><br/>变量变更事件包括：<br/><br/>create<br/>update<br/>delete<br/><br/>文档：<a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>"
+      "variableEvents": "指定多个变量变更事件，以逗号分隔。<br/><br/>变量变更事件包括：<br/><br/>create<br/>update<br/>delete<br/><br/>文档：<a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>",
+      "toggleMode": "切换固定值/表达式模式",
+      "selectUser": "选择用户",
+      "selectGroup": "选择组"
     }
   },
   "bpmn": {

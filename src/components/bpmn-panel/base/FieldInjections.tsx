@@ -34,9 +34,15 @@ export default defineComponent({
 
     function syncFromModel() {
       const bo = props.businessObject
-      if (!bo) { localFields.value = []; return }
+      if (!bo) {
+        localFields.value = []
+        return
+      }
       const extValues = bo.extensionElements?.values
-      if (!extValues) { localFields.value = []; return }
+      if (!extValues) {
+        localFields.value = []
+        return
+      }
       const raw: any[] = extValues.filter((v: any) => v.$type === 'camunda:Field')
       localFields.value = raw.map((f: any) => ({
         _key: 0,
@@ -66,7 +72,7 @@ export default defineComponent({
           moddle.create('camunda:Field', {
             name: f.name,
             ...(f.fieldType === 'string' ? { string: f.value } : { expression: f.value }),
-          })
+          }),
         )
 
       const extValues = bo.extensionElements.get('values')
@@ -92,7 +98,7 @@ export default defineComponent({
 
     function update(index: number, field: string, val: any) {
       localFields.value = localFields.value.map((item, i) =>
-        i === index ? { ...item, [field]: val } : item
+        i === index ? { ...item, [field]: val } : item,
       )
       save()
     }

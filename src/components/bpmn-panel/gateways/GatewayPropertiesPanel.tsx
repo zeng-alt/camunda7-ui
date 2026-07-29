@@ -37,6 +37,14 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left',
     },
+    extraTabContent: {
+      type: Function,
+      default: null,
+    },
+    extraTabLabel: {
+      type: String,
+      default: '',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -58,7 +66,9 @@ export default defineComponent({
         <div class="p-8px">
           <NTabs
             value={tabValue.value}
-            onUpdateValue={(v: string) => { tabValue.value = v }}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
             size={props.formSize}
             type="line"
           >
@@ -85,6 +95,17 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
+            {props.extraTabContent && (
+              <NTabPane name="custom" tab={props.extraTabLabel || t('bpmnPanel.tabs.custom')}>
+                <div class="pt-8px">
+                  {props.extraTabContent({
+                    element: props.element,
+                    businessObject: props.businessObject,
+                    type: gatewayType.value,
+                  })}
+                </div>
+              </NTabPane>
+            )}
             <NTabPane name="taskListeners" tab={t('bpmnPanel.tabs.taskListeners')}>
               <div class="pt-8px">
                 <TaskListenersPanel

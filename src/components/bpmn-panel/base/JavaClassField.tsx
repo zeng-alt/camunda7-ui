@@ -1,6 +1,8 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useCamundaLookups } from '../../../composables'
+import JavaClassPicker from './JavaClassPicker'
 
 export default defineComponent({
   name: 'JavaClassField',
@@ -16,8 +18,10 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { lookups } = useCamundaLookups()
     const local = ref('')
 
+    const hasSearchFn = computed(() => !!lookups.searchJavaClasses)
     const isAuto = () => props.businessObject && props.propertyKey
 
     function syncFromModel() {
@@ -36,7 +40,11 @@ export default defineComponent({
           const modeling = props.bpmnModeler.get('modeling')
           const attrs = { [props.propertyKey]: val || undefined }
           if (props.nested) {
-            modeling.updateModdleProperties(toRaw(props.element), toRaw(props.businessObject), attrs)
+            modeling.updateModdleProperties(
+              toRaw(props.element),
+              toRaw(props.businessObject),
+              attrs,
+            )
           } else {
             modeling.updateProperties(toRaw(props.element), attrs)
           }
@@ -46,13 +54,20 @@ export default defineComponent({
       }
     }
 
-    return () => (
-      <NInput
-        value={isAuto() ? local.value : props.value}
-        onUpdateValue={(v: string | null) => onChange(v ?? '')}
-        placeholder={t('bpmnPanel.placeholders.listenerClass')}
-        size={props.formSize}
-      />
-    )
+    return () =>
+      hasSearchFn.value ? (
+        <JavaClassPicker
+          value={isAuto() ? local.value : props.value}
+          onUpdate:value={onChange}
+          formSize={props.formSize}
+        />
+      ) : (
+        <NInput
+          value={isAuto() ? local.value : props.value}
+          onUpdateValue={(v: string | null) => onChange(v ?? '')}
+          placeholder={t('bpmnPanel.placeholders.listenerClass')}
+          size={props.formSize}
+        />
+      )
   },
 })

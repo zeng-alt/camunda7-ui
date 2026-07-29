@@ -2,13 +2,28 @@ import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from '.'
-import { JavaClassField, ExpressionField, DelegateExpressionField, ExternalTaskFields, ConnectorFields, ErrorFields, DmnFields } from '.'
+import {
+  JavaClassField,
+  ExpressionField,
+  DelegateExpressionField,
+  ExternalTaskFields,
+  ConnectorFields,
+  ErrorFields,
+  DmnFields,
+} from '.'
 
 export const implementationTabs: ExtraFieldTab[] = [
   { name: 'implementation', labelKey: 'bpmnPanel.tabs.implementation' },
 ]
 
-type ImplType = 'none' | 'class' | 'expression' | 'delegateExpression' | 'external' | 'connector' | 'dmn'
+type ImplType =
+  | 'none'
+  | 'class'
+  | 'expression'
+  | 'delegateExpression'
+  | 'external'
+  | 'connector'
+  | 'dmn'
 
 export default defineComponent({
   name: 'ImplementationExtraFields',
@@ -50,7 +65,8 @@ export default defineComponent({
       if (bo.expression) return 'expression'
       if (bo.delegateExpression) return 'delegateExpression'
       if (bo.type === 'external') return 'external'
-      if (bo.extensionElements?.values?.find((v: any) => v.$type === 'camunda:Connector')) return 'connector'
+      if (bo.extensionElements?.values?.find((v: any) => v.$type === 'camunda:Connector'))
+        return 'connector'
       if (props.showDmn && bo.decisionRef) return 'dmn'
       return 'none'
     }
@@ -98,13 +114,9 @@ export default defineComponent({
       }
 
       if (newType !== 'connector') {
-        const conn = bo.extensionElements?.values?.find(
-          (v: any) => v.$type === 'camunda:Connector'
-        )
+        const conn = bo.extensionElements?.values?.find((v: any) => v.$type === 'camunda:Connector')
         if (conn && bo.extensionElements) {
-          bo.extensionElements.values = bo.extensionElements.values.filter(
-            (v: any) => v !== conn
-          )
+          bo.extensionElements.values = bo.extensionElements.values.filter((v: any) => v !== conn)
           attrs.extensionElements = bo.extensionElements
         }
       }
@@ -113,12 +125,13 @@ export default defineComponent({
     }
 
     return () => {
-
       return (
         <div class="pt-8px">
           {!props.defaultType && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.implementationType')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.implementationType')}
+              </div>
               <NSelect
                 value={implType.value}
                 onUpdateValue={onImplTypeChange}
@@ -157,7 +170,9 @@ export default defineComponent({
 
           {implType.value === 'delegateExpression' && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.listenerDelegateExpression')}</div>
+              <div class="mb-4px text-12px text-#666">
+                {t('bpmnPanel.fields.listenerDelegateExpression')}
+              </div>
               <DelegateExpressionField
                 businessObject={props.businessObject}
                 element={props.element}

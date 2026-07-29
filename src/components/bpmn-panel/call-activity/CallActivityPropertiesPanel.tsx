@@ -1,7 +1,13 @@
 import { defineComponent, computed, ref, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel, TaskListenersPanel, AsyncCheckboxes } from '../base'
+import {
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  TaskListenersPanel,
+  AsyncCheckboxes,
+} from '../base'
 import CallActivityExtraFields, { callActivityTabs } from './CallActivityExtraFields'
 
 function getCallActivitySubType(businessObject: any): string {
@@ -55,7 +61,9 @@ export default defineComponent({
         <div class="p-8px">
           <NTabs
             value={tabValue.value}
-            onUpdateValue={(v: string) => { tabValue.value = v }}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
             size="small"
             type="line"
           >
@@ -84,16 +92,17 @@ export default defineComponent({
                 </div>
               </div>
             </NTabPane>
-            {type === 'call-activity' && callActivityTabs.map(tab => (
-              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
-                <CallActivityExtraFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                />
-              </NTabPane>
-            ))}
+            {type === 'call-activity' &&
+              callActivityTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <CallActivityExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                  />
+                </NTabPane>
+              ))}
             <NTabPane name="taskListeners" tab={t('bpmnPanel.tabs.taskListeners')}>
               <div class="pt-8px">
                 <TaskListenersPanel

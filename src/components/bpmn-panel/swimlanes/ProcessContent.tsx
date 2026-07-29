@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NCheckbox, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { DocumentationPanel, GeneralPanel, HintTooltip } from '../base'
+import { DocumentationPanel, GeneralPanel, HintTooltip, UserPicker, GroupPicker } from '../base'
 
 export default defineComponent({
   name: 'ProcessContent',
@@ -23,7 +23,10 @@ export default defineComponent({
     const taskPriority = ref<number | null>(null)
     const jobPriority = ref<number | null>(null)
 
+    let syncing = false
+
     function syncFields() {
+      if (syncing) return
       const p = props.processBobject
       if (p) {
         versionTag.value = p.versionTag || ''
@@ -47,34 +50,37 @@ export default defineComponent({
     watch(() => props.processBobject, syncFields, { immediate: true, deep: true })
 
     function updateProp(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element || !props.processBobject) return
+      if (!props.bpmnModeler || !props.element) return
       const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(props.processBobject), { [key]: value })
+      syncing = true
+      modeling.updateProperties(toRaw(props.element), { [key]: value })
+      syncing = false
     }
 
     function onVersionTagChange(val: string | null) {
-      versionTag.value = val ?? ''
       updateProp('versionTag', val ?? '')
+      versionTag.value = val ?? ''
     }
 
     function onStartableInTasklistChange(val: boolean) {
-      startableInTasklist.value = val
       updateProp('startableInTasklist', val)
+      startableInTasklist.value = val
     }
 
     function onHistoryTimeToLiveChange(val: string | null) {
-      historyTimeToLive.value = val ?? ''
       updateProp('historyTimeToLive', val ?? '')
+      historyTimeToLive.value = val ?? ''
     }
 
     function onCandidateStarterGroupsChange(val: string | null) {
-      candidateStarterGroups.value = val ?? ''
       updateProp('candidateStarterGroups', val ?? '')
+      candidateStarterGroups.value = val ?? ''
     }
 
-    function onCandidateStarterUsersChange(val: string | null) {
-      candidateStarterUsers.value = val ?? ''
-      updateProp('candidateStarterUsers', val ?? '')
+    function onCandidateStarterUsersChange(val: string) {
+      debugger
+      updateProp('candidateStarterUsers', val)
+      candidateStarterUsers.value = val
     }
 
     function onTaskPriorityChange(val: number | null) {
@@ -137,21 +143,23 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.candidateStarterGroups')}</div>
-            <NInput
+            <GroupPicker
               value={candidateStarterGroups.value}
-              onUpdateValue={onCandidateStarterGroupsChange}
+              onUpdate:value={onCandidateStarterGroupsChange}
+              multiple
+              formSize={props.formSize}
+              label={t('bpmnPanel.fields.candidateStarterGroups')}
               placeholder={t('bpmnPanel.placeholders.candidateStarterGroups')}
-              size={props.formSize}
             />
           </div>
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.candidateStarterUsers')}</div>
-            <NInput
+            <UserPicker
               value={candidateStarterUsers.value}
-              onUpdateValue={onCandidateStarterUsersChange}
+              onUpdate:value={onCandidateStarterUsersChange}
+              multiple
+              formSize={props.formSize}
+              label={t('bpmnPanel.fields.candidateStarterUsers')}
               placeholder={t('bpmnPanel.placeholders.candidateStarterUsers')}
-              size={props.formSize}
             />
           </div>
           <div>
