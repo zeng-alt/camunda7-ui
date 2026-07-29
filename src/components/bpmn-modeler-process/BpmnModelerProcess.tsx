@@ -1,7 +1,7 @@
 import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref } from 'vue';
 import { CamundaConfigProvider } from '../config-provider';
 import { type ThemeType, type LocaleType } from '../config-provider/context';
-import { useCamundaI18n, setLocale } from '@/locales';
+import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales';
 import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider } from 'naive-ui'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
 import './bpmn.css'
@@ -51,12 +51,18 @@ export default defineComponent({
       if (canvasRef.value) {
         bpmnModeler = new BpmnModeler({
           container: canvasRef.value,
+          additionalModules: [
+            // 国际化
+            customTranslateModule
+          ],
         });
         modelerRef.value = bpmnModeler;
 
         try {
           await bpmnModeler.importXML(someDiagram);
           console.log('success!');
+
+          setupColorManager(bpmnModeler);
 
           let attempts = 0;
           const tryFitViewport = () => {
@@ -136,6 +142,30 @@ export default defineComponent({
       }
     };
 
+    function setupColorManager(modeler: any) {
+      const elementRegistry = modeler.get('elementRegistry')
+      elementRegistry.forEach((el: any) => reapplyElementColor(modeler, el))
+      modeler.on('element.changed', ({ element }: any) => reapplyElementColor(modeler, element))
+    }
+
+    function reapplyElementColor(modeler: any, element: any) {
+      const bo = element.businessObject
+      const di = bo?.di
+      if (!di) return
+      const fill = di.get('color:background-color') || di.get('bioc:fill') || (di as any).fill
+      const stroke = di.get('color:border-color') || di.get('bioc:stroke') || (di as any).stroke
+      if (!fill && !stroke) return
+      const elementRegistry = modeler.get('elementRegistry')
+      const gfx = elementRegistry.getGraphics(element) as SVGElement | null
+      if (!gfx) return
+      const sel = '.djs-visual > :is(rect, circle, polygon, ellipse, path)'
+      const visual = gfx.querySelector(sel) as SVGElement | null
+      if (visual) {
+        if (fill) visual.style.setProperty('fill', fill, 'important')
+        if (stroke) visual.style.setProperty('stroke', stroke, 'important')
+      }
+    }
+
     function toggleTheme() {
       currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
       emit('update:theme', currentTheme.value)
@@ -146,6 +176,7 @@ export default defineComponent({
       currentLocaleRef.value = next
       setLocale(next)
       emit('update:locale', next)
+      bpmnModeler?.get('eventBus')?.fire('i18n.changed')
     }
 
     return () => (
@@ -155,7 +186,6 @@ export default defineComponent({
             <NLayout has-sider sider-placement="right" position="absolute">
               <NLayoutContent class="h-full" content-style="height: 100%; display: flex; flex-direction: column;">
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
-               
                 <div class="floating-btn-group" style="position: absolute; top: 24px; right: 8px; z-index: 10;">
                    <NButtonGroup size="small">
                     <NButton ghost onClick={zoomIn}>

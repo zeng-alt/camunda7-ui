@@ -114,6 +114,10 @@
 }
 
 /* Palette 展开/收起按钮 */
+.bpmn-container .djs-palette .djs-palette-toggle::before {
+  content: '' !important;
+}
+
 .dark .bpmn-container .djs-palette .djs-palette-toggle {
   background-color: var(--bpmn-surface) !important;
   border-color: var(--bpmn-border-muted) !important;
@@ -147,7 +151,7 @@
 
 /* ---------- Popup Menu（右键菜单 / replace menu） ---------- */
 .dark .bpmn-container .djs-popup {
-  background-color: var(--bpmn-surface) !important;
+  background: var(--bpmn-surface) !important;
   border: 1px solid var(--bpmn-border) !important;
   border-radius: 6px !important;
   box-shadow: var(--bpmn-shadow) !important;
@@ -162,17 +166,57 @@
   color: var(--bpmn-accent) !important;
 }
 
+.dark .bpmn-container .djs-popup .entry.selected {
+  background-color: var(--bpmn-surface-alt) !important;
+}
+
 .dark .bpmn-container .djs-popup .djs-popup-header {
   background-color: var(--bpmn-bg) !important;
   border-bottom: 1px solid var(--bpmn-border-muted) !important;
   color: var(--bpmn-text-muted) !important;
-  font-size: 11px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+}
+
+.dark .bpmn-container .djs-popup .djs-popup-header .entry.active {
+  color: var(--bpmn-accent) !important;
 }
 
 .dark .bpmn-container .djs-popup .separator {
   border-top-color: var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .djs-popup .djs-popup-title {
+  color: var(--bpmn-text) !important;
+}
+
+.dark .bpmn-container .djs-popup .djs-popup-body .entry-header {
+  color: var(--bpmn-text-muted) !important;
+}
+
+.dark .bpmn-container .djs-popup .djs-popup-entry-description {
+  color: var(--bpmn-text-muted) !important;
+}
+
+.dark .bpmn-container .djs-popup .djs-popup-no-results {
+  color: var(--bpmn-text-muted) !important;
+}
+
+.dark .bpmn-container .djs-popup-search input {
+  background: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-border-muted) !important;
+  color: var(--bpmn-text) !important;
+}
+
+.dark .bpmn-container .djs-popup-search input:focus {
+  background: var(--bpmn-surface-alt) !important;
+  border-color: var(--bpmn-accent) !important;
+}
+
+.dark .bpmn-container .djs-popup *::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .bpmn-container .djs-popup *::-webkit-scrollbar-track {
+  background: transparent !important;
 }
 
 /* ---------- Tooltip ---------- */
@@ -457,7 +501,28 @@ body .djs-drag-active {
   stroke: var(--bpmn-border) !important;
 }
 
+/* 拖拽标记：覆盖 svg.new-parent / svg.drop-not-ok 的白色背景 */
+.dark .djs-container svg.new-parent {
+  background: var(--bpmn-bg) !important;
+}
+.dark .djs-container svg.drop-not-ok {
+  background: var(--bpmn-bg) !important;
+}
 
+/* 拖拽标记：覆盖 new-parent / drop-not-ok 的白色填充 (shape 层) */
+.dark .djs-shape.new-parent .djs-visual > :nth-child(1),
+.dark .djs-shape.drop-not-ok .djs-visual > :nth-child(1) {
+  fill: var(--bpmn-surface) !important;
+}
+
+.dark .djs-element.attach-ok .djs-visual > :nth-child(1) {
+  stroke: var(--bpmn-accent) !important;
+}
+
+.dark .djs-frame.drop-not-ok .djs-visual > :nth-child(1) {
+  stroke: var(--bpmn-border) !important;
+  fill: none !important;
+}
 
 /* 确保小地图容器的样式 */
 .bpmn-container .djs-minimap .djs-minimap-container {

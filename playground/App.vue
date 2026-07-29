@@ -9,7 +9,7 @@ function toggleTheme() {
 }
 </script>
 
-<template>x
+<template>
   <div class="h-screen relative w-full">
     <BpmnModelerProcess :theme="theme" />
   </div>

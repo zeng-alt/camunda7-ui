@@ -56,3 +56,21 @@ export const naiveLocale = computed(() => {
 export const naiveDateLocale = computed(() => {
   return defaultLocale.value === 'zh-CN' ? naiveDateZhCN : naiveDateEnUS
 })
+
+export function camundaTranslate(template: string, replacements?: Record<string, string>) {
+  replacements = replacements || {}
+
+  const locale = defaultLocale.value
+  const bpmnMessages = (messages[locale] as any)?.bpmn || {}
+  template = bpmnMessages[template] || template
+
+  return template.replace(/{([^}]+)}/g, function(_, key) {
+    return replacements[key] || '{' + key + '}'
+  })
+}
+
+export const customTranslateModule = {
+  translate: ['value', camundaTranslate]
+}
+
+export const camundaTranslateModule = customTranslateModule
