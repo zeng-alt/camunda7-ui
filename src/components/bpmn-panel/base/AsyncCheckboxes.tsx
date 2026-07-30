@@ -21,6 +21,10 @@ export default defineComponent({
       type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'small',
     },
+    showJob: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -31,7 +35,7 @@ export default defineComponent({
     const retryTimeCycle = ref('')
     const jobPriority = ref<number | null>()
 
-    const showJobExecution = computed(() => asyncBefore.value || asyncAfter.value)
+    const showJobExecution = computed(() => props.showJob || asyncBefore.value || asyncAfter.value)
 
     function syncFromModel() {
       const bo = props.businessObject
@@ -39,8 +43,9 @@ export default defineComponent({
       asyncBefore.value = bo.asyncBefore === true
       asyncAfter.value = bo.asyncAfter === true
       exclusive.value = bo.exclusive !== false
-      retryTimeCycle.value =
-        bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+      const extValues = bo.extensionElements?.values || []
+      const retryCycle = extValues.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+      retryTimeCycle.value = retryCycle?.body ?? ''
       jobPriority.value = bo.jobPriority ?? null
     }
 
@@ -70,7 +75,27 @@ export default defineComponent({
 
     function onRetryTimeCycleChange(val: string | null) {
       retryTimeCycle.value = val ?? ''
-      updateProperty('failedJobRetryTimeCycle', val ?? '')
+      if (!props.bpmnModeler || !props.element) return
+      const moddle = props.bpmnModeler.get('moddle')
+      const bo = props.businessObject
+      if (!bo) return
+      if (!bo.extensionElements) {
+        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
+      }
+      const ee = bo.extensionElements
+      let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+      if (val) {
+        if (!retry) {
+          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: val })
+          ee.get('values').push(retry)
+        } else {
+          retry.body = val
+        }
+      } else if (retry) {
+        ee.values = ee.values.filter((v: any) => v !== retry)
+      }
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { extensionElements: bo.extensionElements })
     }
 
     function onJobPriorityChange(val: number | null) {

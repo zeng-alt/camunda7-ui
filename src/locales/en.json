@@ -364,16 +364,34 @@
       "implementation": "Implementation",
       "fieldInjections": "Field Injections",
       "multiInstance": "Batch Execution",
+      "audit": "Audit",
       "custom": "Custom"
     },
     "multiInstance": {
       "enable": "Batch Execution",
+      "disable": "Disable Batch Execution",
       "type": "Type",
       "parallel": "Parallel",
       "sequential": "Sequential",
       "normal": "Normal",
       "advanced": "Advanced",
-      "normalPlaceholder": "Normal mode — coming soon",
+      "executionMode": "Execution Mode",
+      "countersign": "Countersign (Parallel, All)",
+      "orsign": "OR-Sign (Parallel, Any)",
+      "sequentialSign": "Sequential Sign (Sequential, All)",
+      "approverSource": "Approver Source",
+      "approverVariable": "Variable",
+      "approverUser": "User",
+      "approverGroup": "Group",
+      "approverFormField": "Form Field",
+      "approverVariablePlaceholder": "e.g. assigneeList",
+      "approverFormFieldPlaceholder": "e.g. approvers",
+      "permissions": "Permissions",
+      "allowAddSign": "Allow Add Countersigner",
+      "allowTransfer": "Allow Transfer",
+      "allowDelegate": "Allow Delegate",
+      "allowReject": "Allow Reject",
+      "allowCopy": "Allow CC",
       "normalExecutionMode": "Execution Mode",
       "normalParallel": "Parallel",
       "normalSequential": "Sequential",
@@ -393,6 +411,9 @@
       "completionQuantity": "Reach quantity",
       "completionPercentage": "Reach percentage",
       "completionAdvanced": "Advanced configuration"
+    },
+    "permissions": {
+      "title": "Permissions"
     },
     "options": {
       "formTypeNone": "None",
@@ -450,6 +471,9 @@
       "toggleMode": "Toggle fixed value / expression mode",
       "selectUser": "Select user",
       "selectGroup": "Select group"
+    },
+    "userTask": {
+      "multiApproval": "Multi-person Approval"
     }
   },
   "bpmnViewer": {
@@ -471,6 +495,9 @@
       "candidateGroups": "Candidate Groups",
       "visitCount": "Visit Count",
       "rejectCount": "Reject Count"
+    },
+    "userTask": {
+      "multiApproval": "Multi-person Approval"
     },
     "timeline": {
       "title": "Execution Timeline",

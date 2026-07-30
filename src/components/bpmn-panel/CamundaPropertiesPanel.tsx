@@ -178,6 +178,14 @@ export default defineComponent({
       type: Object as PropType<Record<string, string>>,
       default: () => ({}),
     },
+    userResolver: {
+      type: String,
+      default: 'approverResolver.getUsers',
+    },
+    groupResolver: {
+      type: String,
+      default: 'approverResolver.getUserGroups',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -342,6 +350,8 @@ export default defineComponent({
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
+                  userResolver={props.userResolver}
+                  groupResolver={props.groupResolver}
                 />
               ) : callActivityTypes.has(type) ? (
                 <CallActivityPropertiesPanel
@@ -350,6 +360,8 @@ export default defineComponent({
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
+                  userResolver={props.userResolver}
+                  groupResolver={props.groupResolver}
                 />
               ) : taskTypes.has(type) ? (
                 <TaskPropertiesPanel
@@ -360,6 +372,8 @@ export default defineComponent({
                   labelPlacement={props.labelPlacement}
                   extraTabContent={props.extraTabs['task']}
                   extraTabLabel={props.extraTabLabels['task'] || ''}
+                  userResolver={props.userResolver}
+                  groupResolver={props.groupResolver}
                 />
               ) : flowTypes.has(type) ? (
                 <FlowPropertiesPanel

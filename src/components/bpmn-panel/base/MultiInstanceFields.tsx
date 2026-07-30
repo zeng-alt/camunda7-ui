@@ -14,6 +14,8 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    userResolver: { type: String, default: 'approverResolver.getUsers' },
+    groupResolver: { type: String, default: 'approverResolver.getUserGroups' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -28,7 +30,7 @@ export default defineComponent({
     const completionValue = ref<number | null>(null)
     const asyncBefore = ref(false)
     const asyncAfter = ref(false)
-    const exclusive = ref(false)
+    const exclusive = ref(true)
     const retryTimeCycle = ref('')
     const panelMode = ref<'normal' | 'advanced'>('normal')
 
@@ -124,8 +126,11 @@ export default defineComponent({
         const ev = lc.elementVariable || ''
         collection.value = col
         elementVariable.value = ev
-        const userMatch = col.match(/^\$\{approverResolver\.getUsers\((.+)\)\}$/)
-        const groupMatch = col.match(/^\$\{approverResolver\.getUserGroups\((.+)\)\}$/)
+        const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const userRe = new RegExp(`^\\$\\{${escapeRe(props.userResolver)}\\((.+)\\)\\}$`)
+        const groupRe = new RegExp(`^\\$\\{${escapeRe(props.groupResolver)}\\((.+)\\)\\}$`)
+        const userMatch = col.match(userRe)
+        const groupMatch = col.match(groupRe)
         const exprMatch = !userMatch && !groupMatch && col.startsWith('${') && col.endsWith('}')
         if (userMatch) {
           approverMode.value = 'user'
@@ -140,6 +145,12 @@ export default defineComponent({
           approverMode.value = 'variable'
           approverValue.value = col || ''
         }
+        asyncBefore.value = lc.asyncBefore === true
+        asyncAfter.value = lc.asyncAfter === true
+        exclusive.value = lc.exclusive !== false
+        const lcExtValues = lc.extensionElements?.values || []
+        const lcRetryCycle = lcExtValues.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+        retryTimeCycle.value = lcRetryCycle?.body ?? ''
       } else {
         isSequential.value = false
         loopCardinality.value = ''
@@ -152,14 +163,10 @@ export default defineComponent({
         normalCompletionValue.value = null
         approverMode.value = 'variable'
         approverValue.value = ''
-      }
-      const bo = props.businessObject
-      if (bo) {
-        asyncBefore.value = bo.asyncBefore === true
-        asyncAfter.value = bo.asyncAfter === true
-        exclusive.value = bo.exclusive !== false
-        retryTimeCycle.value =
-          bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+        asyncBefore.value = false
+        asyncAfter.value = false
+        exclusive.value = true
+        retryTimeCycle.value = ''
       }
     }
 
@@ -170,6 +177,36 @@ export default defineComponent({
       if (!props.bpmnModeler || !props.element) return
       const modeling = props.bpmnModeler.get('modeling')
       modeling.updateProperties(toRaw(props.element), attrs)
+    }
+
+    function updateLcAsyncProps(lc: any) {
+      if (asyncBefore.value) lc.asyncBefore = true
+      else delete lc.asyncBefore
+      if (asyncAfter.value) lc.asyncAfter = true
+      else delete lc.asyncAfter
+      if (!exclusive.value) lc.exclusive = false
+      else delete lc.exclusive
+      const moddle = props.bpmnModeler?.get('moddle')
+      if (!moddle) return
+      if (retryTimeCycle.value) {
+        if (!lc.extensionElements) {
+          lc.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
+        }
+        const ee = lc.extensionElements
+        let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+        if (!retry) {
+          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: retryTimeCycle.value })
+          ee.get('values').push(retry)
+        } else {
+          retry.body = retryTimeCycle.value
+        }
+      } else if (lc.extensionElements) {
+        const ee = lc.extensionElements
+        const retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+        if (retry) {
+          ee.values = ee.values.filter((v: any) => v !== retry)
+        }
+      }
     }
 
     function onEnabledChange(val: boolean) {
@@ -195,6 +232,7 @@ export default defineComponent({
             body: completionCondition.value,
           })
         }
+        updateLcAsyncProps(lc)
         saveProperties({ loopCharacteristics: lc })
       } else {
         saveProperties({ loopCharacteristics: undefined })
@@ -353,7 +391,7 @@ export default defineComponent({
     function onApproverUserPickerChange(val: string | null) {
       const raw = val ?? ''
       approverValue.value = raw
-      const expr = raw ? `\${approverResolver.getUsers(${raw})}` : ''
+      const expr = raw ? `\${${props.userResolver}(${raw})}` : ''
       collection.value = expr
       updateCollection(expr)
       if (expr && !elementVariable.value) {
@@ -365,7 +403,7 @@ export default defineComponent({
     function onApproverGroupPickerChange(val: string | null) {
       const raw = val ?? ''
       approverValue.value = raw
-      const expr = raw ? `\${approverResolver.getUserGroups(${raw})}` : ''
+      const expr = raw ? `\${${props.groupResolver}(${raw})}` : ''
       collection.value = expr
       updateCollection(expr)
       if (expr && !elementVariable.value) {
@@ -390,30 +428,58 @@ export default defineComponent({
       modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
     }
 
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
-
     function onAsyncBeforeChange(val: boolean) {
       asyncBefore.value = val
-      updateProperty('asyncBefore', val)
+      const lc = getLoopCharacteristics()
+      if (!lc) return
+      if (val) lc.asyncBefore = true
+      else delete lc.asyncBefore
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
     }
 
     function onAsyncAfterChange(val: boolean) {
       asyncAfter.value = val
-      updateProperty('asyncAfter', val)
+      const lc = getLoopCharacteristics()
+      if (!lc) return
+      if (val) lc.asyncAfter = true
+      else delete lc.asyncAfter
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
     }
 
     function onExclusiveChange(val: boolean) {
       exclusive.value = val
-      updateProperty('exclusive', val)
+      const lc = getLoopCharacteristics()
+      if (!lc) return
+      if (!val) lc.exclusive = false
+      else delete lc.exclusive
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
     }
 
     function onRetryTimeCycleChange(val: string | null) {
       retryTimeCycle.value = val ?? ''
-      updateProperty('failedJobRetryTimeCycle', val ?? '')
+      const lc = getLoopCharacteristics()
+      if (!lc || !props.bpmnModeler) return
+      const moddle = props.bpmnModeler.get('moddle')
+      if (!lc.extensionElements) {
+        lc.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
+      }
+      const ee = lc.extensionElements
+      let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+      if (val) {
+        if (!retry) {
+          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: val })
+          ee.get('values').push(retry)
+        } else {
+          retry.body = val
+        }
+      } else if (retry) {
+        ee.values = ee.values.filter((v: any) => v !== retry)
+      }
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
     }
 
     const sequentialOptions = [
@@ -520,8 +586,7 @@ export default defineComponent({
                   <NRadio value="all">{t('bpmnPanel.multiInstance.normalCompletionAll')}</NRadio>
                   <NRadio value="any">{t('bpmnPanel.multiInstance.normalCompletionAny')}</NRadio>
                   <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
-                    <NRadio value="quantity" />
-                    <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.normalCompletionQuantity')}</span>
+                    <NRadio value="quantity" >{t('bpmnPanel.multiInstance.normalCompletionQuantity')}</NRadio>
                     {normalCompletionType.value === 'quantity' && (
                       <NInputNumber
                         value={normalCompletionValue.value}
@@ -534,8 +599,7 @@ export default defineComponent({
                     )}
                   </div>
                   <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
-                    <NRadio value="percentage" />
-                    <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.normalCompletionPercentage')}</span>
+                    <NRadio value="percentage" >{t('bpmnPanel.multiInstance.normalCompletionPercentage')}</NRadio>
                     {normalCompletionType.value === 'percentage' && (
                       <div class="flex items-center gap-2px" style="width:100%">
                         <NInputNumber

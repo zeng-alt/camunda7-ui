@@ -94,6 +94,14 @@ export default defineComponent({
       >,
       default: null,
     },
+    userResolver: {
+      type: String,
+      default: 'approverResolver.getUsers',
+    },
+    groupResolver: {
+      type: String,
+      default: 'approverResolver.getUserGroups',
+    },
     onSearchDecisionRefs: {
       type: Function as PropType<
         (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
@@ -381,6 +389,8 @@ export default defineComponent({
                   bpmnModeler={modelerRef.value}
                   extraTabs={extraTabs}
                   extraTabLabels={props.extraTabLabels}
+                  userResolver={props.userResolver}
+                  groupResolver={props.groupResolver}
                 />
               </NLayoutSider>
             </NLayout>

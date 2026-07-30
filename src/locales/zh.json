@@ -362,20 +362,38 @@
       "implementation": "实现者",
       "fieldInjections": "字段注入",
       "multiInstance": "批量执行",
+      "audit": "审核",
       "custom": "自定义"
     },
     "multiInstance": {
       "enable": "批量执行",
+      "disable": "关闭批量执行",
       "type": "类型",
       "parallel": "并行",
       "sequential": "顺序",
       "normal": "普通",
       "advanced": "高级",
-      "normalPlaceholder": "普通模式 — 暂无配置",
+      "executionMode": "执行方式",
+      "countersign": "会签（并行，全部通过）",
+      "orsign": "或签（并行，任一通过）",
+      "sequentialSign": "串签（依次，全部通过）",
+      "approverSource": "审批人来源",
+      "approverVariable": "变量",
+      "approverUser": "用户",
+      "approverGroup": "用户组",
+      "approverFormField": "表单字段",
+      "approverVariablePlaceholder": "例如 assigneeList",
+      "approverFormFieldPlaceholder": "例如 approvers",
+      "permissions": "权限设置",
+      "allowAddSign": "允许加签",
+      "allowTransfer": "允许转办",
+      "allowDelegate": "允许委托",
+      "allowReject": "允许退回",
+      "allowCopy": "允许抄送",
       "normalExecutionMode": "执行方式",
       "normalParallel": "同时执行",
       "normalSequential": "依次执行",
-      "normalApproverList": "审批人列表",
+      "normalApproverList": "审批人或元素列表",
       "normalVariable": "变量",
       "normalUser": "用户",
       "normalGroup": "用户组",
@@ -391,6 +409,9 @@
       "completionQuantity": "达到数量",
       "completionPercentage": "达到比例",
       "completionAdvanced": "高级配置"
+    },
+    "permissions": {
+      "title": "权限设置"
     },
     "options": {
       "formTypeNone": "无",
@@ -448,6 +469,9 @@
       "toggleMode": "切换固定值/表达式模式",
       "selectUser": "选择用户",
       "selectGroup": "选择组"
+    },
+    "userTask": {
+      "multiApproval": "多人审批"
     }
   },
   "bpmn": {
@@ -721,10 +745,12 @@
       "visitCount": "经过次数",
       "rejectCount": "驳回次数"
     },
+    "userTask": {
+      "multiApproval": "多人审批"
+    },
     "timeline": {
       "title": "执行记录",
       "expand": "展开时间线"
     }
   }
 }
-

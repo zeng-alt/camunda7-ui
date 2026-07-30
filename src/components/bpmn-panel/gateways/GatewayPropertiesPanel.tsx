@@ -2,7 +2,7 @@ import { defineComponent, computed, ref, watch, toRaw, type PropType } from 'vue
 import { NTabs, NTabPane, NCheckbox } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel } from '../base'
-import { AsyncCheckboxes, TaskListenersPanel } from '../base'
+import { AsyncCheckboxes, ExecutionListenersPanel } from '../base'
 
 function getGatewaySubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -50,6 +50,10 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const gatewayType = computed(() => getGatewaySubType(props.businessObject))
     const tabValue = ref('general')
+
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
 
     return () => {
       const type = gatewayType.value
@@ -106,9 +110,9 @@ export default defineComponent({
                 </div>
               </NTabPane>
             )}
-            <NTabPane name="taskListeners" tab={t('bpmnPanel.tabs.taskListeners')}>
+            <NTabPane name="executionListeners" tab={t('bpmnPanel.tabs.executionListeners')}>
               <div class="pt-8px">
-                <TaskListenersPanel
+                <ExecutionListenersPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

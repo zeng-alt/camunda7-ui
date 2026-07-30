@@ -1,4 +1,4 @@
-import { defineComponent, ref, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { DocumentationPanel, GeneralPanel, ExtensionPropertiesPanel } from '../base'
@@ -15,6 +15,10 @@ export default defineComponent({
   setup(props) {
     const { t } = useCamundaI18n()
     const tabValue = ref('general')
+
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
 
     return () => (
       <div class="p-8px">

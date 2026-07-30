@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, type PropType } from 'vue'
+import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import {
@@ -7,7 +7,7 @@ import {
   GeneralPanel,
   DocumentationPanel,
   ExtensionPropertiesPanel,
-  TaskListenersPanel,
+  ExecutionListenersPanel,
   AsyncCheckboxes,
 } from '../base'
 import UserTaskExtraFields, { userTaskTabs } from './UserTaskExtraFields'
@@ -64,11 +64,23 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    userResolver: {
+      type: String,
+      default: 'approverResolver.getUsers',
+    },
+    groupResolver: {
+      type: String,
+      default: 'approverResolver.getUserGroups',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const taskType = computed(() => getTaskSubType(props.businessObject))
     const tabValue = ref('general')
+
+    watch(taskType, () => {
+      tabValue.value = 'general'
+    })
 
     return () => {
       const type = taskType.value
@@ -123,9 +135,12 @@ export default defineComponent({
                     bpmnModeler={props.bpmnModeler}
                     formSize={props.formSize}
                     tabName={tab.name}
+                    userResolver={props.userResolver}
+                    groupResolver={props.groupResolver}
                   />
                 </NTabPane>
               ))}
+
             {type === 'service-task' &&
               serviceTaskTabs.map((tab) => (
                 <NTabPane name={tab.name} tab={t(tab.labelKey)}>
@@ -189,12 +204,14 @@ export default defineComponent({
             {type !== 'user-task' && (
               <NTabPane name="multiInstance" tab={t('bpmnPanel.tabs.multiInstance')}>
               <div class="pt-8px">
-                <MultiInstanceFields
-                  businessObject={props.businessObject}
-                  element={props.element}
-                  bpmnModeler={props.bpmnModeler}
-                  formSize={props.formSize}
-                />
+                  <MultiInstanceFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    userResolver={props.userResolver}
+                    groupResolver={props.groupResolver}
+                  />
               </div>
             </NTabPane>
             )}
@@ -218,9 +235,9 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            <NTabPane name="taskListeners" tab={t('bpmnPanel.tabs.taskListeners')}>
+            <NTabPane name="executionListeners" tab={t('bpmnPanel.tabs.executionListeners')}>
               <div class="pt-8px">
-                <TaskListenersPanel
+                <ExecutionListenersPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

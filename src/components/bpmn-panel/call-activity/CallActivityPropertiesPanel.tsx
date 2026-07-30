@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, type PropType } from 'vue'
+import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import {
@@ -41,11 +41,23 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left',
     },
+    userResolver: {
+      type: String,
+      default: 'approverResolver.getUsers',
+    },
+    groupResolver: {
+      type: String,
+      default: 'approverResolver.getUserGroups',
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const taskType = computed(() => getCallActivitySubType(props.businessObject))
     const tabValue = ref('general')
+
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
 
     return () => {
       const type = taskType.value
@@ -111,6 +123,8 @@ export default defineComponent({
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
+                  userResolver={props.userResolver}
+                  groupResolver={props.groupResolver}
                 />
               </div>
             </NTabPane>

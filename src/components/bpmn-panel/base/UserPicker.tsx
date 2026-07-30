@@ -275,29 +275,25 @@ export default defineComponent({
                 transition: 'border-color .3s var(--n-bezier)',
               }}
             >
-              {selectedValues.value.length === 0 && !showInput.value ? (
-                <span class="text-#999">{props.placeholder}</span>
-              ) : (
-                selectedValues.value.map((val) => (
-                  <NTag
-                    key={val}
-                    closable
-                    round
-                    size={props.formSize}
-                    onClose={() => {
-                      const newValues = selectedValues.value.filter((v) => v !== val)
-                      onDynamicTagsUpdate(newValues)
-                    }}
-                    type="primary"
-                  >
-                    {{
-                      icon: () => <i class="i-ic-baseline-person text-[#bd93f9]" />,
-                      default: () => val,
-                    }}
-                  </NTag>
-                ))
-              )}
-              {showInput.value ? (
+              {selectedValues.value.length > 0 && selectedValues.value.map((val) => (
+                <NTag
+                  key={val}
+                  closable
+                  round
+                  size={props.formSize}
+                  onClose={() => {
+                    const newValues = selectedValues.value.filter((v) => v !== val)
+                    onDynamicTagsUpdate(newValues)
+                  }}
+                  type="primary"
+                >
+                  {{
+                    icon: () => <i class="i-ic-baseline-person text-[#bd93f9]" />,
+                    default: () => val,
+                  }}
+                </NTag>
+              ))}
+              {selectedValues.value.length === 0 || showInput.value ? (
                 <NInput
                   ref={inputRef}
                   size={props.formSize}
@@ -321,7 +317,7 @@ export default defineComponent({
                   dashed
                   type="primary"
                   onClick={showAddInput}
-                  style="margin-left: 4px;"
+                  style="flex-shrink:0"
                 >
                   <i class="i-ic-baseline-plus text-16px" />
                 </NButton>

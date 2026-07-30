@@ -26,12 +26,6 @@ export default defineComponent({
       return props.businessObject?.eventDefinitions?.[0]
     }
 
-    function updateBoProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
-
     function syncFromModel() {
       const bo = props.businessObject
       const def = getEventDef()
@@ -51,8 +45,9 @@ export default defineComponent({
         }
       }
       if (bo) {
-        retryTimeCycle.value =
-          bo['camunda:failedJobRetryTimeCycle'] ?? bo.failedJobRetryTimeCycle ?? ''
+        const extValues = bo.extensionElements?.values || []
+        const retryCycle = extValues.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+        retryTimeCycle.value = retryCycle?.body ?? ''
         jobPriority.value = bo.jobPriority ?? ''
       }
     }
@@ -110,12 +105,34 @@ export default defineComponent({
 
     function onRetryTimeCycleChange(val: string | null) {
       retryTimeCycle.value = val ?? ''
-      updateBoProperty('failedJobRetryTimeCycle', val ?? '')
+      if (!props.bpmnModeler || !props.element) return
+      const moddle = props.bpmnModeler.get('moddle')
+      const bo = props.businessObject
+      if (!bo) return
+      if (!bo.extensionElements) {
+        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
+      }
+      const ee = bo.extensionElements
+      let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+      if (val) {
+        if (!retry) {
+          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: val })
+          ee.get('values').push(retry)
+        } else {
+          retry.body = val
+        }
+      } else if (retry) {
+        ee.values = ee.values.filter((v: any) => v !== retry)
+      }
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { extensionElements: bo.extensionElements })
     }
 
     function onJobPriorityChange(val: number | null) {
       jobPriority.value = val ?? null
-      updateBoProperty('jobPriority', val ?? null)
+      if (!props.bpmnModeler || !props.element) return
+      const modeling = props.bpmnModeler.get('modeling')
+      modeling.updateProperties(toRaw(props.element), { jobPriority: val ?? null })
     }
 
     return () => (

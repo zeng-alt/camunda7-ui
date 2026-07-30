@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, type PropType } from 'vue'
+import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import {
@@ -69,6 +69,10 @@ export default defineComponent({
     const eventType = computed(() => getEventSubType(props.businessObject))
     const tabValue = ref('general')
 
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
+
     const defType = computed(() => getEventDefType(props.businessObject))
 
     return () => {
@@ -119,6 +123,7 @@ export default defineComponent({
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
+                  showJob={'Timer' === def}
                 />
               </div>
             </NTabPane>

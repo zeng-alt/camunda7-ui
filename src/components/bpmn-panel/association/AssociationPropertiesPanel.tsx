@@ -38,6 +38,10 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const tabValue = ref('general')
 
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
+
     return () => (
       <div class="p-8px">
         <NTabs

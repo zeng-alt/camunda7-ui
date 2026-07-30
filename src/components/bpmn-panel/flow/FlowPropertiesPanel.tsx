@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, type PropType } from 'vue'
+import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { GeneralPanel, DocumentationPanel } from '../base'
@@ -39,6 +39,10 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const flowType = computed(() => getFlowSubType(props.businessObject))
     const tabValue = ref('general')
+
+    watch(() => props.businessObject, () => {
+      tabValue.value = 'general'
+    })
 
     return () => {
       const type = flowType.value
