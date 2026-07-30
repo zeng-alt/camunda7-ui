@@ -1,0 +1,97 @@
+/* ====== Execution markers ====== */
+
+.djs-shape.execution-completed .djs-visual > rect,
+.djs-shape.execution-completed .djs-visual > circle,
+.djs-shape.execution-completed .djs-visual > polygon,
+.djs-shape.execution-completed .djs-visual > ellipse {
+  fill: #dcfce7 !important;
+  stroke: #16a34a !important;
+  stroke-width: 2 !important;
+}
+
+.djs-connection.execution-completed .djs-visual > path {
+  stroke: #16a34a !important;
+  stroke-width: 2.5 !important;
+}
+
+/* ====== Active (current node) ====== */
+
+.djs-shape.execution-active .djs-visual > rect,
+.djs-shape.execution-active .djs-visual > circle,
+.djs-shape.execution-active .djs-visual > polygon,
+.djs-shape.execution-active .djs-visual > ellipse {
+  fill: #dbeafe !important;
+  stroke: #2563eb !important;
+  stroke-width: 2.5 !important;
+  animation: pulse-active 2s ease-in-out infinite;
+}
+
+@keyframes pulse-active {
+  0%, 100% { stroke-opacity: 1; filter: none; }
+  50% { stroke-opacity: 0.5; filter: drop-shadow(0 0 4px #2563eb80); }
+}
+
+/* ====== Rejected ====== */
+
+.djs-shape.execution-rejected .djs-visual > rect,
+.djs-shape.execution-rejected .djs-visual > circle,
+.djs-shape.execution-rejected .djs-visual > polygon,
+.djs-shape.execution-rejected .djs-visual > ellipse {
+  fill: #ffedd5 !important;
+  stroke: #f59e0b !important;
+  stroke-width: 2 !important;
+}
+
+.djs-connection.execution-rejected .djs-visual > path {
+  stroke: #f59e0b !important;
+  stroke-width: 2.5 !important;
+  stroke-dasharray: 6, 4 !important;
+}
+
+/* ====== Badge overlays ====== */
+
+.execution-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  z-index: 10;
+}
+
+.visit-badge {
+  background: #2563eb;
+  box-shadow: 0 1px 3px #2563eb80;
+}
+
+.reject-badge {
+  background: #f59e0b;
+  box-shadow: 0 1px 3px #f59e0b80;
+}
+
+/* ====== Rejected flow X mark ====== */
+
+.reject-x-mark {
+  width: 16px;
+  height: 16px;
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+  box-shadow: 0 1px 3px #f59e0b80;
+}

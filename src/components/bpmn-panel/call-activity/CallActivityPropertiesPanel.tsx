@@ -9,6 +9,7 @@ import {
   AsyncCheckboxes,
 } from '../base'
 import CallActivityExtraFields, { callActivityTabs } from './CallActivityExtraFields'
+import MultiInstanceFields from '../base/MultiInstanceFields'
 
 function getCallActivitySubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -103,6 +104,16 @@ export default defineComponent({
                   />
                 </NTabPane>
               ))}
+            <NTabPane name="multiInstance" tab={t('bpmnPanel.tabs.multiInstance')}>
+              <div class="pt-8px">
+                <MultiInstanceFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
             <NTabPane name="taskListeners" tab={t('bpmnPanel.tabs.taskListeners')}>
               <div class="pt-8px">
                 <TaskListenersPanel

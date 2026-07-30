@@ -62,6 +62,9 @@
       "triggeredByEvent": "Triggered by Event",
       "ordering": "Ordering",
       "cancelRemainingInstances": "Cancel Remaining Instances",
+      "loopCardinality": "Loop Cardinality",
+      "collection": "Collection",
+      "elementVariable": "Element Variable",
       "completionCondition": "Completion Condition",
       "calledElement": "Called Element",
       "caseRef": "Case Ref",
@@ -244,6 +247,9 @@
       "priority": "e.g. 50",
       "retryTimeCycle": "e.g. R5/PT10S",
       "ordering": "e.g. Sequential",
+      "loopCardinality": "e.g. 3 or ${count}",
+      "collection": "e.g. assigneeList",
+      "elementVariable": "e.g. assignee",
       "completionCondition": "e.g. ${completed}",
       "calledElement": "e.g. Process_1",
       "caseRef": "e.g. Case_1",
@@ -357,7 +363,36 @@
       "output": "Outputs",
       "implementation": "Implementation",
       "fieldInjections": "Field Injections",
+      "multiInstance": "Batch Execution",
       "custom": "Custom"
+    },
+    "multiInstance": {
+      "enable": "Batch Execution",
+      "type": "Type",
+      "parallel": "Parallel",
+      "sequential": "Sequential",
+      "normal": "Normal",
+      "advanced": "Advanced",
+      "normalPlaceholder": "Normal mode — coming soon",
+      "normalExecutionMode": "Execution Mode",
+      "normalParallel": "Parallel",
+      "normalSequential": "Sequential",
+      "normalApproverList": "Approver List",
+      "normalVariable": "Variable",
+      "normalUser": "User",
+      "normalGroup": "Group",
+      "normalVariablePlaceholder": "e.g. assigneeList",
+      "normalCompletionRule": "Completion Rule",
+      "normalCompletionAll": "All completed",
+      "normalCompletionAny": "Any completed",
+      "normalCompletionQuantity": "Complete specified number",
+      "normalCompletionPercentage": "Complete specified percentage",
+      "completionCondition": "Completion Condition",
+      "completionAll": "All completed",
+      "completionAny": "Any completed",
+      "completionQuantity": "Reach quantity",
+      "completionPercentage": "Reach percentage",
+      "completionAdvanced": "Advanced configuration"
     },
     "options": {
       "formTypeNone": "None",
@@ -415,6 +450,31 @@
       "toggleMode": "Toggle fixed value / expression mode",
       "selectUser": "Select user",
       "selectGroup": "Select group"
+    }
+  },
+  "bpmnViewer": {
+    "legend": {
+      "completed": "Completed",
+      "active": "Active",
+      "rejected": "Rejected",
+      "visitCount": "Visit Count",
+      "rejectCount": "Reject Count"
+    },
+    "tooltip": {
+      "status": "Status",
+      "active": "Active",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "assignee": "Assignee",
+      "candidateUsers": "Candidate Users",
+      "candidateGroups": "Candidate Groups",
+      "visitCount": "Visit Count",
+      "rejectCount": "Reject Count"
+    },
+    "timeline": {
+      "title": "Execution Timeline",
+      "expand": "Expand Timeline"
     }
   }
 }

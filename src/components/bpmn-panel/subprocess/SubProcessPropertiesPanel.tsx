@@ -11,6 +11,7 @@ import {
   OutputsPanel,
 } from '../base'
 import SubProcessExtraFields, { subProcessTabs } from './SubProcessExtraFields'
+import MultiInstanceFields from '../base/MultiInstanceFields'
 import AdHocSubProcessExtraFields, { adHocSubProcessTabs } from './AdHocSubProcessExtraFields'
 import TransactionExtraFields, { transactionTabs } from './TransactionExtraFields'
 
@@ -117,6 +118,16 @@ export default defineComponent({
                   />
                 </NTabPane>
               ))}
+            <NTabPane name="multiInstance" tab={t('bpmnPanel.tabs.multiInstance')}>
+              <div class="pt-8px">
+                <MultiInstanceFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
             <NTabPane name="executionListeners" tab={t('bpmnPanel.tabs.input')}>
               <div class="pt-8px">
                 <InputsPanel

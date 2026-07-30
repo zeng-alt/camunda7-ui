@@ -16,6 +16,7 @@ import SendTaskExtraFields, { sendTaskTabs } from './SendTaskExtraFields'
 import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraFields'
 import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
 import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
+import MultiInstanceFields from '../base/MultiInstanceFields'
 
 function getTaskSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -185,6 +186,18 @@ export default defineComponent({
                   />
                 </NTabPane>
               ))}
+            {type !== 'user-task' && (
+              <NTabPane name="multiInstance" tab={t('bpmnPanel.tabs.multiInstance')}>
+              <div class="pt-8px">
+                <MultiInstanceFields
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
+            )}
             <NTabPane name="input" tab={t('bpmnPanel.tabs.input')}>
               <div class="pt-8px">
                 <InputsPanel

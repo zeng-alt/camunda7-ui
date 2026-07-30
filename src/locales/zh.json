@@ -62,6 +62,9 @@
       "triggeredByEvent": "由事件触发",
       "ordering": "排序",
       "cancelRemainingInstances": "取消剩余实例",
+      "loopCardinality": "实例数量",
+      "collection": "任务参与人列表",
+      "elementVariable": "元素变量",
       "completionCondition": "完成条件",
       "calledElement": "调用元素",
       "caseRef": "Case 引用",
@@ -244,6 +247,9 @@
       "priority": "例如 50",
       "retryTimeCycle": "例如 R5/PT10S",
       "ordering": "例如 Sequential",
+      "loopCardinality": "例如 3 或 ${count}",
+      "collection": "例如 assigneeList",
+      "elementVariable": "例如 assignee",
       "completionCondition": "例如 ${completed}",
       "calledElement": "例如 Process_1",
       "caseRef": "例如 Case_1",
@@ -355,7 +361,36 @@
       "output": "输出参数",
       "implementation": "实现者",
       "fieldInjections": "字段注入",
+      "multiInstance": "批量执行",
       "custom": "自定义"
+    },
+    "multiInstance": {
+      "enable": "批量执行",
+      "type": "类型",
+      "parallel": "并行",
+      "sequential": "顺序",
+      "normal": "普通",
+      "advanced": "高级",
+      "normalPlaceholder": "普通模式 — 暂无配置",
+      "normalExecutionMode": "执行方式",
+      "normalParallel": "同时执行",
+      "normalSequential": "依次执行",
+      "normalApproverList": "审批人列表",
+      "normalVariable": "变量",
+      "normalUser": "用户",
+      "normalGroup": "用户组",
+      "normalVariablePlaceholder": "例如 assigneeList",
+      "normalCompletionRule": "完成规则",
+      "normalCompletionAll": "全部完成",
+      "normalCompletionAny": "任意一个完成",
+      "normalCompletionQuantity": "完成指定人数",
+      "normalCompletionPercentage": "完成指定比例",
+      "completionCondition": "完成条件",
+      "completionAll": "全部完成",
+      "completionAny": "任意完成",
+      "completionQuantity": "达到数量",
+      "completionPercentage": "达到比例",
+      "completionAdvanced": "高级配置"
     },
     "options": {
       "formTypeNone": "无",
@@ -660,10 +695,36 @@
     "Called Element": "调用元素",
     "Create DataObjectReference": "创建数据对象引用",
     "Create DataStoreReference": "创建数据存储引用",
-    "Multi Instance": "多实例",
+    "Multi Instance": "批量执行",
     "Loop Cardinality": "实例数量",
     "Collection": "任务参与人列表",
     "Element Variable": "元素变量",
     "Completion Condition": "完成条件"
+  },
+  "bpmnViewer": {
+    "legend": {
+      "completed": "已完成",
+      "active": "当前节点",
+      "rejected": "已驳回",
+      "visitCount": "经过次数",
+      "rejectCount": "驳回次数"
+    },
+    "tooltip": {
+      "status": "状态",
+      "active": "活跃",
+      "completed": "已完成",
+      "rejected": "已驳回",
+      "pending": "待执行",
+      "assignee": "处理人",
+      "candidateUsers": "候选用户",
+      "candidateGroups": "候选组",
+      "visitCount": "经过次数",
+      "rejectCount": "驳回次数"
+    },
+    "timeline": {
+      "title": "执行记录",
+      "expand": "展开时间线"
+    }
   }
 }
+
