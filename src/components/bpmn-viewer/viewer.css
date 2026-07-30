@@ -1,3 +1,25 @@
+/* ============================================================
+   BPMN Viewer Dark Theme
+   ============================================================ */
+
+.dark {
+  --bpmn-viewer-bg: #282a36;
+}
+
+.dark .bpmn-viewer .djs-element text,
+.dark .bpmn-viewer .djs-element .djs-label {
+  fill: #1e293b !important;
+  paint-order: stroke fill !important;
+  stroke: #e2e8f0 !important;
+  stroke-width: 3px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.dark .bpmn-viewer .djs-container svg {
+  background: var(--bpmn-viewer-bg) !important;
+}
+
 /* ====== Execution markers ====== */
 
 .djs-shape.execution-completed .djs-visual > rect,

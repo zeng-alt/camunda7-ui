@@ -2,6 +2,7 @@
 import { BpmnModelerProcess, type ThemeType } from 'camunda7-ui'
 import { ref } from 'vue'
 import type { ProcessLookupItem } from 'camunda7-ui'
+import request from './utils/request'
 
 const theme = ref<ThemeType>('dark')
 const extraTabLabels = ref({
@@ -137,6 +138,25 @@ const mockDelegateExpressions = [
   { label: '规则引擎委托', value: '${ruleEngine}' },
 ]
 
+async function handlePublish(modeler: any) {
+  try {
+    debugger
+    // console.log('hello')
+    const { xml } = await modeler.saveXML({ format: true })
+    const rootElement = modeler.get('canvas').getRootElement()
+    const processName = rootElement?.businessObject?.name || `deployment-${Date.now()}`
+    const formData = new FormData()
+    const deploymentName = processName
+    formData.append('deployment-name', deploymentName)
+    formData.append('deployment-source', 'camunda7-ui')
+    formData.append('diagram.bpmn', new Blob([xml], { type: 'text/xml' }), 'diagram.bpmn')
+    await request.post('/deployment/create', formData)
+    alert('发布成功')
+  } catch (e: any) {
+    alert('发布失败: ' + (e?.response?.data?.message || e.message))
+  }
+}
+
 function delay(ms = 300) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -233,6 +253,7 @@ async function onSearchDelegateExpressions(name: string) {
       :theme="theme"
       :extraTabLabels="extraTabLabels"
       :onSearchUsers="onSearchUsers"
+      :autoStash="true"
       :onSearchUserGroups="onSearchUserGroups"
       :onSearchJavaClasses="onSearchJavaClasses"
       :onSearchDelegateExpressions="onSearchDelegateExpressions"
@@ -245,14 +266,9 @@ async function onSearchDelegateExpressions(name: string) {
       :availableLocales="availableLocales"
     >
       <template #buttons="{ modeler }">
-        <NButton ghost >
+        <NButton ghost type="primary" @click="handlePublish(modeler)">
           <NIcon>
-            <span class="i-ic-baseline-add" />
-          </NIcon>
-        </NButton>
-        <NButton ghost >
-          <NIcon>
-            <span class="i-ic-baseline-add" />
+            <span class="i-ic-baseline-upload" />
           </NIcon>
         </NButton>
       </template>

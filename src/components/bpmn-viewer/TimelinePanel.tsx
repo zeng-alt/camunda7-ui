@@ -175,7 +175,7 @@ export default defineComponent({
               </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto py-8px px-4px">
+            <div class="flex-1 overflow-y-auto py-8px px-4px camunda-props-scroll">
               <NTimeline size="medium">
                 {orderList.value.map((item, index) => {
                   const prevStatus = index > 0 ? orderList.value[index - 1]?.status : null

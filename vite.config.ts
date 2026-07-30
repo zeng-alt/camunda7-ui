@@ -31,6 +31,14 @@ export default defineConfig({
       rollupTypes: true,
     }),
   ],
+  server: {
+    proxy: {
+      '/engine-rest': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

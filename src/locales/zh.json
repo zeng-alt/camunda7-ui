@@ -472,6 +472,19 @@
     },
     "userTask": {
       "multiApproval": "多人审批"
+    },
+    "autoStash": {
+      "restore": "发现未保存的草稿，是否恢复？"
+    },
+    "clearCanvas": {
+      "confirm": "确定要清空画布吗？所有当前内容将丢失。"
+    },
+    "importExport": {
+      "title": "导入 / 导出 XML",
+      "importFile": "导入文件",
+      "download": "下载",
+      "save": "保存到建模器",
+      "importError": "导入 XML 失败:"
     }
   },
   "bpmn": {

@@ -1,9 +1,13 @@
-import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref } from 'vue'
+import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { CamundaConfigProvider } from '../config-provider'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
 import { useCamundaLookups } from '@/composables'
-import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider, NPopselect } from 'naive-ui'
+import {
+  NButton, NButtonGroup, NIcon, NLayout, NLayoutContent,
+  NLayoutSider, NPopselect, NModal, NInput, NSpace,
+  NPopconfirm,
+} from 'naive-ui'
 import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
 import type { LocaleOption } from '../config-provider/context'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
@@ -51,6 +55,22 @@ export default defineComponent({
         { label: '中文', value: 'zh-CN' },
         { label: 'English', value: 'en-US' },
       ],
+    },
+    xml: {
+      type: String,
+      default: undefined,
+    },
+    autoStash: {
+      type: Boolean,
+      default: true,
+    },
+    stashKey: {
+      type: String,
+      default: 'camunda7-ui:stash:xml',
+    },
+    size: {
+      type: String as PropType<'small' | 'medium' | 'large'>,
+      default: 'small',
     },
     extraTabLabels: {
       type: Object as PropType<Record<string, string>>,
@@ -131,46 +151,108 @@ export default defineComponent({
     const canvasRef = ref<HTMLElement | null>(null)
     const modelerRef = ref<any>(null)
     let bpmnModeler: any = null
+    let stashTimer: ReturnType<typeof setTimeout> | null = null
+
+    async function loadDiagram(xmlStr: string) {
+      if (!bpmnModeler) return
+      try {
+        await bpmnModeler.importXML(xmlStr)
+        setupColorManager(bpmnModeler)
+        let attempts = 0
+        const tryFitViewport = () => {
+          if (
+            canvasRef.value &&
+            canvasRef.value.clientWidth > 0 &&
+            canvasRef.value.clientHeight > 0
+          ) {
+            bpmnModeler.get('canvas').zoom('fit-viewport')
+          } else if (attempts < 10) {
+            attempts++
+            setTimeout(tryFitViewport, 50)
+          }
+        }
+        tryFitViewport()
+      } catch (err) {
+        console.error('something went wrong:', err)
+      }
+    }
+
+    function doStash() {
+      if (!bpmnModeler || !props.autoStash) return
+      bpmnModeler.saveXML({ format: true }).then(({ xml }: any) => {
+        try {
+          localStorage.setItem(props.stashKey, xml)
+        } catch {
+          // storage full or unavailable
+        }
+      }).catch(() => {})
+    }
+
+    function debounceStash() {
+      if (!props.autoStash) return
+      if (stashTimer) clearTimeout(stashTimer)
+      stashTimer = setTimeout(doStash, 2000)
+    }
+
+    function checkStash() {
+      if (props.xml || !props.autoStash) return
+      try {
+        const stashed = localStorage.getItem(props.stashKey)
+        if (stashed) {
+          pendingStashXml.value = stashed
+          showRestoreDialog.value = true
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    function handleRestoreStash() {
+      localStorage.removeItem(props.stashKey)
+      showRestoreDialog.value = false
+      if (pendingStashXml.value && bpmnModeler) {
+        loadDiagram(pendingStashXml.value)
+      }
+      pendingStashXml.value = ''
+    }
+
+    function handleDiscardStash() {
+      localStorage.removeItem(props.stashKey)
+      showRestoreDialog.value = false
+      pendingStashXml.value = ''
+    }
 
     onMounted(async () => {
-      // 修复2：canvasRef.value 现在能正确拿到 DOM 节点（模板里加了 ref={canvasRef}）
       if (canvasRef.value) {
         bpmnModeler = new BpmnModeler({
           container: canvasRef.value,
           additionalModules: [
-            // 国际化
             customTranslateModule,
           ],
         })
         modelerRef.value = bpmnModeler
 
-        try {
-          await bpmnModeler.importXML(someDiagram)
-          console.log('success!')
+        const initialXml = props.xml || someDiagram
+        await loadDiagram(initialXml)
 
-          setupColorManager(bpmnModeler)
+        checkStash()
 
-          let attempts = 0
-          const tryFitViewport = () => {
-            if (
-              canvasRef.value &&
-              canvasRef.value.clientWidth > 0 &&
-              canvasRef.value.clientHeight > 0
-            ) {
-              bpmnModeler.get('canvas').zoom('fit-viewport')
-            } else if (attempts < 10) {
-              attempts++
-              setTimeout(tryFitViewport, 50)
-            }
-          }
-          tryFitViewport()
-        } catch (err) {
-          console.error('something went wrong:', err)
+        if (props.autoStash) {
+          bpmnModeler.on('element.changed', debounceStash)
+          bpmnModeler.on('commandStack.changed', debounceStash)
         }
       }
     })
 
+    watch(() => props.xml, (newXml) => {
+      if (newXml && bpmnModeler) {
+        loadDiagram(newXml)
+      }
+    })
+
     onBeforeUnmount(() => {
+      doStash()
+      if (stashTimer) clearTimeout(stashTimer)
       if (bpmnModeler) {
         bpmnModeler.destroy()
       }
@@ -221,19 +303,58 @@ export default defineComponent({
       }
     }
 
-    const showXml = async () => {
+    const showExportDialog = ref(false)
+    const showRestoreDialog = ref(false)
+    const pendingStashXml = ref('')
+    const exportXml = ref('')
+    const fileInputRef = ref<HTMLInputElement | null>(null)
+
+    async function openImportExportDialog() {
       if (bpmnModeler) {
         try {
           const { xml } = await bpmnModeler.saveXML({ format: true })
-          if (props.onSaveXml) {
-            props.onSaveXml(xml)
-          } else {
-            console.log(xml)
-          }
+          exportXml.value = xml
+          showExportDialog.value = true
         } catch (err) {
           console.error('Error saving XML', err)
         }
       }
+    }
+
+    function downloadXml() {
+      const blob = new Blob([exportXml.value], { type: 'text/xml' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'diagram.bpmn'
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+
+    async function saveXmlToModeler() {
+      if (bpmnModeler) {
+        try {
+          await bpmnModeler.importXML(exportXml.value)
+          const canvas = bpmnModeler.get('canvas')
+          canvas.zoom('fit-viewport')
+          showExportDialog.value = false
+        } catch (err: any) {
+          console.error('Error importing XML', err)
+          window.alert(t('bpmnPanel.importExport.importError') + '\n' + (err.message || err))
+        }
+      }
+    }
+
+    function handleFileImport(event: Event) {
+      const target = event.target as HTMLInputElement
+      const file = target.files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        exportXml.value = e.target?.result as string
+      }
+      reader.readAsText(file)
+      target.value = ''
     }
 
     function setupColorManager(modeler: any) {
@@ -256,6 +377,17 @@ export default defineComponent({
       if (visual) {
         if (fill) visual.style.setProperty('fill', fill, 'important')
         if (stroke) visual.style.setProperty('stroke', stroke, 'important')
+      }
+    }
+
+    async function clearCanvas() {
+      if (!bpmnModeler) return
+      try {
+        await bpmnModeler.importXML(someDiagram)
+        const canvas = bpmnModeler.get('canvas')
+        canvas.zoom('fit-viewport')
+      } catch (err) {
+        console.error('Error clearing canvas', err)
       }
     }
 
@@ -312,42 +444,58 @@ export default defineComponent({
                   class="floating-btn-group"
                   style="position: absolute; top: 24px; right: 8px; z-index: 10;"
                 >
-                  <NButtonGroup size="small">
+                  <NButtonGroup size={props.size}>
                     <NButton ghost onClick={zoomIn}>
                       <NIcon>
-                        <span class="i-ic-baseline-add" />
+                        <span class="i-ic-baseline-add text-[#409eff]" />
                       </NIcon>
                     </NButton>
                     <NButton ghost onClick={zoomOut}>
                       <NIcon>
-                        <span class="i-ic-baseline-remove" />
+                        <span class="i-ic-baseline-remove text-[#409eff]" />
                       </NIcon>
                     </NButton>
                     <NButton ghost onClick={centerView}>
                       <NIcon>
-                        <span class="i-ic-baseline-center-focus-strong" />
+                        <span class="i-ic-baseline-center-focus-strong text-[#409eff]" />
                       </NIcon>
                     </NButton>
                     <NButton ghost onClick={lastStep}>
                       <NIcon>
-                        <span class="i-ic-baseline-undo" />
+                        <span class="i-ic-baseline-undo text-[#909399]" />
                       </NIcon>
                     </NButton>
                     <NButton ghost onClick={nextStep}>
                       <NIcon>
-                        <span class="i-ic-baseline-redo" />
+                        <span class="i-ic-baseline-redo text-[#909399]" />
                       </NIcon>
                     </NButton>
                     <NButton ghost onClick={toggleMinimap}>
                       <NIcon>
-                        <span class="i-ic-baseline-layers" />
+                        <span class="i-ic-baseline-layers text-[#13c2c2]" />
                       </NIcon>
                     </NButton>
-                    <NButton ghost onClick={showXml}>
+                    <NButton ghost onClick={openImportExportDialog}>
                       <NIcon>
-                        <span class="i-ic-baseline-code" />
+                        <span class="i-ic-baseline-import-export text-[#e6a23c]" />
                       </NIcon>
                     </NButton>
+                    <NPopconfirm
+                      onPositiveClick={clearCanvas}
+                      positiveText={t('common.confirm')}
+                      negativeText={t('common.cancel')}
+                    >
+                      {{
+                        default: () => t('bpmnPanel.clearCanvas.confirm'),
+                        trigger: () => (
+                          <NButton ghost>
+                            <NIcon>
+                              <span class="i-ic-baseline-delete text-[#f56c6c]" />
+                            </NIcon>
+                          </NButton>
+                        ),
+                      }}
+                    </NPopconfirm>
                     {slots.buttons?.({ modeler: modelerRef.value })}
                     <NPopselect
                       value={currentLocaleRef.value}
@@ -357,7 +505,7 @@ export default defineComponent({
                     >
                       <NButton ghost>
                         <NIcon>
-                          <span class="i-ic-baseline-language" />
+                          <span class="i-ic-baseline-language text-[#909399]" />
                         </NIcon>
                       </NButton>
                     </NPopselect>
@@ -366,14 +514,72 @@ export default defineComponent({
                         <span
                           class={
                             currentTheme.value === 'dark'
-                              ? 'i-ic-baseline-bedtime'
-                              : 'i-ic-baseline-wb-sunny'
+                              ? 'i-ic-baseline-bedtime text-[#b37feb]'
+                              : 'i-ic-baseline-wb-sunny text-[#eb2f96]'
                           }
                         />
                       </NIcon>
                     </NButton>
                   </NButtonGroup>
                 </div>
+                <NModal
+                  show={showExportDialog.value}
+                  preset="card"
+                  draggable
+                  size={props.size}
+                  style="width: 800px; max-width: 90vw;"
+                  title={t('bpmnPanel.importExport.title')}
+                  bordered={false}
+                  segmented
+                  closable
+                  onUpdateShow={(val: boolean) => { showExportDialog.value = val }}
+                >
+                  <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".bpmn,.xml"
+                      style="display: none;"
+                      onChange={handleFileImport}
+                    />
+                    <NSpace justify="space-between" align="center">
+                      <NButton size="small" onClick={() => fileInputRef.value?.click()}>
+                        {t('bpmnPanel.importExport.importFile')}
+                      </NButton>
+                    </NSpace>
+                    <NInput
+                      type="textarea"
+                      value={exportXml.value}
+                      onUpdateValue={(val: string) => { exportXml.value = val }}
+                      style="font-family: monospace; font-size: 13px;"
+                      rows={20}
+                    />
+                    <NSpace justify="end">
+                      <NButton size="small" onClick={downloadXml}>
+                        {t('bpmnPanel.importExport.download')}
+                      </NButton>
+                      <NButton size="small" type="primary" onClick={saveXmlToModeler}>
+                        {t('bpmnPanel.importExport.save')}
+                      </NButton>
+                    </NSpace>
+                  </div>
+                </NModal>
+                <NModal
+                  show={showRestoreDialog.value}
+                  preset="dialog"
+                  draggable
+                  size={props.size}
+                  style="width: 420px;"
+                  title={t('bpmnPanel.autoStash.restore')}
+                  positiveText={t('common.confirm')}
+                  negativeText={t('common.cancel')}
+                  onPositiveClick={handleRestoreStash}
+                  onNegativeClick={handleDiscardStash}
+                  onUpdateShow={(val: boolean) => {
+                    if (!val) handleDiscardStash()
+                  }}
+                  bordered={false}
+                />
               </NLayoutContent>
               <NLayoutSider
                 class="h-full"
@@ -387,6 +593,7 @@ export default defineComponent({
               >
                 <CamundaPropertiesPanel
                   bpmnModeler={modelerRef.value}
+                  formSize={props.size}
                   extraTabs={extraTabs}
                   extraTabLabels={props.extraTabLabels}
                   userResolver={props.userResolver}
