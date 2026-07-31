@@ -16,35 +16,50 @@ import {
   resolveNaiveDateLocale,
 } from '../../locales'
 
-export default defineComponent({
+export interface CamundaConfigProviderProps {
+  /** 主题：light（浅色）/ dark（深色），未传时继承父级配置 */
+  theme?: ThemeType
+  /** NaiveUI 主题覆盖配置（GlobalThemeOverrides） */
+  themeOverrides?: GlobalThemeOverrides
+  /** 语言：zh-CN / en-US 等 */
+  locale?: LocaleType
+  /** 语言回退：当前语言缺少翻译时使用的兜底语言 */
+  localeFallback?: LocaleType
+  /** 自定义语言包：按语言聚合的翻译键值 */
+  localeMessages?: Record<string, Record<string, any>>
+  /** 时间显示格式，如 YYYY-MM-DD HH:mm:ss */
+  timeFormat?: string
+}
+
+export default defineComponent<CamundaConfigProviderProps>({
   name: 'CamundaConfigProvider',
   props: {
-    // 主题：light（浅色）/ dark（深色），未传时继承父级配置
+    /** 主题：light（浅色）/ dark（深色），未传时继承父级配置 */
     theme: {
       type: String as PropType<ThemeType>,
       default: undefined,
     },
-    // NaiveUI 主题覆盖配置（GlobalThemeOverrides）
+    /** NaiveUI 主题覆盖配置（GlobalThemeOverrides） */
     themeOverrides: {
       type: Object as PropType<GlobalThemeOverrides>,
       default: undefined,
     },
-    // 语言：zh-CN / en-US 等
+    /** 语言：zh-CN / en-US 等 */
     locale: {
       type: String as PropType<LocaleType>,
       default: undefined,
     },
-    // 语言回退：当前语言缺少翻译时使用的兜底语言
+    /** 语言回退：当前语言缺少翻译时使用的兜底语言 */
     localeFallback: {
       type: String as PropType<LocaleType>,
       default: undefined,
     },
-    // 自定义语言包：按语言聚合的翻译键值
+    /** 自定义语言包：按语言聚合的翻译键值 */
     localeMessages: {
       type: Object as PropType<Record<string, Record<string, any>>>,
       default: undefined,
     },
-    // 时间显示格式，如 YYYY-MM-DD HH:mm:ss
+    /** 时间显示格式，如 YYYY-MM-DD HH:mm:ss */
     timeFormat: {
       type: String,
       default: undefined,

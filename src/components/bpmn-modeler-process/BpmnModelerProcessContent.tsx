@@ -46,28 +46,83 @@ const someDiagram = `<?xml version="1.0" encoding="UTF-8"?>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>`
 
+export interface BpmnModelerProcessProps {
+  /** 主题：light（浅色）/ dark（深色） */
+  theme?: ThemeType
+  /** 语言：zh-CN / en-US 等，支持的语言列表见 availableLocales */
+  locale?: LocaleType
+  /** 语言回退：当前语言缺少翻译时使用的兜底语言 */
+  localeFallback?: LocaleType
+  /** 自定义语言包：按语言聚合的翻译键值，可覆盖内置文案 */
+  localeMessages?: Record<string, Record<string, any>>
+  /** 语言切换下拉框的可选语言列表 */
+  availableLocales?: LocaleOption[]
+  /** BPMN XML 内容，传入后自动导入到画布 */
+  xml?: string
+  /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
+  proDesigner?: boolean
+  /** 设计器配置：限制模式下隐藏的节点（大类 + 事件定义变体）与属性 tab */
+  designerConfig?: DesignerConfig
+  /** 是否自动把 XML 暂存到 localStorage（用于刷新恢复） */
+  autoStash?: boolean
+  /** 暂存 XML 使用的 localStorage 键名 */
+  stashKey?: string
+  /** 属性面板表单尺寸：small / medium / large */
+  size?: 'small' | 'medium' | 'large'
+  /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
+  extraTabLabels?: Record<string, string>
+  /** 保存回调：点击保存时把最新 XML 交给外部 */
+  onSaveXml?: (xml: string) => void
+  /** 搜索用户回调：按关键字分页搜索用户 */
+  onSearchUsers?: (
+    name: string,
+    pageNo?: number,
+    pageSize?: number,
+  ) => PageResult | Promise<PageResult>
+  /** 搜索用户组回调：按关键字搜索用户组 */
+  onSearchUserGroups?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** 获取流程定义列表回调：用于调用活动/决策等选择流程 */
+  onFetchProcessList?: () => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
+  /** 搜索 Java 类回调：用于实现类（class）选择 */
+  onSearchJavaClasses?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** 搜索委托表达式回调：用于 delegateExpression 选择 */
+  onSearchDelegateExpressions?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** 搜索外部任务主题回调：用于外部任务（External Task）topic 选择 */
+  onSearchExternalTopics?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
+  userResolver?: string
+  /** 用户组解析器表达式：用于解析候选用户组的 JS 表达式 */
+  groupResolver?: string
+  /** 搜索决策引用回调：用于业务规则任务选择 DMN 决策 */
+  onSearchDecisionRefs?: (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
+  /** 搜索表单引用回调：用于表单引用（Camunda Forms / 外部表单）选择 */
+  onSearchFormRefs?: (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
+  /** 搜索表单 Key 回调：用于表单 Key 选择 */
+  onSearchFormKeys?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+}
+
 export const bpmnModelerProcessProps = {
-  // 主题：light（浅色）/ dark（深色）
+  /** 主题：light（浅色）/ dark（深色） */
   theme: {
     type: String as PropType<ThemeType>,
     default: undefined,
   },
-  // 语言：zh-CN / en-US 等，支持的语言列表见 availableLocales
+  /** 语言：zh-CN / en-US 等，支持的语言列表见 availableLocales */
   locale: {
     type: String as PropType<LocaleType>,
     default: undefined,
   },
-  // 语言回退：当前语言缺少翻译时使用的兜底语言
+  /** 语言回退：当前语言缺少翻译时使用的兜底语言 */
   localeFallback: {
     type: String as PropType<LocaleType>,
     default: undefined,
   },
-  // 自定义语言包：按语言聚合的翻译键值，可覆盖内置文案
+  /** 自定义语言包：按语言聚合的翻译键值，可覆盖内置文案 */
   localeMessages: {
     type: Object as PropType<Record<string, Record<string, any>>>,
     default: undefined,
   },
-  // 语言切换下拉框的可选语言列表
+  /** 语言切换下拉框的可选语言列表 */
   availableLocales: {
     type: Array as PropType<LocaleOption[]>,
     default: () => [
@@ -75,111 +130,111 @@ export const bpmnModelerProcessProps = {
       { label: 'English', value: 'en-US' },
     ],
   },
-  // BPMN XML 内容，传入后自动导入到画布
+  /** BPMN XML 内容，传入后自动导入到画布 */
   xml: {
     type: String,
     default: undefined,
   },
-  // 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏）
+  /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner: {
     type: Boolean,
     default: true,
   },
-  // 设计器配置：限制模式下隐藏的节点（大类 + 事件定义变体）与属性 tab
+  /** 设计器配置：限制模式下隐藏的节点（大类 + 事件定义变体）与属性 tab */
   designerConfig: {
     type: Object as PropType<DesignerConfig>,
     default: undefined,
   },
-  // 是否自动把 XML 暂存到 localStorage（用于刷新恢复）
+  /** 是否自动把 XML 暂存到 localStorage（用于刷新恢复） */
   autoStash: {
     type: Boolean,
     default: true,
   },
-  // 暂存 XML 使用的 localStorage 键名
+  /** 暂存 XML 使用的 localStorage 键名 */
   stashKey: {
     type: String,
     default: 'camunda7-ui:stash:xml',
   },
-  // 属性面板表单尺寸：small / medium / large
+  /** 属性面板表单尺寸：small / medium / large */
   size: {
     type: String as PropType<'small' | 'medium' | 'large'>,
     default: 'small',
   },
-  // 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 }
+  /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
   extraTabLabels: {
     type: Object as PropType<Record<string, string>>,
     default: () => ({}),
   },
-  // 保存回调：点击保存时把最新 XML 交给外部
+  /** 保存回调：点击保存时把最新 XML 交给外部 */
   onSaveXml: {
     type: Function as PropType<(xml: string) => void>,
     default: null,
   },
-  // 搜索用户回调：按关键字分页搜索用户
+  /** 搜索用户回调：按关键字分页搜索用户 */
   onSearchUsers: {
     type: Function as PropType<
       (name: string, pageNo?: number, pageSize?: number) => PageResult | Promise<PageResult>
     >,
     default: null,
   },
-  // 搜索用户组回调：按关键字搜索用户组
+  /** 搜索用户组回调：按关键字搜索用户组 */
   onSearchUserGroups: {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
     >,
     default: null,
   },
-  // 获取流程定义列表回调：用于调用活动/决策等选择流程
+  /** 获取流程定义列表回调：用于调用活动/决策等选择流程 */
   onFetchProcessList: {
     type: Function as PropType<() => ProcessLookupItem[] | Promise<ProcessLookupItem[]>>,
     default: null,
   },
-  // 搜索 Java 类回调：用于实现类（class）选择
+  /** 搜索 Java 类回调：用于实现类（class）选择 */
   onSearchJavaClasses: {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
     >,
     default: null,
   },
-  // 搜索委托表达式回调：用于 delegateExpression 选择
+  /** 搜索委托表达式回调：用于 delegateExpression 选择 */
   onSearchDelegateExpressions: {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
     >,
     default: null,
   },
-  // 搜索外部任务主题回调：用于外部任务（External Task）topic 选择
+  /** 搜索外部任务主题回调：用于外部任务（External Task）topic 选择 */
   onSearchExternalTopics: {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
     >,
     default: null,
   },
-  // 用户解析器表达式：用于解析办理人/候选人的 JS 表达式
+  /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
   userResolver: {
     type: String,
     default: 'approverResolver.getUsers',
   },
-  // 用户组解析器表达式：用于解析候选用户组的 JS 表达式
+  /** 用户组解析器表达式：用于解析候选用户组的 JS 表达式 */
   groupResolver: {
     type: String,
     default: 'approverResolver.getUserGroups',
   },
-  // 搜索决策引用回调：用于业务规则任务选择 DMN 决策
+  /** 搜索决策引用回调：用于业务规则任务选择 DMN 决策 */
   onSearchDecisionRefs: {
     type: Function as PropType<
       (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
     >,
     default: null,
   },
-  // 搜索表单引用回调：用于表单引用（Camunda Forms / 外部表单）选择
+  /** 搜索表单引用回调：用于表单引用（Camunda Forms / 外部表单）选择 */
   onSearchFormRefs: {
     type: Function as PropType<
       (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
     >,
     default: null,
   },
-  // 搜索表单 Key 回调：用于表单 Key 选择
+  /** 搜索表单 Key 回调：用于表单 Key 选择 */
   onSearchFormKeys: {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>

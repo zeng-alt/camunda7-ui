@@ -17,7 +17,7 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     // bpmn-js 模型器实例，用于执行建模命令、读写模型
     bpmnModeler: { type: Object, default: null },
-    // 表单控件尺寸：small / medium / large
+    /** 表单控件尺寸：small / medium / large  */
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     // 标签位置：left（左侧）/ top（顶部）
     labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'left' },

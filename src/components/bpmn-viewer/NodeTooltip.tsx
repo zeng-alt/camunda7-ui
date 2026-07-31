@@ -9,21 +9,34 @@ const statusColorMap: Record<ExecutionStatus, string> = {
   pending: '#9ca3af',
 }
 
-export default defineComponent({
+export interface NodeTooltipProps {
+  /** 是否显示 Tooltip */
+  visible?: boolean
+  /** Tooltip 展示的节点数据（名称、类型、执行状态、办理人/候选等） */
+  data?: TooltipData | null
+  /** Tooltip 的定位坐标（相对画布容器） */
+  position?: { x: number; y: number }
+  /** 搜索用户回调：用于把候选办理人 id 解析为名称 */
+  onSearchUsers?: (name: string) => any
+  /** 搜索用户组回调：用于把候选用户组 id 解析为名称 */
+  onSearchUserGroups?: (name: string) => any
+}
+
+export default defineComponent<NodeTooltipProps>({
   name: 'NodeTooltip',
   props: {
-    // 是否显示 Tooltip
+    /** 是否显示 Tooltip */
     visible: { type: Boolean, default: false },
-    // Tooltip 展示的节点数据（名称、类型、执行状态、办理人/候选等）
+    /** Tooltip 展示的节点数据（名称、类型、执行状态、办理人/候选等） */
     data: { type: Object as PropType<TooltipData | null>, default: null },
-    // Tooltip 的定位坐标（相对画布容器）
+    /** Tooltip 的定位坐标（相对画布容器） */
     position: {
       type: Object as PropType<{ x: number; y: number }>,
       default: () => ({ x: 0, y: 0 }),
     },
-    // 搜索用户回调：用于把候选办理人 id 解析为名称
+    /** 搜索用户回调：用于把候选办理人 id 解析为名称 */
     onSearchUsers: { type: Function as PropType<(name: string) => any>, default: null },
-    // 搜索用户组回调：用于把候选用户组 id 解析为名称
+    /** 搜索用户组回调：用于把候选用户组 id 解析为名称 */
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
   },
   setup(props) {
@@ -81,8 +94,8 @@ export default defineComponent({
         <div
           class="fixed z-1000 pointer-events-none"
           style={{
-            left: `${props.position.x}px`,
-            top: `${props.position.y}px`,
+            left: `${props.position?.x ?? 0}px`,
+            top: `${props.position?.y ?? 0}px`,
           }}
         >
           <div

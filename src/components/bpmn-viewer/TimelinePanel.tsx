@@ -75,12 +75,19 @@ const typeLabelKey: Record<string, string> = {
   'bpmn:BoundaryEvent': 'boundary-event',
 }
 
-export default defineComponent({
+export interface TimelinePanelProps {
+  /** 流程执行状态：用于渲染时间线的执行顺序与各节点状态 */
+  executionState?: ProcessExecutionState | null
+  /** 节点 id 到名称/类型的信息映射：用于时间线展示节点名称 */
+  elementInfoMap?: Record<string, { name: string; type: string }>
+}
+
+export default defineComponent<TimelinePanelProps>({
   name: 'TimelinePanel',
   props: {
-    // 流程执行状态：用于渲染时间线的执行顺序与各节点状态
+    /** 流程执行状态：用于渲染时间线的执行顺序与各节点状态 */
     executionState: { type: Object as PropType<ProcessExecutionState | null>, default: null },
-    // 节点 id 到名称/类型的信息映射：用于时间线展示节点名称
+    /** 节点 id 到名称/类型的信息映射：用于时间线展示节点名称 */
     elementInfoMap: {
       type: Object as PropType<Record<string, { name: string; type: string }>>,
       default: () => ({}),

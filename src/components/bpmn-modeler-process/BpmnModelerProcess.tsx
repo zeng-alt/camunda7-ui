@@ -1,8 +1,11 @@
 import { defineComponent } from 'vue'
 import { NMessageProvider } from 'naive-ui'
-import BpmnModelerProcessContent, { bpmnModelerProcessProps } from './BpmnModelerProcessContent'
+import BpmnModelerProcessContent, {
+  bpmnModelerProcessProps,
+  type BpmnModelerProcessProps,
+} from './BpmnModelerProcessContent'
 
-export default defineComponent({
+export default defineComponent<BpmnModelerProcessProps>({
   name: 'BpmnModelerProcess',
   props: { ...bpmnModelerProcessProps },
   emits: ['update:theme', 'update:locale'],

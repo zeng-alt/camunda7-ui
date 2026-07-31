@@ -155,40 +155,57 @@ function showRootProcess(modeler: any) {
   return null
 }
 
-export default defineComponent({
+export interface CamundaPropertiesPanelProps {
+  /** bpmn-js 模型器实例：用于监听选中元素并读写模型属性 */
+  bpmnModeler?: Record<string, any>
+  /** 属性表单尺寸：small / medium / large */
+  formSize?: 'small' | 'medium' | 'large'
+  /** 标签位置：left（左侧）/ top（顶部） */
+  labelPlacement?: 'left' | 'top'
+  /** 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab */
+  extraTabs?: Record<string, any>
+  /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
+  extraTabLabels?: Record<string, string>
+  /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
+  userResolver?: string
+  /** 用户组解析器表达式：用于解析候选用户组的 JS 表达式 */
+  groupResolver?: string
+}
+
+export default defineComponent<CamundaPropertiesPanelProps>({
   name: 'CamundaPropertiesPanel',
   props: {
-    // bpmn-js 模型器实例：用于监听选中元素并读写模型属性
+    /** bpmn-js 模型器实例：用于监听选中元素并读写模型属性 */
     bpmnModeler: {
       type: Object,
       default: null,
     },
-    // 属性表单尺寸：small / medium / large
+    /** 属性表单尺寸：small / medium / large */
     formSize: {
       type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'small',
     },
-    // 标签位置：left（左侧）/ top（顶部）
+    /** 标签位置：left（左侧）/ top（顶部） */
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
       default: 'top',
     },
-    // 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab
+    /** 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab */
     extraTabs: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({}),
     },
-    // 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 }
+    /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
     extraTabLabels: {
       type: Object as PropType<Record<string, string>>,
       default: () => ({}),
     },
-    // 用户解析器表达式：用于解析办理人/候选人的 JS 表达式
+    /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
     userResolver: {
       type: String,
       default: 'approverResolver.getUsers',
     },
-    // 用户组解析器表达式：用于解析候选用户组的 JS 表达式
+    /** 用户组解析器表达式：用于解析候选用户组的 JS 表达式 */
     groupResolver: {
       type: String,
       default: 'approverResolver.getUserGroups',
@@ -347,8 +364,8 @@ export default defineComponent({
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
-                  extraTabContent={props.extraTabs[type]}
-                  extraTabLabel={props.extraTabLabels[type] || ''}
+                  extraTabContent={props.extraTabs?.[type]}
+                  extraTabLabel={props.extraTabLabels?.[type] || ''}
                 />
               ) : subProcessTypes.has(type) ? (
                 <SubProcessPropertiesPanel
@@ -377,8 +394,8 @@ export default defineComponent({
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
-                  extraTabContent={props.extraTabs['task']}
-                  extraTabLabel={props.extraTabLabels['task'] || ''}
+                  extraTabContent={props.extraTabs?.['task']}
+                  extraTabLabel={props.extraTabLabels?.['task'] || ''}
                   userResolver={props.userResolver}
                   groupResolver={props.groupResolver}
                 />
@@ -459,8 +476,8 @@ export default defineComponent({
                   bpmnModeler={props.bpmnModeler}
                   formSize={props.formSize}
                   labelPlacement={props.labelPlacement}
-                  extraTabContent={props.extraTabs['gateway']}
-                  extraTabLabel={props.extraTabLabels['gateway'] || ''}
+                  extraTabContent={props.extraTabs?.['gateway']}
+                  extraTabLabel={props.extraTabLabels?.['gateway'] || ''}
                 />
               ) : (
                 <div class="flex items-center justify-center h-full text-#888 text-13px">
