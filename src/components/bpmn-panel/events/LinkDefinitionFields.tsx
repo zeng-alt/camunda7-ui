@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 
 export default defineComponent({
   name: 'LinkDefinitionFields',
@@ -16,6 +17,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateModdleProperties } = useBpmnProperties(props)
     const linkName = ref('')
 
     function getEventDef() {
@@ -34,14 +37,12 @@ export default defineComponent({
     function onLinkNameChange(val: string | null) {
       linkName.value = val ?? ''
       const ed = getEventDef()
-      if (!props.bpmnModeler || !props.element || !ed) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { name: val ?? '' })
+      updateModdleProperties({ name: val ?? '' }, ed)
     }
 
     return () => (
       <div>
-        <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.linkName')}</div>
+        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.linkName')}</div>
         <NInput
           value={linkName.value}
           onUpdateValue={onLinkNameChange}

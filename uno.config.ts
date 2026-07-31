@@ -27,6 +27,9 @@ export default defineConfig({
     ['auto-bg-hover', 'hover:bg-#eaf0f1 hover:dark:bg-#1b2429'],
     ['auto-bg-highlight', 'bg-#eaf0f1 dark:bg-#1b2429'],
     ['text-highlight', 'rounded-4 px-8 py-2 auto-bg-highlight'],
+    ['form-label-sm', 'text-12px text-#666'],
+    ['form-label-md', 'text-14px text-#666'],
+    ['form-label-lg', 'text-16px text-#666'],
   ],
   rules: [
     [

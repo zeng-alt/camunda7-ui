@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSelect, NCheckbox } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '@/composables'
 import { type ExtraFieldTab } from '../base'
 
 export const adHocSubProcessTabs: ExtraFieldTab[] = [
@@ -23,6 +24,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const cancelRemainingInstances = ref(false)
     const completionCondition = ref('')
 
@@ -36,15 +38,7 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true, deep: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function getModeler() {
-      return props.bpmnModeler
-    }
-
-    function updateProperty(key: string, value: any) {
-      if (!getModeler() || !props.element) return
-      const modeling = getModeler().get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
+    const { getModdle, updateProperty, updateModdleProperties } = useBpmnProperties(props)
 
     function onCancelRemainingInstancesChange(val: boolean) {
       cancelRemainingInstances.value = val
@@ -54,25 +48,19 @@ export default defineComponent({
     function onCompletionConditionChange(val: string | null) {
       completionCondition.value = val ?? ''
       const bo = props.businessObject
-      if (!getModeler() || !props.element || !bo) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!bo) return
 
       if (!val) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), {
-          completionCondition: undefined,
-        })
+        updateModdleProperties({ completionCondition: undefined }, bo)
         return
       }
 
       const existing = bo.completionCondition
       if (existing) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(existing), { body: val })
+        updateModdleProperties({ body: val }, existing)
       } else {
-        const expr = moddle.create('bpmn:FormalExpression', { body: val })
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(bo), {
-          completionCondition: expr,
-        })
+        const expr = getModdle()?.create('bpmn:FormalExpression', { body: val })
+        updateModdleProperties({ completionCondition: expr }, bo)
       }
     }
 
@@ -89,9 +77,7 @@ export default defineComponent({
               </NCheckbox>
             </div>
             <div class="mb-12px">
-              <div class="mb-4px text-12px text-#666">
-                {t('bpmnPanel.fields.completionCondition')}
-              </div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.completionCondition')}</div>
               <NInput
                 value={completionCondition.value}
                 onUpdateValue={onCompletionConditionChange}

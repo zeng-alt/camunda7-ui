@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NFormItem, NForm } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '@/composables'
 
 export default defineComponent({
   name: 'DocumentationPanel',
@@ -35,6 +36,8 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const documentation = ref('')
 
+    const { getModdle, updateProperties } = useBpmnProperties(props)
+
     watch(
       () => props.businessObject,
       (bo) => {
@@ -51,18 +54,11 @@ export default defineComponent({
 
     function updateDocumentation(val: string) {
       documentation.value = val
-      if (!props.bpmnModeler || !props.element) return
-
-      const modeling = props.bpmnModeler.get('modeling')
-      const moddle = props.bpmnModeler.get('moddle')
       const bo = props.businessObject
       if (!bo) return
 
-      const doc = val ? [moddle.create('bpmn:Documentation', { text: val })] : []
-
-      modeling.updateProperties(toRaw(props.element), {
-        documentation: doc,
-      })
+      const doc = val ? [getModdle()?.create('bpmn:Documentation', { text: val })] : []
+      updateProperties({ documentation: doc })
     }
 
     return () => {

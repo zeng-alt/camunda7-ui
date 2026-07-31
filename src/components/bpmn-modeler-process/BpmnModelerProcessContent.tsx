@@ -2,8 +2,8 @@ import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref, watch 
 import { CamundaConfigProvider } from '../config-provider'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
-import { useCamundaLookups } from '@/composables'
 import { useMessage } from 'naive-ui'
+import { NLayout, NLayoutContent, NLayoutSider } from 'naive-ui'
 import {
   resolveDesignerConfig,
   provideDesignerConfig,
@@ -11,24 +11,26 @@ import {
   type ElementKey,
 } from '../bpmn-panel/designerConfig'
 import createConfigurableNodesModule from './features/configurable-nodes/createConfigurableNodesModule'
-import {
-  NButton,
-  NButtonGroup,
-  NIcon,
-  NLayout,
-  NLayoutContent,
-  NLayoutSider,
-  NPopselect,
-  NModal,
-  NInput,
-  NSpace,
-  NPopconfirm,
-} from 'naive-ui'
 import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
 import type { LocaleOption } from '../config-provider/context'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
+import {
+  useBpmnModeler,
+  useXmlStash,
+  zoomIn,
+  zoomOut,
+  centerView,
+  undo,
+  redo,
+  toggleMinimap,
+} from './composables'
+import {
+  ModelerToolbar,
+  DesignerSwitch,
+  ImportExportDialog,
+  RestoreStashDialog,
+} from './components'
 import './bpmn.css'
-import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler'
 import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css'
 import 'camunda-bpmn-js/dist/assets/diagram-js.css'
 import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
@@ -36,7 +38,7 @@ import 'camunda-bpmn-js/dist/assets/bpmn-js.css'
 
 const processId = `Process_${Math.random().toString(36).slice(2, 9)}`
 
-const someDiagram = `<?xml version="1.0" encoding="UTF-8"?>
+const defaultDiagram = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0pw1fh7" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.37.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.23.0">
   <bpmn:process id="${processId}" isExecutable="true" camunda:historyTimeToLive="180">
   </bpmn:process>
@@ -260,9 +262,7 @@ export default defineComponent({
 
     const proDesigner = ref(props.proDesigner ?? true)
 
-    const designerState = ref(
-      resolveDesignerConfig(proDesigner.value, props.designerConfig),
-    )
+    const designerState = ref(resolveDesignerConfig(proDesigner.value, props.designerConfig))
     provideDesignerConfig(designerState)
 
     const nodesModule = createConfigurableNodesModule({
@@ -280,9 +280,7 @@ export default defineComponent({
       [proDesigner, () => props.designerConfig],
       () => {
         designerState.value = resolveDesignerConfig(proDesigner.value, props.designerConfig)
-        if (bpmnModeler) {
-          bpmnModeler.get('eventBus')?.fire('i18n.changed')
-        }
+        getModeler()?.get('eventBus')?.fire('i18n.changed')
       },
       { deep: true },
     )
@@ -305,186 +303,64 @@ export default defineComponent({
     const currentLocaleRef = ref<LocaleType>(props.locale ?? currentLocale.value ?? 'zh-CN')
 
     const canvasRef = ref<HTMLElement | null>(null)
-    const modelerRef = ref<any>(null)
-    let bpmnModeler: any = null
-    let stashTimer: ReturnType<typeof setTimeout> | null = null
-    let latestXml = ''
 
-    async function loadDiagram(xmlStr: string) {
-      if (!bpmnModeler) return
-      try {
-        await bpmnModeler.importXML(xmlStr)
-        setupColorManager(bpmnModeler)
-        let attempts = 0
-        const tryFitViewport = () => {
-          if (
-            canvasRef.value &&
-            canvasRef.value.clientWidth > 0 &&
-            canvasRef.value.clientHeight > 0
-          ) {
-            bpmnModeler.get('canvas').zoom('fit-viewport')
-          } else if (attempts < 10) {
-            attempts++
-            setTimeout(tryFitViewport, 50)
-          }
-        }
-        tryFitViewport()
-      } catch (err) {
-        console.error('something went wrong:', err)
-      }
-    }
+    const { modelerRef, init, getModeler, loadDiagram, importXml, saveXml, clearCanvas, destroy } =
+      useBpmnModeler({ container: () => canvasRef.value })
 
-    function doStash() {
-      if (!bpmnModeler || !props.autoStash) return
-      bpmnModeler
-        .saveXML({ format: true })
-        .then(({ xml }: any) => {
-          latestXml = xml
-          try {
-            localStorage.setItem(props.stashKey, xml)
-          } catch {
-            // storage full or unavailable
-          }
-        })
-        .catch(() => {})
-    }
+    const {
+      showRestoreDialog,
+      debounceStash,
+      checkStash,
+      handleRestoreStash,
+      handleDiscardStash,
+      flushStash,
+    } = useXmlStash({
+      autoStash: props.autoStash,
+      stashKey: props.stashKey,
+      hasExternalXml: () => !!props.xml,
+      saveXml,
+      loadDiagram,
+    })
 
-    function debounceStash() {
-      if (!props.autoStash) return
-      if (stashTimer) clearTimeout(stashTimer)
-      stashTimer = setTimeout(doStash, 2000)
-    }
+    onMounted(() => {
+      init([customTranslateModule, nodesModule])
 
-    function checkStash() {
-      if (props.xml || !props.autoStash) return
-      try {
-        const stashed = localStorage.getItem(props.stashKey)
-        if (stashed) {
-          pendingStashXml.value = stashed
-          showRestoreDialog.value = true
-        }
-      } catch {
-        // ignore
-      }
-    }
+      const initialXml = props.xml || defaultDiagram
+      loadDiagram(initialXml)
 
-    function handleRestoreStash() {
-      showRestoreDialog.value = false
-      if (pendingStashXml.value && bpmnModeler) {
-        latestXml = pendingStashXml.value
-        loadDiagram(pendingStashXml.value)
-      }
-      pendingStashXml.value = ''
-    }
+      checkStash()
 
-    function handleDiscardStash() {
-      showRestoreDialog.value = false
-      pendingStashXml.value = ''
-    }
-
-    onMounted(async () => {
-      if (canvasRef.value) {
-        bpmnModeler = new BpmnModeler({
-          container: canvasRef.value,
-          additionalModules: [customTranslateModule, nodesModule],
-        })
-        modelerRef.value = bpmnModeler
-
-        const initialXml = props.xml || someDiagram
-        await loadDiagram(initialXml)
-
-        checkStash()
-
-        if (props.autoStash) {
-          bpmnModeler.on('element.changed', debounceStash)
-          bpmnModeler.on('commandStack.changed', debounceStash)
-        }
+      if (props.autoStash) {
+        const modeler = getModeler()
+        modeler?.on('element.changed', debounceStash)
+        modeler?.on('commandStack.changed', debounceStash)
       }
     })
 
     watch(
       () => props.xml,
       (newXml) => {
-        if (newXml && bpmnModeler) {
+        if (newXml) {
           loadDiagram(newXml)
         }
       },
     )
 
     onBeforeUnmount(() => {
-      doStash()
-      if (latestXml) {
-        try {
-          localStorage.setItem(props.stashKey, latestXml)
-        } catch {
-          // storage full or unavailable
-        }
-      }
-      if (stashTimer) clearTimeout(stashTimer)
-      if (bpmnModeler) {
-        bpmnModeler.destroy()
-      }
+      flushStash()
+      destroy()
     })
 
-    function toggleMinimap() {
-      if (bpmnModeler) {
-        const minimap = bpmnModeler.get('minimap')
-        if (minimap) minimap.toggle()
-      }
-    }
-
-    function zoomIn() {
-      if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas')
-        const currentZoom = canvas.zoom()
-        canvas.zoom(Math.min(currentZoom * 1.2, 3.0), 'auto')
-      }
-    }
-
-    function zoomOut() {
-      if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas')
-        const currentZoom = canvas.zoom()
-        canvas.zoom(Math.max(currentZoom / 1.2, 0.2), 'auto')
-      }
-    }
-
-    function centerView() {
-      if (bpmnModeler) {
-        const canvas = bpmnModeler.get('canvas')
-        canvas.zoom('fit-viewport')
-      }
-    }
-
-    function lastStep() {
-      if (bpmnModeler) {
-        const commandStack = bpmnModeler.get('commandStack')
-        if (commandStack.canUndo()) commandStack.undo()
-      }
-    }
-
-    function nextStep() {
-      if (bpmnModeler) {
-        const commandStack = bpmnModeler.get('commandStack')
-        if (commandStack.canRedo()) commandStack.redo()
-      }
-    }
-
     const showExportDialog = ref(false)
-    const showRestoreDialog = ref(false)
-    const pendingStashXml = ref('')
     const exportXml = ref('')
-    const fileInputRef = ref<HTMLInputElement | null>(null)
 
     async function openImportExportDialog() {
-      if (bpmnModeler) {
-        try {
-          const { xml } = await bpmnModeler.saveXML({ format: true })
-          exportXml.value = xml
-          showExportDialog.value = true
-        } catch (err: any) {
-          message.error(t('bpmnPanel.importExport.exportError') + '\n' + (err.message || err))
-        }
+      if (!getModeler()) return
+      try {
+        exportXml.value = await saveXml()
+        showExportDialog.value = true
+      } catch (err: any) {
+        message.error(t('bpmnPanel.importExport.exportError') + '\n' + (err.message || err))
       }
     }
 
@@ -499,62 +375,14 @@ export default defineComponent({
     }
 
     async function saveXmlToModeler() {
-      if (bpmnModeler) {
-        try {
-          await bpmnModeler.importXML(exportXml.value)
-          const canvas = bpmnModeler.get('canvas')
-          canvas.zoom('fit-viewport')
-          showExportDialog.value = false
-        } catch (err: any) {
-          message.error(t('bpmnPanel.importExport.importError') + '\n' + (err.message || err))
-          console.error('Error importing XML', err)
-        }
-      }
-    }
-
-    function handleFileImport(event: Event) {
-      const target = event.target as HTMLInputElement
-      const file = target.files?.[0]
-      if (!file) return
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        exportXml.value = e.target?.result as string
-      }
-      reader.readAsText(file)
-      target.value = ''
-    }
-
-    function setupColorManager(modeler: any) {
-      const elementRegistry = modeler.get('elementRegistry')
-      elementRegistry.forEach((el: any) => reapplyElementColor(modeler, el))
-      modeler.on('element.changed', ({ element }: any) => reapplyElementColor(modeler, element))
-    }
-
-    function reapplyElementColor(modeler: any, element: any) {
-      const di = element.di
-      if (!di) return
-      const fill = di.get('color:background-color') || di.get('bioc:fill') || (di as any).fill
-      const stroke = di.get('color:border-color') || di.get('bioc:stroke') || (di as any).stroke
-      if (!fill && !stroke) return
-      const elementRegistry = modeler.get('elementRegistry')
-      const gfx = elementRegistry.getGraphics(element) as SVGElement | null
-      if (!gfx) return
-      const sel = '.djs-visual > :is(rect, circle, polygon, ellipse, path)'
-      const visual = gfx.querySelector(sel) as SVGElement | null
-      if (visual) {
-        if (fill) visual.style.setProperty('fill', fill, 'important')
-        if (stroke) visual.style.setProperty('stroke', stroke, 'important')
-      }
-    }
-
-    async function clearCanvas() {
-      if (!bpmnModeler) return
+      if (!getModeler()) return
       try {
-        await bpmnModeler.importXML(someDiagram)
-        const canvas = bpmnModeler.get('canvas')
-        canvas.zoom('fit-viewport')
-      } catch (err) {
-        console.error('Error clearing canvas', err)
+        await importXml(exportXml.value)
+        centerView(getModeler())
+        showExportDialog.value = false
+      } catch (err: any) {
+        message.error(t('bpmnPanel.importExport.importError') + '\n' + (err.message || err))
+        console.error('Error importing XML', err)
       }
     }
 
@@ -567,21 +395,8 @@ export default defineComponent({
       currentLocaleRef.value = value as LocaleType
       setLocale(value as LocaleType)
       emit('update:locale', value)
-      bpmnModeler?.get('eventBus')?.fire('i18n.changed')
+      getModeler()?.get('eventBus')?.fire('i18n.changed')
     }
-
-    const { registerLookups } = useCamundaLookups()
-    registerLookups({
-      searchUsers: props.onSearchUsers,
-      searchUserGroups: props.onSearchUserGroups,
-      fetchProcessList: props.onFetchProcessList,
-      searchJavaClasses: props.onSearchJavaClasses,
-      searchDelegateExpressions: props.onSearchDelegateExpressions,
-      searchExternalTopics: props.onSearchExternalTopics,
-      searchDecisionRefs: props.onSearchDecisionRefs,
-      searchFormRefs: props.onSearchFormRefs,
-      searchFormKeys: props.onSearchFormKeys,
-    })
 
     const extraTabs: Record<string, any> = {
       'start-event': slots['start-event-extra'],
@@ -598,6 +413,17 @@ export default defineComponent({
         locale={currentLocaleRef.value}
         localeFallback={props.localeFallback}
         localeMessages={props.localeMessages}
+        lookups={{
+          searchUsers: props.onSearchUsers,
+          searchUserGroups: props.onSearchUserGroups,
+          fetchProcessList: props.onFetchProcessList,
+          searchJavaClasses: props.onSearchJavaClasses,
+          searchDelegateExpressions: props.onSearchDelegateExpressions,
+          searchExternalTopics: props.onSearchExternalTopics,
+          searchDecisionRefs: props.onSearchDecisionRefs,
+          searchFormRefs: props.onSearchFormRefs,
+          searchFormKeys: props.onSearchFormKeys,
+        }}
       >
         {{
           default: () => (
@@ -607,173 +433,52 @@ export default defineComponent({
                 content-style="height: 100%; display: flex; flex-direction: column;"
               >
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
-                {(slots.footer || props.showDesignerSwitch) && (
-                  <div class="absolute bottom-12px left-1/2 -translate-x-1/2 z-10">
-                    <NButtonGroup size={props.size}>
-                      {slots.footer && slots.footer()}
-                      {props.showDesignerSwitch && (
-                        <div class="mx-8px">
-                          <NButton
-                            type={proDesigner.value ? 'primary' : 'default'}
-                            onClick={() => setProDesigner(true)}
-                          >
-                            {t('bpmnPanel.designerSwitch.pro')}
-                          </NButton>
-                          <NButton
-                            type={!proDesigner.value ? 'primary' : 'default'}
-                            onClick={() => setProDesigner(false)}
-                          >
-                            {t('bpmnPanel.designerSwitch.restricted')}
-                          </NButton>
-                        </div>
-                      )}
-                    </NButtonGroup>
-                    
-                  </div>
-                )}
-                <div
-                  class="floating-btn-group"
-                  style="position: absolute; top: 24px; right: 8px; z-index: 10;"
-                >
-                  <NButtonGroup size={props.size}>
-                    <NButton ghost onClick={zoomIn}>
-                      <NIcon>
-                        <span class="i-ic-baseline-add text-[#409eff]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={zoomOut}>
-                      <NIcon>
-                        <span class="i-ic-baseline-remove text-[#409eff]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={centerView}>
-                      <NIcon>
-                        <span class="i-ic-baseline-center-focus-strong text-[#409eff]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={lastStep}>
-                      <NIcon>
-                        <span class="i-ic-baseline-undo text-[#909399]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={nextStep}>
-                      <NIcon>
-                        <span class="i-ic-baseline-redo text-[#909399]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={toggleMinimap}>
-                      <NIcon>
-                        <span class="i-ic-baseline-layers text-[#13c2c2]" />
-                      </NIcon>
-                    </NButton>
-                    <NButton ghost onClick={openImportExportDialog}>
-                      <NIcon>
-                        <span class="i-ic-baseline-import-export text-[#e6a23c]" />
-                      </NIcon>
-                    </NButton>
-                    <NPopconfirm
-                      onPositiveClick={clearCanvas}
-                      positiveText={t('common.confirm')}
-                      negativeText={t('common.cancel')}
-                    >
-                      {{
-                        default: () => t('bpmnPanel.clearCanvas.confirm'),
-                        trigger: () => (
-                          <NButton ghost>
-                            <NIcon>
-                              <span class="i-ic-baseline-delete text-[#f56c6c]" />
-                            </NIcon>
-                          </NButton>
-                        ),
-                      }}
-                    </NPopconfirm>
-                    {slots.buttons?.({ modeler: modelerRef.value })}
-                    <NPopselect
-                      value={currentLocaleRef.value}
-                      options={props.availableLocales as any}
-                      onUpdateValue={handleLocaleChange}
-                      trigger="click"
-                    >
-                      <NButton ghost>
-                        <NIcon>
-                          <span class="i-ic-baseline-language text-[#909399]" />
-                        </NIcon>
-                      </NButton>
-                    </NPopselect>
-                    <NButton ghost onClick={toggleTheme}>
-                      <NIcon>
-                        <span
-                          class={
-                            currentTheme.value === 'dark'
-                              ? 'i-ic-baseline-bedtime text-[#b37feb]'
-                              : 'i-ic-baseline-wb-sunny text-[#eb2f96]'
-                          }
-                        />
-                      </NIcon>
-                    </NButton>
-                  </NButtonGroup>
-                </div>
-                <NModal
-                  show={showExportDialog.value}
-                  preset="card"
-                  draggable
+                <DesignerSwitch
                   size={props.size}
-                  style="width: 800px; max-width: 90vw;"
-                  title={t('bpmnPanel.importExport.title')}
-                  bordered={false}
-                  segmented
-                  closable
+                  proDesigner={proDesigner.value}
+                  showDesignerSwitch={props.showDesignerSwitch}
+                  onSetProDesigner={setProDesigner}
+                  v-slots={{ footer: slots.footer }}
+                />
+                <ModelerToolbar
+                  modeler={modelerRef.value}
+                  size={props.size}
+                  currentLocale={currentLocaleRef.value}
+                  availableLocales={props.availableLocales}
+                  currentTheme={currentTheme.value}
+                  onLocaleChange={handleLocaleChange}
+                  onToggleTheme={toggleTheme}
+                  onZoomIn={() => zoomIn(modelerRef.value)}
+                  onZoomOut={() => zoomOut(modelerRef.value)}
+                  onCenter={() => centerView(modelerRef.value)}
+                  onUndo={() => undo(modelerRef.value)}
+                  onRedo={() => redo(modelerRef.value)}
+                  onToggleMinimap={() => toggleMinimap(modelerRef.value)}
+                  onOpenImportExport={openImportExportDialog}
+                  onClear={() => clearCanvas(defaultDiagram)}
+                  v-slots={{ buttons: slots.buttons }}
+                />
+                <ImportExportDialog
+                  show={showExportDialog.value}
+                  size={props.size}
+                  value={exportXml.value}
                   onUpdateShow={(val: boolean) => {
                     showExportDialog.value = val
                   }}
-                >
-                  <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".bpmn,.xml"
-                      style="display: none;"
-                      onChange={handleFileImport}
-                    />
-                    <NSpace justify="space-between" align="center">
-                      <NButton size="small" onClick={() => fileInputRef.value?.click()}>
-                        {t('bpmnPanel.importExport.importFile')}
-                      </NButton>
-                    </NSpace>
-                    <NInput
-                      type="textarea"
-                      value={exportXml.value}
-                      onUpdateValue={(val: string) => {
-                        exportXml.value = val
-                      }}
-                      style="font-family: monospace; font-size: 13px;"
-                      rows={20}
-                    />
-                    <NSpace justify="end">
-                      <NButton size="small" onClick={downloadXml}>
-                        {t('bpmnPanel.importExport.download')}
-                      </NButton>
-                      <NButton size="small" type="primary" onClick={saveXmlToModeler}>
-                        {t('bpmnPanel.importExport.save')}
-                      </NButton>
-                    </NSpace>
-                  </div>
-                </NModal>
-                <NModal
+                  onUpdateValue={(val: string) => {
+                    exportXml.value = val
+                  }}
+                  onDownload={downloadXml}
+                  onSaveToModeler={saveXmlToModeler}
+                />
+                <RestoreStashDialog
                   show={showRestoreDialog.value}
-                  preset="dialog"
-                  mask-closable={false}
                   size={props.size}
-                  style="width: 420px;"
-                  title={t('bpmnPanel.autoStash.restore')}
-                  positiveText={t('common.confirm')}
-                  negativeText={t('common.cancel')}
-                  onPositiveClick={handleRestoreStash}
-                  onNegativeClick={handleDiscardStash}
+                  onPositive={handleRestoreStash}
+                  onNegative={handleDiscardStash}
                   onUpdateShow={(val: boolean) => {
                     showRestoreDialog.value = val
                   }}
-                  bordered={false}
                 />
               </NLayoutContent>
               <NLayoutSider

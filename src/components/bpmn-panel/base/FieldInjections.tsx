@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NButton, NInput, NSelect, NEmpty } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
 
 export interface FieldItem {
   _key: number
@@ -34,6 +35,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { getModdle, getOrCreateExtensionElements, updateProperties } = useBpmnProperties(props)
     const localFields = ref<FieldItem[]>([])
 
     function syncFromModel() {
@@ -60,15 +62,9 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save() {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
-      const moddle = (props.bpmnModeler as any).get('moddle')
-      const bo = props.businessObject
-      if (!bo) return
-
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
 
       const fieldModdles = localFields.value
         .filter((f) => f.name)
@@ -79,15 +75,13 @@ export default defineComponent({
           }),
         )
 
-      const extValues = bo.extensionElements.get('values')
+      const extValues = ee.get('values')
       const nonFields = extValues.filter((v: any) => v.$type !== 'camunda:Field')
       extValues.length = 0
       nonFields.forEach((v: any) => extValues.push(v))
       fieldModdles.forEach((v: any) => extValues.push(v))
 
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
+      updateProperties({ extensionElements: ee })
     }
 
     function add() {

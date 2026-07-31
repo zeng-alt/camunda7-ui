@@ -1,4 +1,8 @@
 import { reactive } from 'vue'
+import {
+  useCamundaLookupsContext,
+  type CamundaLookupsContext,
+} from '../components/config-provider/context'
 
 export interface CamundaLookupItem {
   label: string
@@ -46,13 +50,11 @@ const state = reactive<CamundaLookups>({
   searchFormKeys: null,
 })
 
-export function useCamundaLookups() {
-  function registerLookups(lookups: Partial<CamundaLookups>) {
-    Object.assign(state, lookups)
-  }
-
+export function useCamundaLookups(): CamundaLookupsContext {
+  const scoped = useCamundaLookupsContext()
+  if (scoped) return scoped
   return {
     lookups: state,
-    registerLookups,
+    registerLookups: (lookups) => Object.assign(state, lookups),
   }
 }

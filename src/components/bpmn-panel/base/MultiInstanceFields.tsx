@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, computed, watch, type PropType } from 'vue'
 import {
   NCheckbox,
   NInput,
@@ -10,6 +10,7 @@ import {
   NRadio,
 } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useMultiInstance, useFormSize } from '@/composables'
 import UserPicker from './UserPicker'
 import GroupPicker from './GroupPicker'
 
@@ -31,27 +32,32 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
 
-    const enabled = ref(false)
-    const isSequential = ref(false)
-    const loopCardinality = ref('')
-    const collection = ref('')
-    const elementVariable = ref('')
-    const completionCondition = ref('')
-    const completionType = ref<'all' | 'any' | 'quantity' | 'percentage' | 'advanced'>('all')
-    const completionValue = ref<number | null>(null)
-    const asyncBefore = ref(false)
-    const asyncAfter = ref(false)
-    const exclusive = ref(true)
-    const retryTimeCycle = ref('')
+    const mi = useMultiInstance({ props: () => props })
+    const {
+      enabled,
+      isSequential,
+      loopCardinality,
+      collection,
+      elementVariable,
+      completionCondition,
+      completionType,
+      completionValue,
+      asyncBefore,
+      asyncAfter,
+      exclusive,
+      retryTimeCycle,
+      showJobExecution,
+      completionExpressionDisplay,
+    } = mi
+
     const panelMode = ref<'normal' | 'advanced'>('normal')
 
     const normalCompletionType = ref<'all' | 'any' | 'quantity' | 'percentage'>('all')
     const normalCompletionValue = ref<number | null>(null)
     const approverMode = ref<'variable' | 'user' | 'group'>('variable')
     const approverValue = ref('')
-
-    const showJobExecution = computed(() => asyncBefore.value || asyncAfter.value)
 
     const normalCompletionBody = computed(() => {
       switch (normalCompletionType.value) {
@@ -70,76 +76,30 @@ export default defineComponent({
       }
     })
 
-    const completionExpressionDisplay = computed(() => {
-      switch (completionType.value) {
-        case 'all':
-          return ''
-        case 'any':
-          return '${nrOfCompletedInstances >= 1}'
-        case 'quantity':
-          return completionValue.value != null
-            ? `\${nrOfCompletedInstances >= ${completionValue.value}}`
-            : ''
-        case 'percentage':
-          return completionValue.value != null
-            ? `\${nrOfCompletedInstances >= nrOfInstances * ${completionValue.value} / 100}`
-            : ''
-        case 'advanced':
-          return completionCondition.value
-      }
-    })
-
-    function getLoopCharacteristics(): any {
-      const bo = props.businessObject
-      if (!bo) return null
-      const lc = bo.loopCharacteristics
-      if (lc && lc.$type === 'bpmn:MultiInstanceLoopCharacteristics') return lc
-      return null
-    }
-
     function syncFromModel() {
-      const lc = getLoopCharacteristics()
-      enabled.value = !!lc
+      mi.syncFromModel()
+      const lc = mi.getLoopCharacteristics()
       if (lc) {
-        isSequential.value = lc.isSequential === true
-        loopCardinality.value = lc.loopCardinality?.body || ''
         const body = lc.completionCondition?.body || ''
-        completionCondition.value = body
         const anyMatch = body.match(/^\$\{nrOfCompletedInstances\s*>=\s*1\}$/)
         const qtyMatch = body.match(/^\$\{nrOfCompletedInstances\s*>=\s*(\d+)\}$/)
         const pctMatch = body.match(
           /^\$\{nrOfCompletedInstances\s*>=\s*nrOfInstances\s*\*\s*(\d+)\s*\/\s*100\}$/,
         )
         if (anyMatch) {
-          completionType.value = 'any'
           normalCompletionType.value = 'any'
-          completionValue.value = null
           normalCompletionValue.value = null
         } else if (qtyMatch) {
-          completionType.value = 'quantity'
           normalCompletionType.value = 'quantity'
-          completionValue.value = Number(qtyMatch[1])
           normalCompletionValue.value = Number(qtyMatch[1])
         } else if (pctMatch) {
-          completionType.value = 'percentage'
           normalCompletionType.value = 'percentage'
-          completionValue.value = Number(pctMatch[1])
           normalCompletionValue.value = Number(pctMatch[1])
-        } else if (body) {
-          completionType.value = 'advanced'
-          normalCompletionType.value = 'all'
-          completionValue.value = null
-          normalCompletionValue.value = null
         } else {
-          completionType.value = 'all'
           normalCompletionType.value = 'all'
-          completionValue.value = null
           normalCompletionValue.value = null
         }
         const col = lc.collection || ''
-        const ev = lc.elementVariable || ''
-        collection.value = col
-        elementVariable.value = ev
         const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
         const userRe = new RegExp(`^\\$\\{${escapeRe(props.userResolver)}\\((.+)\\)\\}$`)
         const groupRe = new RegExp(`^\\$\\{${escapeRe(props.groupResolver)}\\((.+)\\)\\}$`)
@@ -159,239 +119,38 @@ export default defineComponent({
           approverMode.value = 'variable'
           approverValue.value = col || ''
         }
-        asyncBefore.value = lc.asyncBefore === true
-        asyncAfter.value = lc.asyncAfter === true
-        exclusive.value = lc.exclusive !== false
-        const lcExtValues = lc.extensionElements?.values || []
-        const lcRetryCycle = lcExtValues.find(
-          (v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle',
-        )
-        retryTimeCycle.value = lcRetryCycle?.body ?? ''
       } else {
-        isSequential.value = false
-        loopCardinality.value = ''
-        collection.value = ''
-        elementVariable.value = ''
-        completionCondition.value = ''
-        completionType.value = 'all'
-        completionValue.value = null
         normalCompletionType.value = 'all'
         normalCompletionValue.value = null
         approverMode.value = 'variable'
         approverValue.value = ''
-        asyncBefore.value = false
-        asyncAfter.value = false
-        exclusive.value = true
-        retryTimeCycle.value = ''
       }
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function saveProperties(attrs: Record<string, any>) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), attrs)
-    }
-
-    function updateLcAsyncProps(lc: any) {
-      if (asyncBefore.value) lc.asyncBefore = true
-      else delete lc.asyncBefore
-      if (asyncAfter.value) lc.asyncAfter = true
-      else delete lc.asyncAfter
-      if (!exclusive.value) lc.exclusive = false
-      else delete lc.exclusive
-      const moddle = props.bpmnModeler?.get('moddle')
-      if (!moddle) return
-      if (retryTimeCycle.value) {
-        if (!lc.extensionElements) {
-          lc.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-        }
-        const ee = lc.extensionElements
-        let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
-        if (!retry) {
-          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: retryTimeCycle.value })
-          ee.get('values').push(retry)
-        } else {
-          retry.body = retryTimeCycle.value
-        }
-      } else if (lc.extensionElements) {
-        const ee = lc.extensionElements
-        const retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
-        if (retry) {
-          ee.values = ee.values.filter((v: any) => v !== retry)
-        }
-      }
-    }
-
-    function onEnabledChange(val: boolean) {
-      enabled.value = val
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const bo = props.businessObject
-      if (!bo) return
-
-      if (val) {
-        const lc = moddle.create('bpmn:MultiInstanceLoopCharacteristics', {
-          isSequential: isSequential.value,
-        })
-        if (loopCardinality.value) {
-          lc.loopCardinality = moddle.create('bpmn:FormalExpression', {
-            body: loopCardinality.value,
-          })
-        }
-        if (collection.value) lc.collection = collection.value
-        if (elementVariable.value) lc.elementVariable = elementVariable.value
-        if (completionCondition.value) {
-          lc.completionCondition = moddle.create('bpmn:FormalExpression', {
-            body: completionCondition.value,
-          })
-        }
-        updateLcAsyncProps(lc)
-        saveProperties({ loopCharacteristics: lc })
-      } else {
-        saveProperties({ loopCharacteristics: undefined })
-      }
-    }
-
-    function onSequentialChange(val: boolean) {
-      isSequential.value = val
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.isSequential = val
-      saveProperties({ loopCharacteristics: lc })
-    }
-
-    function onLoopCardinalityChange(val: string | null) {
-      loopCardinality.value = val ?? ''
-      if (!props.bpmnModeler || !props.element) return
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      const moddle = props.bpmnModeler.get('moddle')
-      if (val) {
-        if (!lc.loopCardinality) {
-          lc.loopCardinality = moddle.create('bpmn:FormalExpression', { body: val })
-        } else {
-          lc.loopCardinality.body = val
-        }
-      } else {
-        lc.loopCardinality = undefined
-      }
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onCollectionChange(val: string | null) {
-      collection.value = val ?? ''
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.collection = val || undefined
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onElementVariableChange(val: string | null) {
-      elementVariable.value = val ?? ''
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.elementVariable = val || undefined
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function setCompletionBody(body: string) {
-      completionCondition.value = body
-      if (!props.bpmnModeler || !props.element) return
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      const moddle = props.bpmnModeler.get('moddle')
-      if (body) {
-        if (!lc.completionCondition) {
-          lc.completionCondition = moddle.create('bpmn:FormalExpression', { body })
-        } else {
-          lc.completionCondition.body = body
-        }
-      } else {
-        lc.completionCondition = undefined
-      }
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onCompletionTypeChange(val: 'all' | 'any' | 'quantity' | 'percentage' | 'advanced') {
-      completionType.value = val
-      switch (val) {
-        case 'all':
-          completionValue.value = null
-          setCompletionBody('')
-          break
-        case 'any':
-          completionValue.value = null
-          setCompletionBody('${nrOfCompletedInstances >= 1}')
-          break
-        case 'quantity':
-          if (completionValue.value != null) {
-            setCompletionBody(`\${nrOfCompletedInstances >= ${completionValue.value}}`)
-          } else {
-            setCompletionBody('')
-          }
-          break
-        case 'percentage':
-          if (completionValue.value != null) {
-            setCompletionBody(
-              `\${nrOfCompletedInstances >= nrOfInstances * ${completionValue.value} / 100}`,
-            )
-          } else {
-            setCompletionBody('')
-          }
-          break
-        case 'advanced':
-          completionValue.value = null
-          break
-      }
-    }
-
-    function onCompletionValueChange(val: number | null) {
-      completionValue.value = val
-      if (val == null) return
-      if (completionType.value === 'quantity') {
-        setCompletionBody(`\${nrOfCompletedInstances >= ${val}}`)
-      } else if (completionType.value === 'percentage') {
-        setCompletionBody(`\${nrOfCompletedInstances >= nrOfInstances * ${val} / 100}`)
-      }
-    }
-
-    function onCompletionAdvancedChange(val: string | null) {
-      setCompletionBody(val ?? '')
-    }
-
     function onNormalSequentialChange(val: boolean) {
-      isSequential.value = val
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.isSequential = val
-      saveProperties({ loopCharacteristics: lc })
+      mi.onSequentialChange(val)
     }
 
     function onNormalCompletionTypeChange(val: 'all' | 'any' | 'quantity' | 'percentage') {
       normalCompletionType.value = val
       const body = normalCompletionBody.value
       normalCompletionValue.value = null
-      setCompletionBody(body)
+      mi.setCompletionBody(body)
     }
 
     function onNormalCompletionValueChange(val: number | null) {
       normalCompletionValue.value = val
-      const body = normalCompletionBody.value
-      setCompletionBody(body)
+      mi.setCompletionBody(normalCompletionBody.value)
     }
 
     function onApproverModeChange(val: 'variable' | 'user' | 'group') {
       approverMode.value = val
       approverValue.value = ''
       collection.value = ''
-      updateCollection('')
+      mi.updateCollection('')
     }
 
     function onApproverValueChange(val: string | null) {
@@ -399,10 +158,10 @@ export default defineComponent({
       approverValue.value = raw
       const expr = raw ? `\${${raw}}` : ''
       collection.value = expr
-      updateCollection(expr)
+      mi.updateCollection(expr)
       if (expr && !elementVariable.value) {
         elementVariable.value = 'item'
-        updateElementVariable('item')
+        mi.updateElementVariable('item')
       }
     }
 
@@ -411,10 +170,10 @@ export default defineComponent({
       approverValue.value = raw
       const expr = raw ? `\${${props.userResolver}(${raw})}` : ''
       collection.value = expr
-      updateCollection(expr)
+      mi.updateCollection(expr)
       if (expr && !elementVariable.value) {
         elementVariable.value = 'item'
-        updateElementVariable('item')
+        mi.updateElementVariable('item')
       }
     }
 
@@ -423,81 +182,15 @@ export default defineComponent({
       approverValue.value = raw
       const expr = raw ? `\${${props.groupResolver}(${raw})}` : ''
       collection.value = expr
-      updateCollection(expr)
+      mi.updateCollection(expr)
       if (expr && !elementVariable.value) {
         elementVariable.value = 'item'
-        updateElementVariable('item')
+        mi.updateElementVariable('item')
       }
     }
 
-    function updateCollection(val: string) {
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.collection = val || undefined
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function updateElementVariable(val: string) {
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      lc.elementVariable = val || undefined
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onAsyncBeforeChange(val: boolean) {
-      asyncBefore.value = val
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      if (val) lc.asyncBefore = true
-      else delete lc.asyncBefore
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onAsyncAfterChange(val: boolean) {
-      asyncAfter.value = val
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      if (val) lc.asyncAfter = true
-      else delete lc.asyncAfter
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onExclusiveChange(val: boolean) {
-      exclusive.value = val
-      const lc = getLoopCharacteristics()
-      if (!lc) return
-      if (!val) lc.exclusive = false
-      else delete lc.exclusive
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
-    }
-
-    function onRetryTimeCycleChange(val: string | null) {
-      retryTimeCycle.value = val ?? ''
-      const lc = getLoopCharacteristics()
-      if (!lc || !props.bpmnModeler) return
-      const moddle = props.bpmnModeler.get('moddle')
-      if (!lc.extensionElements) {
-        lc.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-      const ee = lc.extensionElements
-      let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
-      if (val) {
-        if (!retry) {
-          retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: val })
-          ee.get('values').push(retry)
-        } else {
-          retry.body = val
-        }
-      } else if (retry) {
-        ee.values = ee.values.filter((v: any) => v !== retry)
-      }
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { loopCharacteristics: lc })
+    function onPanelModeChange(val: 'normal' | 'advanced') {
+      panelMode.value = val
     }
 
     const sequentialOptions = [
@@ -505,16 +198,12 @@ export default defineComponent({
       { label: t('bpmnPanel.multiInstance.sequential'), value: 'true' },
     ]
 
-    function onPanelModeChange(val: 'normal' | 'advanced') {
-      panelMode.value = val
-    }
-
     return () => (
       <div class="pt-8px">
         <div class="flex items-center justify-between mb-8px">
           <NCheckbox
             checked={enabled.value}
-            onUpdateChecked={onEnabledChange}
+            onUpdateChecked={mi.enable}
             size={props.formSize === 'small' ? 'small' : 'medium'}
           >
             {t('bpmnPanel.multiInstance.enable')}
@@ -532,7 +221,7 @@ export default defineComponent({
         {enabled.value && panelMode.value === 'normal' && (
           <div class="flex flex-col gap-12px mt-8px">
             <div>
-              <div class="mb-4px text-12px text-#666">
+              <div class={`mb-4px ${labelClass}`}>
                 {t('bpmnPanel.multiInstance.normalExecutionMode')}
               </div>
               <NRadioGroup
@@ -550,7 +239,7 @@ export default defineComponent({
             </div>
 
             <div>
-              <div class="mb-4px text-12px text-#666">
+              <div class={`mb-4px ${labelClass}`}>
                 {t('bpmnPanel.multiInstance.normalApproverList')}
               </div>
               <NRadioGroup
@@ -602,7 +291,7 @@ export default defineComponent({
             </div>
 
             <div>
-              <div class="mb-4px text-12px text-#666">
+              <div class={`mb-4px ${labelClass}`}>
                 {t('bpmnPanel.multiInstance.normalCompletionRule')}
               </div>
               <NRadioGroup
@@ -643,7 +332,7 @@ export default defineComponent({
                           max={100}
                           placeholder="0"
                         />
-                        <span class="text-12px text-#666 flex-shrink-0">%</span>
+                        <span class={`${labelClass} flex-shrink-0`}>%</span>
                       </div>
                     )}
                   </div>
@@ -656,43 +345,43 @@ export default defineComponent({
         {enabled.value && panelMode.value === 'advanced' && (
           <div class="flex flex-col gap-8px mt-12px">
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.multiInstance.type')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.multiInstance.type')}</div>
               <NSelect
                 value={isSequential.value ? 'true' : 'false'}
-                onUpdateValue={(v: string | null) => onSequentialChange(v === 'true')}
+                onUpdateValue={(v: string | null) => mi.onSequentialChange(v === 'true')}
                 options={sequentialOptions}
                 size={props.formSize}
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.loopCardinality')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.loopCardinality')}</div>
               <NInput
                 value={loopCardinality.value}
-                onUpdateValue={onLoopCardinalityChange}
+                onUpdateValue={mi.onLoopCardinalityChange}
                 placeholder={t('bpmnPanel.placeholders.loopCardinality')}
                 size={props.formSize}
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.collection')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.collection')}</div>
               <NInput
                 value={collection.value}
-                onUpdateValue={onCollectionChange}
+                onUpdateValue={mi.onCollectionChange}
                 placeholder={t('bpmnPanel.placeholders.collection')}
                 size={props.formSize}
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.elementVariable')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.elementVariable')}</div>
               <NInput
                 value={elementVariable.value}
-                onUpdateValue={onElementVariableChange}
+                onUpdateValue={mi.onElementVariableChange}
                 placeholder={t('bpmnPanel.placeholders.elementVariable')}
                 size={props.formSize}
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666 flex items-center gap-4px">
+              <div class={`mb-4px ${labelClass} flex items-center gap-4px`}>
                 <span>{t('bpmnPanel.multiInstance.completionCondition')}</span>
                 {completionExpressionDisplay.value && (
                   <code class="text-11px text-#999 bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">
@@ -702,7 +391,7 @@ export default defineComponent({
               </div>
               <NRadioGroup
                 value={completionType.value}
-                onUpdateValue={onCompletionTypeChange}
+                onUpdateValue={mi.onCompletionTypeChange}
                 size={props.formSize}
               >
                 <div class="flex flex-col gap-4px w-full">
@@ -719,7 +408,7 @@ export default defineComponent({
                     {completionType.value === 'quantity' && (
                       <NInputNumber
                         value={completionValue.value}
-                        onUpdateValue={onCompletionValueChange}
+                        onUpdateValue={mi.onCompletionValueChange}
                         size={props.formSize}
                         style="width:100%"
                         min={1}
@@ -735,14 +424,14 @@ export default defineComponent({
                       <div class="flex items-center gap-2px" style="width:100%">
                         <NInputNumber
                           value={completionValue.value}
-                          onUpdateValue={onCompletionValueChange}
+                          onUpdateValue={mi.onCompletionValueChange}
                           size={props.formSize}
                           style="width:100%"
                           min={1}
                           max={100}
                           placeholder="0"
                         />
-                        <span class="text-12px text-#666 flex-shrink-0">%</span>
+                        <span class={`${labelClass} flex-shrink-0`}>%</span>
                       </div>
                     )}
                   </div>
@@ -753,7 +442,7 @@ export default defineComponent({
                     {completionType.value === 'advanced' && (
                       <NInput
                         value={completionCondition.value}
-                        onUpdateValue={onCompletionAdvancedChange}
+                        onUpdateValue={mi.onCompletionAdvancedChange}
                         placeholder={t('bpmnPanel.placeholders.completionCondition')}
                         size={props.formSize}
                         style="width:100%"
@@ -763,27 +452,27 @@ export default defineComponent({
                 </div>
               </NRadioGroup>
             </div>
-            <div class="mb-4px mt-4px text-12px text-#666">
+            <div class={`mb-4px mt-4px ${labelClass}`}>
               {t('bpmnPanel.fields.asyncContinuousExecution')}
             </div>
             <div class="flex flex-row gap-8px">
               <NCheckbox
                 checked={asyncBefore.value}
-                onUpdateChecked={onAsyncBeforeChange}
+                onUpdateChecked={mi.onAsyncBeforeChange}
                 size={props.formSize === 'small' ? 'small' : 'medium'}
               >
                 {t('bpmnPanel.fields.asyncBefore')}
               </NCheckbox>
               <NCheckbox
                 checked={asyncAfter.value}
-                onUpdateChecked={onAsyncAfterChange}
+                onUpdateChecked={mi.onAsyncAfterChange}
                 size={props.formSize === 'small' ? 'small' : 'medium'}
               >
                 {t('bpmnPanel.fields.asyncAfter')}
               </NCheckbox>
               <NCheckbox
                 checked={exclusive.value}
-                onUpdateChecked={onExclusiveChange}
+                onUpdateChecked={mi.onExclusiveChange}
                 size={props.formSize === 'small' ? 'small' : 'medium'}
               >
                 {t('bpmnPanel.fields.exclusive')}
@@ -805,7 +494,7 @@ export default defineComponent({
                 </div>
                 <NInput
                   value={retryTimeCycle.value}
-                  onUpdateValue={onRetryTimeCycleChange}
+                  onUpdateValue={mi.onRetryTimeCycleChange}
                   placeholder={t('bpmnPanel.placeholders.retryTimeCycle')}
                   size={props.formSize}
                 />

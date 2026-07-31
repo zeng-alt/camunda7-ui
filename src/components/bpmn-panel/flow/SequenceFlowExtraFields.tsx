@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
+import { defineComponent, ref, watch, computed, type PropType } from 'vue'
 import { NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import type { ExtraFieldTab } from '../base'
 import { ScriptFields, ExpressionField } from '../base'
 
@@ -37,6 +38,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateProperties } = useBpmnProperties(props)
 
     const isDefault = computed(() => (props.element ? isDefaultFlow(props.element) : false))
     const conditionType = ref<'none' | 'expression' | 'script'>('none')
@@ -60,21 +63,20 @@ export default defineComponent({
     function onConditionTypeChange(val: string | null) {
       const newType = (val as 'none' | 'expression' | 'script') ?? 'none'
       conditionType.value = newType
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
 
       if (newType === 'none') {
         conditionExpr.value = null
-        modeling.updateProperties(toRaw(props.element), { conditionExpression: undefined })
+        updateProperties({ conditionExpression: undefined })
         return
       }
 
-      const moddle = props.bpmnModeler.get('moddle')
+      const moddle = getModdle()
+      if (!moddle) return
       const attrs: Record<string, any> = {}
       if (newType === 'script') attrs.language = 'js'
       const newExpr = moddle.create('bpmn:FormalExpression', attrs)
       conditionExpr.value = newExpr
-      modeling.updateProperties(toRaw(props.element), { conditionExpression: newExpr })
+      updateProperties({ conditionExpression: newExpr })
     }
 
     return () => (
@@ -85,7 +87,7 @@ export default defineComponent({
           </div>
         )}
         <div class="mt-12px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionType')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionType')}</div>
           <NSelect
             value={conditionType.value}
             onUpdateValue={onConditionTypeChange}
@@ -95,9 +97,7 @@ export default defineComponent({
         </div>
         {conditionType.value === 'expression' && conditionExpr.value && (
           <div class="mt-12px">
-            <div class="mb-4px text-12px text-#666">
-              {t('bpmnPanel.fields.conditionExpression')}
-            </div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionExpression')}</div>
             <ExpressionField
               businessObject={conditionExpr.value}
               element={props.element}

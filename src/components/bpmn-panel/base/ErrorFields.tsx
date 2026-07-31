@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect, NButton } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { ExpressionField } from '.'
 
 function getDefinitions(bo: any): any {
@@ -49,6 +50,9 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, getOrCreateExtensionElements, updateProperties, updateModdleProperties } =
+      useBpmnProperties(props)
     const items = ref<ErrorItem[]>([])
     const errorOptions = ref<{ label: string; value: string }[]>([])
 
@@ -104,17 +108,10 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save() {
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const modeling = props.bpmnModeler.get('modeling')
-      const bo = props.businessObject
-      if (!bo) return
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
 
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-
-      const ee = bo.extensionElements
       const others = (ee.values || []).filter(
         (v: any) => v.$type !== 'camunda:ErrorEventDefinition',
       )
@@ -137,9 +134,7 @@ export default defineComponent({
       })
 
       ee.values = others
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
+      updateProperties({ extensionElements: ee })
     }
 
     function onErrorRefSelect(index: number, value: string) {
@@ -153,8 +148,8 @@ export default defineComponent({
       }
 
       if (value === '__create__') {
-        if (!props.bpmnModeler) return
-        const moddle = props.bpmnModeler.get('moddle')
+        const moddle = getModdle()
+        if (!moddle) return
         const id = uid()
         const newError = moddle.create('bpmn:Error', { id, name: id, errorCode: '' })
         const rawBo = toRaw(props.businessObject)
@@ -190,11 +185,10 @@ export default defineComponent({
       items.value = next
       save()
 
-      if (item?.errorRefId && props.bpmnModeler && props.element) {
+      if (item?.errorRefId) {
         const err = findErrorRootById(item.errorRefId)
         if (err) {
-          const modeling = props.bpmnModeler.get('modeling')
-          modeling.updateModdleProperties(toRaw(props.element), err, { name: val ?? '' })
+          updateModdleProperties({ name: val ?? '' }, err)
         }
       }
     }
@@ -205,11 +199,10 @@ export default defineComponent({
       items.value = next
       save()
 
-      if (item?.errorRefId && props.bpmnModeler && props.element) {
+      if (item?.errorRefId) {
         const err = findErrorRootById(item.errorRefId)
         if (err) {
-          const modeling = props.bpmnModeler.get('modeling')
-          modeling.updateModdleProperties(toRaw(props.element), err, { errorCode: val ?? '' })
+          updateModdleProperties({ errorCode: val ?? '' }, err)
         }
       }
     }
@@ -222,13 +215,10 @@ export default defineComponent({
       items.value = next
       save()
 
-      if (item?.errorRefId && props.bpmnModeler && props.element) {
+      if (item?.errorRefId) {
         const err = findErrorRootById(item.errorRefId)
         if (err) {
-          const modeling = props.bpmnModeler.get('modeling')
-          modeling.updateModdleProperties(toRaw(props.element), err, {
-            'camunda:errorMessage': val ?? '',
-          })
+          updateModdleProperties({ 'camunda:errorMessage': val ?? '' }, err)
         }
       }
     }
@@ -275,9 +265,7 @@ export default defineComponent({
                 </div>
                 <div class="flex gap-4px">
                   <div style="flex:1">
-                    <div class="mb-2px text-12px text-#666">
-                      {t('bpmnPanel.fields.listenerClass')}
-                    </div>
+                    <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.listenerClass')}</div>
                     <NInput
                       value={item.name}
                       onUpdateValue={(v: string | null) => onNameChange(index, v)}
@@ -286,7 +274,7 @@ export default defineComponent({
                     />
                   </div>
                   <div style="flex:1">
-                    <div class="mb-2px text-12px text-#666">{t('bpmnPanel.fields.errorCode')}</div>
+                    <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.errorCode')}</div>
                     <NInput
                       value={item.code}
                       onUpdateValue={(v: string | null) => onCodeChange(index, v)}
@@ -296,7 +284,7 @@ export default defineComponent({
                   </div>
                 </div>
                 <div>
-                  <div class="mb-2px text-12px text-#666">{t('bpmnPanel.fields.errorMessage')}</div>
+                  <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.errorMessage')}</div>
                   <NInput
                     value={item.message}
                     onUpdateValue={(v: string | null) => onMessageChange(index, v)}
@@ -305,7 +293,7 @@ export default defineComponent({
                   />
                 </div>
                 <div>
-                  <div class="mb-2px text-12px text-#666">
+                  <div class={`mb-2px ${labelClass}`}>
                     {t('bpmnPanel.fields.errorThrowExpression')}
                   </div>
                   <ExpressionField

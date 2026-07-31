@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import type { ExtraFieldTab } from '../base'
 import FormPanel from '../base/FormPanel'
 import EventDefinitionPanel from './EventDefinitionPanel'
@@ -32,6 +33,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperty } = useBpmnProperties(props)
     const initiator = ref('')
 
     function syncFromModel() {
@@ -42,12 +45,6 @@ export default defineComponent({
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
-
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
 
     function onInitiatorChange(val: string | null) {
       initiator.value = val ?? ''
@@ -83,7 +80,7 @@ export default defineComponent({
       return (
         <div class="pt-8px">
           <div class="mt-12px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.initiator')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.initiator')}</div>
             <NInput
               value={initiator.value}
               onUpdateValue={onInitiatorChange}
@@ -92,7 +89,7 @@ export default defineComponent({
             />
           </div>
           <div class="mt-16px">
-            <div class="mb-8px text-12px text-#666">{t('bpmnPanel.fields.eventDefinition')}</div>
+            <div class={`mb-8px ${labelClass}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
             <EventDefinitionPanel
               businessObject={props.businessObject}
               element={props.element}

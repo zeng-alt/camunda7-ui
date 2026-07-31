@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { ExpressionField, ScriptFields, HintTooltip } from '../base'
 
 const variableEventOptions = [
@@ -25,14 +26,12 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const conditionType = ref<'none' | 'expression' | 'script'>('none')
     const variableName = ref('')
     const conditionModdle = ref<any>(null)
     const variableEvents = ref<string[]>([])
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
@@ -40,9 +39,7 @@ export default defineComponent({
 
     function updateDefProperty(key: string, value: any) {
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { [key]: value })
+      updateModdleProperties({ [key]: value }, ed)
     }
 
     function syncFromModel() {
@@ -84,14 +81,14 @@ export default defineComponent({
       }
       if (conditionModdle.value) return
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
+      if (!moddle) return
       const attrs: Record<string, any> = {}
       if (t === 'script') attrs.language = 'js'
       const expr = moddle.create('bpmn:FormalExpression', attrs)
       conditionModdle.value = expr
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { condition: expr })
+      updateModdleProperties({ condition: expr }, ed)
     }
 
     function onVariableEventsChange(vals: string[] | null) {
@@ -102,7 +99,7 @@ export default defineComponent({
     return () => (
       <div>
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.variableName')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.variableName')}</div>
           <NInput
             value={variableName.value}
             onUpdateValue={onVariableNameChange}
@@ -129,7 +126,7 @@ export default defineComponent({
           </div>
         )}
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.conditionType')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionType')}</div>
           <NSelect
             value={conditionType.value}
             onUpdateValue={onConditionTypeChange}

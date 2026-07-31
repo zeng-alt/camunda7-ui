@@ -1,6 +1,7 @@
 import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { getTaskSubType } from '@/utils/bpmn'
 import {
   InputsPanel,
   OutputsPanel,
@@ -18,21 +19,6 @@ import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraField
 import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
 import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
 import MultiInstanceFields from '../base/MultiInstanceFields'
-
-function getTaskSubType(businessObject: any): string {
-  if (!businessObject) return ''
-  const type: string = businessObject.$type || ''
-  if (type.includes('UserTask')) return 'user-task'
-  if (type.includes('ServiceTask')) return 'service-task'
-  if (type.includes('SendTask')) return 'send-task'
-  if (type.includes('ReceiveTask')) return 'receive-task'
-  if (type.includes('ManualTask')) return 'manual-task'
-  if (type.includes('ScriptTask')) return 'script-task'
-  if (type.includes('BusinessRuleTask')) return 'business-rule-task'
-  if (type.includes('CallActivity')) return 'call-activity'
-  if (type.includes('Task')) return 'task'
-  return ''
-}
 
 export default defineComponent({
   name: 'TaskPropertiesPanel',

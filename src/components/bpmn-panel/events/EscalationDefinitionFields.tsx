@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { HintTooltip } from '../base'
 import { uid, getDefinitions } from './eventHelpers'
 
@@ -20,15 +21,13 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const selectedEscId = ref<string | null>(null)
     const selectedEscName = ref('')
     const selectedEscCode = ref('')
     const codeVariable = ref('')
     const escalationOptions = ref<{ label: string; value: string }[]>([])
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
@@ -64,21 +63,19 @@ export default defineComponent({
 
     function onEscalationSelect(value: string) {
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
 
       if (value === '__none__') {
         selectedEscId.value = null
         selectedEscName.value = ''
         selectedEscCode.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          escalationRef: undefined,
-        })
+        updateModdleProperties({ escalationRef: undefined }, ed)
         return
       }
 
       if (value === '__create__') {
+        if (!moddle) return
         const id = uid()
         const newEsc = moddle.create('bpmn:Escalation', { id, name: id })
         const definitions = getDefinitions(toRaw(props.businessObject))
@@ -88,7 +85,7 @@ export default defineComponent({
         selectedEscId.value = id
         selectedEscName.value = id
         selectedEscCode.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { escalationRef: newEsc })
+        updateModdleProperties({ escalationRef: newEsc }, ed)
         buildEscalationOptions()
         return
       }
@@ -99,7 +96,7 @@ export default defineComponent({
         selectedEscId.value = value
         selectedEscName.value = esc.name || ''
         selectedEscCode.value = esc.escalationCode || ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { escalationRef: esc })
+        updateModdleProperties({ escalationRef: esc }, ed)
       }
     }
 
@@ -107,9 +104,8 @@ export default defineComponent({
       selectedEscName.value = val ?? ''
       const ed = getEventDef()
       const ref = ed?.escalationRef
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { name: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ name: val ?? '' }, ref)
         buildEscalationOptions()
       }
     }
@@ -118,20 +114,16 @@ export default defineComponent({
       selectedEscCode.value = val ?? ''
       const ed = getEventDef()
       const ref = ed?.escalationRef
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { escalationCode: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ escalationCode: val ?? '' }, ref)
       }
     }
 
     function onCodeVariableChange(val: string | null) {
       codeVariable.value = val ?? ''
       const ed = getEventDef()
-      if (ed && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          'camunda:escalationCodeVariable': val ?? '',
-        })
+      if (ed) {
+        updateModdleProperties({ 'camunda:escalationCodeVariable': val ?? '' }, ed)
       }
     }
 
@@ -146,16 +138,14 @@ export default defineComponent({
         />
         {selectedEscId.value && (
           <div class="mt-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.escalationName')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.escalationName')}</div>
             <NInput
               value={selectedEscName.value}
               onUpdateValue={onEscalationNameChange}
               placeholder={t('bpmnPanel.fields.escalationName')}
               size={props.formSize}
             />
-            <div class="mt-8px mb-4px text-12px text-#666">
-              {t('bpmnPanel.fields.escalationCode')}
-            </div>
+            <div class={`mt-8px mb-4px ${labelClass}`}>{t('bpmnPanel.fields.escalationCode')}</div>
             <NInput
               value={selectedEscCode.value}
               onUpdateValue={onEscalationCodeChange}

@@ -1,5 +1,6 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
 import type { ExtraFieldTab } from '../base'
 import { ScriptFields } from '../base'
 
@@ -23,6 +24,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { getModdle, updateProperties, updateModdleProperties } = useBpmnProperties(props)
 
     const scriptFormat = ref('js')
     const scriptValue = ref('')
@@ -41,37 +43,32 @@ export default defineComponent({
 
     function onScriptFormatChange(val: string) {
       scriptFormat.value = val
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
-      modeling.updateProperties(toRaw(props.element), { scriptFormat: val || undefined })
+      updateProperties({ scriptFormat: val || undefined })
     }
 
     function onScriptValueChange(val: string | null) {
       const text = val ?? ''
       scriptValue.value = text
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
       const bo = props.businessObject
       if (!bo) return
 
       if (bo.script) {
         if (text) {
-          modeling.updateModdleProperties(toRaw(props.element), toRaw(bo.script), { body: text })
+          updateModdleProperties({ body: text }, bo.script)
         } else {
-          modeling.updateProperties(toRaw(props.element), { script: undefined })
+          updateProperties({ script: undefined })
         }
       } else if (text) {
-        const moddle = (props.bpmnModeler as any).get('moddle')
+        const moddle = getModdle()
+        if (!moddle) return
         const newScript = moddle.create('bpmn:Script', { body: text })
-        modeling.updateProperties(toRaw(props.element), { script: newScript })
+        updateProperties({ script: newScript })
       }
     }
 
     function onResultVariableChange(val: string) {
       resultVariable.value = val
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
-      modeling.updateProperties(toRaw(props.element), { resultVariable: val || undefined })
+      updateProperties({ resultVariable: val || undefined })
     }
 
     return () => {

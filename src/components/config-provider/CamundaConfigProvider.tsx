@@ -1,4 +1,12 @@
-import { defineComponent, computed, provide, inject, watchEffect, type PropType } from 'vue'
+import {
+  defineComponent,
+  computed,
+  reactive,
+  provide,
+  inject,
+  watchEffect,
+  type PropType,
+} from 'vue'
 import {
   NConfigProvider,
   darkTheme,
@@ -8,7 +16,13 @@ import {
   dateEnUS as naiveDateEnUS,
   type GlobalThemeOverrides,
 } from 'naive-ui'
-import { configProviderInjectionKey, type LocaleType, type ThemeType } from './context'
+import {
+  configProviderInjectionKey,
+  lookupsInjectionKey,
+  type LocaleType,
+  type ThemeType,
+} from './context'
+import type { CamundaLookups } from '../../composables'
 import {
   setLocale,
   setLocaleMessages,
@@ -29,6 +43,8 @@ export interface CamundaConfigProviderProps {
   localeMessages?: Record<string, Record<string, any>>
   /** 时间显示格式，如 YYYY-MM-DD HH:mm:ss */
   timeFormat?: string
+  /** 作用域查找回调：在当前 Provider 子树内生效（如 onSearchUsers 等），多实例互不干扰 */
+  lookups?: Partial<CamundaLookups>
 }
 
 export default defineComponent<CamundaConfigProviderProps>({
@@ -64,9 +80,15 @@ export default defineComponent<CamundaConfigProviderProps>({
       type: String,
       default: undefined,
     },
+    /** 作用域查找回调：在当前 Provider 子树内生效（如 onSearchUsers 等），多实例互不干扰 */
+    lookups: {
+      type: Object as PropType<Partial<CamundaLookups>>,
+      default: undefined,
+    },
   },
   setup(props, { slots }) {
     const parentConfig = inject(configProviderInjectionKey, null)
+    const parentLookups = inject(lookupsInjectionKey, null)
 
     const mergedTheme = computed(() => props.theme ?? parentConfig?.themeRef.value ?? 'light')
     const mergedLocale = computed(() => props.locale ?? parentConfig?.localeRef.value ?? 'zh-CN')
@@ -125,6 +147,20 @@ export default defineComponent<CamundaConfigProviderProps>({
       }
     })
 
+    const scopedLookups = reactive<CamundaLookups>({
+      searchUsers: null,
+      searchUserGroups: null,
+      fetchProcessList: null,
+      searchJavaClasses: null,
+      searchDelegateExpressions: null,
+      searchExternalTopics: null,
+      searchDecisionRefs: null,
+      searchFormRefs: null,
+      searchFormKeys: null,
+      ...(parentLookups?.lookups ?? {}),
+      ...props.lookups,
+    })
+
     provide(configProviderInjectionKey, {
       themeRef,
       localeRef,
@@ -132,6 +168,11 @@ export default defineComponent<CamundaConfigProviderProps>({
       localeMessagesRef,
       timeFormatRef,
       themeOverridesRef,
+    })
+
+    provide(lookupsInjectionKey, {
+      lookups: scopedLookups,
+      registerLookups: (lookups) => Object.assign(scopedLookups, lookups),
     })
 
     return () => (

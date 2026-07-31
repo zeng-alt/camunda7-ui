@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NTabPane, NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '@/composables'
 import { DocumentationPanel, ExtensionPropertiesPanel, ConfigurableTabs } from '../base'
 
 const GeneralContent = defineComponent({
@@ -17,6 +18,7 @@ const GeneralContent = defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const id = ref('')
     const text = ref('')
 
@@ -30,11 +32,7 @@ const GeneralContent = defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
+    const { updateProperty } = useBpmnProperties(props)
 
     function onIdChange(val: string | null) {
       id.value = val ?? ''
@@ -49,7 +47,7 @@ const GeneralContent = defineComponent({
     return () => (
       <div class="pt-8px flex flex-col gap-12px">
         <div>
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.id')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.id')}</div>
           <NInput
             value={id.value}
             onUpdateValue={onIdChange}
@@ -58,7 +56,7 @@ const GeneralContent = defineComponent({
           />
         </div>
         <div>
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.textAnnotationText')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.textAnnotationText')}</div>
           <NInput
             type="textarea"
             rows={4}

@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { uid, getDefinitions } from './eventHelpers'
 
 export default defineComponent({
@@ -17,13 +18,11 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const selectedSignalId = ref<string | null>(null)
     const selectedSignalName = ref('')
     const signalOptions = ref<{ label: string; value: string }[]>([])
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
@@ -56,18 +55,18 @@ export default defineComponent({
 
     function onSignalSelect(value: string) {
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
 
       if (value === '__none__') {
         selectedSignalId.value = null
         selectedSignalName.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { signalRef: undefined })
+        updateModdleProperties({ signalRef: undefined }, ed)
         return
       }
 
       if (value === '__create__') {
+        if (!moddle) return
         const id = uid()
         const name = id
         const newSignal = moddle.create('bpmn:Signal', { id, name })
@@ -77,7 +76,7 @@ export default defineComponent({
         }
         selectedSignalId.value = id
         selectedSignalName.value = name
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { signalRef: newSignal })
+        updateModdleProperties({ signalRef: newSignal }, ed)
         buildSignalOptions()
         return
       }
@@ -87,7 +86,7 @@ export default defineComponent({
       if (sig) {
         selectedSignalId.value = value
         selectedSignalName.value = sig.name || ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { signalRef: sig })
+        updateModdleProperties({ signalRef: sig }, ed)
       }
     }
 
@@ -95,9 +94,8 @@ export default defineComponent({
       selectedSignalName.value = val ?? ''
       const ed = getEventDef()
       const ref = ed?.signalRef
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { name: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ name: val ?? '' }, ref)
         buildSignalOptions()
       }
     }
@@ -113,7 +111,7 @@ export default defineComponent({
         />
         {selectedSignalId.value && (
           <div class="mt-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.signalName')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.signalName')}</div>
             <NInput
               value={selectedSignalName.value}
               onUpdateValue={onSignalNameChange}

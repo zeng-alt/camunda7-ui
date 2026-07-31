@@ -31,7 +31,7 @@ const ProcessTabContent = defineComponent({
           {bo && (
             <ProcessContent
               element={props.element}
-              processBobject={bo}
+              processBusinessObject={bo}
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
               showBasic

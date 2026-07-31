@@ -9,6 +9,8 @@ export const boundaryEventTabs: ExtraFieldTab[] = [
   { name: 'outputs', labelKey: 'bpmnPanel.tabs.output' },
 ]
 
+import { useFormSize } from '../../../composables'
+
 export default defineComponent({
   name: 'BoundaryEventExtraFields',
   props: {
@@ -25,12 +27,13 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
 
     return () => {
       if (props.tabName === 'boundary') {
         return (
           <div class="pt-8px">
-            <div class="mb-8px text-12px text-#666">{t('bpmnPanel.fields.eventDefinition')}</div>
+            <div class={`mb-8px ${labelClass}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
             <EventDefinitionPanel
               businessObject={props.businessObject}
               element={props.element}

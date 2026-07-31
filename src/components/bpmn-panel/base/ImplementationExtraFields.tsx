@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import type { ExtraFieldTab } from '.'
 import {
   JavaClassField,
@@ -45,6 +46,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperties } = useBpmnProperties(props)
 
     const implType = ref<ImplType>('none')
 
@@ -95,8 +98,6 @@ export default defineComponent({
     function onImplTypeChange(val: string | null) {
       const newType = (val as ImplType) ?? 'class'
       implType.value = newType
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
       const bo = props.businessObject
       if (!bo) return
 
@@ -128,7 +129,7 @@ export default defineComponent({
         }
       }
 
-      modeling.updateProperties(toRaw(props.element), attrs)
+      updateProperties(attrs)
     }
 
     return () => {
@@ -136,9 +137,7 @@ export default defineComponent({
         <div class="pt-8px">
           {!props.defaultType && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">
-                {t('bpmnPanel.fields.implementationType')}
-              </div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.implementationType')}</div>
               <NSelect
                 value={implType.value}
                 onUpdateValue={onImplTypeChange}
@@ -150,7 +149,7 @@ export default defineComponent({
 
           {implType.value === 'class' && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.listenerClass')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.listenerClass')}</div>
               <JavaClassField
                 businessObject={props.businessObject}
                 element={props.element}
@@ -177,7 +176,7 @@ export default defineComponent({
 
           {implType.value === 'delegateExpression' && (
             <div class="mb-8px">
-              <div class="mb-4px text-12px text-#666">
+              <div class={`mb-4px ${labelClass}`}>
                 {t('bpmnPanel.fields.listenerDelegateExpression')}
               </div>
               <DelegateExpressionField

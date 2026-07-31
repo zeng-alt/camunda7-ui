@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NInputNumber, NRadioGroup, NRadio, NSpace, NTooltip } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { HintTooltip } from '../base'
 
 export default defineComponent({
@@ -17,14 +18,18 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const {
+      getModdle,
+      getOrCreateExtensionElements,
+      updateProperties,
+      updateModdleProperties,
+      updateProperty,
+    } = useBpmnProperties(props)
     const timerActiveField = ref('timeDuration')
     const timerValue = ref('')
     const retryTimeCycle = ref('')
     const jobPriority = ref<number | null>()
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
@@ -61,21 +66,20 @@ export default defineComponent({
 
     function onTimerTypeChange(field: string) {
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
+      if (!ed) return
 
       if (field === 'none') {
         timerActiveField.value = 'none'
         timerValue.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          timeDate: undefined,
-          timeDuration: undefined,
-          timeCycle: undefined,
-        })
+        updateModdleProperties(
+          { timeDate: undefined, timeDuration: undefined, timeCycle: undefined },
+          ed,
+        )
         return
       }
 
-      const moddle = getModeler().get('moddle')
+      const moddle = getModdle()
+      if (!moddle) return
       const oldFields = ['timeDate', 'timeDuration', 'timeCycle']
       const cleanup: Record<string, any> = {}
       for (const f of oldFields) {
@@ -84,7 +88,7 @@ export default defineComponent({
       if (timerValue.value) {
         cleanup[field] = moddle.create('bpmn:FormalExpression', { body: timerValue.value })
       }
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), cleanup)
+      updateModdleProperties(cleanup, ed)
       timerActiveField.value = field
     }
 
@@ -92,31 +96,23 @@ export default defineComponent({
       timerValue.value = val ?? ''
       if (timerActiveField.value === 'none') return
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
 
       const existing = ed[timerActiveField.value]
       if (existing) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(existing), { body: val ?? '' })
-      } else if (val) {
+        updateModdleProperties({ body: val ?? '' }, existing)
+      } else if (val && moddle) {
         const expr = moddle.create('bpmn:FormalExpression', { body: val })
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          [timerActiveField.value]: expr,
-        })
+        updateModdleProperties({ [timerActiveField.value]: expr }, ed)
       }
     }
 
     function onRetryTimeCycleChange(val: string | null) {
       retryTimeCycle.value = val ?? ''
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const bo = props.businessObject
-      if (!bo) return
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-      const ee = bo.extensionElements
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
       let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
       if (val) {
         if (!retry) {
@@ -128,15 +124,12 @@ export default defineComponent({
       } else if (retry) {
         ee.values = ee.values.filter((v: any) => v !== retry)
       }
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { extensionElements: bo.extensionElements })
+      updateProperties({ extensionElements: ee })
     }
 
     function onJobPriorityChange(val: number | null) {
       jobPriority.value = val ?? null
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { jobPriority: val ?? null })
+      updateProperty('jobPriority', val ?? null)
     }
 
     return () => (
@@ -200,7 +193,7 @@ export default defineComponent({
             />
           </div>
           <div class="mt-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.jobPriority')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.jobPriority')}</div>
             <NInputNumber
               value={jobPriority.value}
               onUpdateValue={onJobPriorityChange}

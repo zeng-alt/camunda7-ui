@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import type { ExtraFieldTab } from '../base'
 import ErrorFields from '../base/ErrorFields'
 
@@ -24,6 +25,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperties, updateProperty } = useBpmnProperties(props)
 
     const topic = ref('')
     const priority = ref<number | null>(null)
@@ -38,21 +41,12 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
-
     function onTopicChange(val: string | null) {
       topic.value = val ?? ''
-      const bo = props.businessObject
-      if (!props.bpmnModeler || !props.element || !bo) return
-      const modeling = props.bpmnModeler.get('modeling')
       if (val) {
-        modeling.updateProperties(toRaw(props.element), { topic: val, type: 'external' })
+        updateProperties({ topic: val, type: 'external' })
       } else {
-        modeling.updateProperties(toRaw(props.element), { topic: undefined, type: undefined })
+        updateProperties({ topic: undefined, type: undefined })
       }
     }
 
@@ -67,7 +61,7 @@ export default defineComponent({
       return (
         <div class="pt-8px">
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.topic')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.topic')}</div>
             <NInput
               value={topic.value}
               onUpdateValue={onTopicChange}
@@ -77,9 +71,7 @@ export default defineComponent({
           </div>
 
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">
-              {t('bpmnPanel.fields.externalTaskPriority')}
-            </div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.externalTaskPriority')}</div>
             <NInputNumber
               value={priority.value}
               onUpdateValue={onPriorityChange}

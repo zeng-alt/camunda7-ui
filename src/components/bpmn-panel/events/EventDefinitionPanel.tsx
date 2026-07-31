@@ -1,6 +1,7 @@
 import { defineComponent, computed, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NTag, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
 import {
   TimerDefinitionFields,
   ConditionalDefinitionFields,
@@ -124,6 +125,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
 
     const defType = computed(() => getEventDefType(props.businessObject))
 
@@ -147,39 +149,30 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true, deep: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function getModeler() {
-      return props.bpmnModeler
-    }
-
     function onRefValueChange(val: string | null) {
       const value = val ?? ''
       refValue.value = value
 
       const type = defType.value
-      debugger
       const cfg = refTypeConfig[type]
       if (!cfg) return
 
       const ed = props.businessObject?.eventDefinitions?.[0]
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
 
       if (!value) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          [cfg.refKey]: undefined,
-        })
+        updateModdleProperties({ [cfg.refKey]: undefined }, ed)
         return
       }
 
       const existingRef = ed[cfg.refKey]
       if (existingRef) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(existingRef), {
-          [cfg.labelAttr]: value,
-        })
+        updateModdleProperties({ [cfg.labelAttr]: value }, existingRef)
         return
       }
 
+      if (!moddle) return
       const newRef = moddle.create(cfg.bpmnType, {
         id: uid(),
         [cfg.labelAttr]: value,
@@ -190,7 +183,7 @@ export default defineComponent({
         definitions.rootElements.push(newRef)
       }
 
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { [cfg.refKey]: newRef })
+      updateModdleProperties({ [cfg.refKey]: newRef }, ed)
     }
 
     return () => {

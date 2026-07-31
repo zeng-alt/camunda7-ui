@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '@/composables'
 import ExternalTopicPicker from './ExternalTopicPicker'
 
 export default defineComponent({
@@ -17,6 +18,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const topic = ref('')
     const priority = ref<number | null>(null)
 
@@ -30,10 +32,10 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
+    const { updateProperties } = useBpmnProperties(props)
+
     function save() {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
-      modeling.updateProperties(toRaw(props.element), {
+      updateProperties({
         topic: topic.value || undefined,
         taskPriority: priority.value ?? undefined,
       })
@@ -52,7 +54,7 @@ export default defineComponent({
     return () => (
       <>
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.topic')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.topic')}</div>
           <ExternalTopicPicker
             value={topic.value}
             onUpdate:value={onTopicChange}
@@ -60,7 +62,7 @@ export default defineComponent({
           />
         </div>
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.externalTaskPriority')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.externalTaskPriority')}</div>
           <NInputNumber
             value={priority.value}
             onUpdateValue={onPriorityChange}

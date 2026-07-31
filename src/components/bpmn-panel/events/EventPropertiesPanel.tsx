@@ -1,6 +1,7 @@
 import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { getEventSubType } from '@/utils/bpmn'
 import {
   GeneralPanel,
   DocumentationPanel,
@@ -19,17 +20,6 @@ import IntermediateThrowEventExtraFields, {
 import BoundaryEventExtraFields, { boundaryEventTabs } from './BoundaryEventExtraFields'
 import EndEventExtraFields, { endEventTabs } from './EndEventExtraFields'
 import { getEventDefType } from './EventDefinitionPanel'
-
-function getEventSubType(businessObject: any): string {
-  if (!businessObject) return ''
-  const type: string = businessObject.$type || ''
-  if (type.includes('StartEvent')) return 'start-event'
-  if (type.includes('EndEvent')) return 'end-event'
-  if (type.includes('IntermediateThrowEvent')) return 'intermediate-throw-event'
-  if (type.includes('IntermediateCatchEvent')) return 'intermediate-catch-event'
-  if (type.includes('BoundaryEvent')) return 'boundary-event'
-  return ''
-}
 
 const extraFieldsMap: Record<
   string,

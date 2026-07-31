@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { uid, getDefinitions } from './eventHelpers'
 
 export default defineComponent({
@@ -19,15 +20,13 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const selectedMsgId = ref<string | null>(null)
     const selectedMsgName = ref('')
     const messageOptions = ref<{ label: string; value: string }[]>([])
 
     const msgKey = () => props.messageRefKey || 'messageRef'
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getTarget() {
       return props.messageRefKey
@@ -62,20 +61,18 @@ export default defineComponent({
 
     function onMessageSelect(value: string) {
       const target = getTarget()
-      if (!getModeler() || !props.element || !target) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!target) return
+      const moddle = getModdle()
 
       if (value === '__none__') {
         selectedMsgId.value = null
         selectedMsgName.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(target), {
-          [msgKey()]: undefined,
-        })
+        updateModdleProperties({ [msgKey()]: undefined }, target)
         return
       }
 
       if (value === '__create__') {
+        if (!moddle) return
         const id = uid()
         const newMsg = moddle.create('bpmn:Message', { id, name: id })
         const definitions = getDefinitions(toRaw(props.businessObject))
@@ -84,7 +81,7 @@ export default defineComponent({
         }
         selectedMsgId.value = newMsg.id
         selectedMsgName.value = id
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(target), { [msgKey()]: newMsg })
+        updateModdleProperties({ [msgKey()]: newMsg }, target)
         buildMessageOptions()
         return
       }
@@ -94,7 +91,7 @@ export default defineComponent({
       if (msg) {
         selectedMsgId.value = value
         selectedMsgName.value = msg.name || ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(target), { [msgKey()]: msg })
+        updateModdleProperties({ [msgKey()]: msg }, target)
       }
     }
 
@@ -102,9 +99,8 @@ export default defineComponent({
       selectedMsgName.value = val ?? ''
       const target = getTarget()
       const ref = target?.[msgKey()]
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { name: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ name: val ?? '' }, ref)
         buildMessageOptions()
       }
     }
@@ -120,7 +116,7 @@ export default defineComponent({
         />
         {selectedMsgId.value && (
           <div class="mt-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.messageName')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.messageName')}</div>
             <NInput
               value={selectedMsgName.value}
               onUpdateValue={onMessageNameChange}

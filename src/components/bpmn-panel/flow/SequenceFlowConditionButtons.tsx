@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NButton, NButtonGroup } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 
 const AGREE_EXPRESSION = '${agree}'
 const DISAGREE_EXPRESSION = '${!agree}'
@@ -32,6 +33,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModeling, getModdle, updateProperties } = useBpmnProperties(props)
     const selected = ref<string | null>(null)
 
     function syncFromModel() {
@@ -64,30 +67,31 @@ export default defineComponent({
     }
 
     function clearApplied() {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
       const element = toRaw(props.element)
-      modeling.updateProperties(element, { conditionExpression: undefined })
-      if (element.source?.businessObject?.default?.id === element.id) {
+      if (!element) return
+      updateProperties({ conditionExpression: undefined })
+      const modeling = getModeling()
+      if (element.source?.businessObject?.default?.id === element.id && modeling) {
         modeling.updateProperties(element.source, { default: undefined })
       }
     }
 
     function apply(val: string) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      const moddle = props.bpmnModeler.get('moddle')
       const element = toRaw(props.element)
+      if (!element) return
+      const modeling = getModeling()
+      const moddle = getModdle()
+      if (!modeling || !moddle) return
 
       if (val === 'default') {
-        modeling.updateProperties(element, { conditionExpression: undefined })
+        updateProperties({ conditionExpression: undefined })
         if (element.source?.businessObject) {
           modeling.updateProperties(element.source, { default: toRaw(props.businessObject) })
         }
       } else {
         const body = val === 'agree' ? AGREE_EXPRESSION : DISAGREE_EXPRESSION
         const expr = moddle.create('bpmn:FormalExpression', { body })
-        modeling.updateProperties(element, { conditionExpression: expr })
+        updateProperties({ conditionExpression: expr })
         if (element.source?.businessObject?.default?.id === element.id) {
           modeling.updateProperties(element.source, { default: undefined })
         }
@@ -96,7 +100,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.flowConfig')}</div>
+        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.flowConfig')}</div>
         <NButtonGroup size={props.formSize}>
           {flowButtonOptions.map((option) => (
             <NButton

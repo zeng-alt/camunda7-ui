@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { HintTooltip } from '../base'
 import { uid, getDefinitions } from './eventHelpers'
 
@@ -20,6 +21,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const selectedErrorId = ref<string | null>(null)
     const selectedErrorName = ref('')
     const selectedErrorCode = ref('')
@@ -27,10 +30,6 @@ export default defineComponent({
     const errorCodeVariable = ref('')
     const errorMessageVariable = ref('')
     const errorOptions = ref<{ label: string; value: string }[]>([])
-
-    function getModeler() {
-      return props.bpmnModeler
-    }
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
@@ -72,20 +71,20 @@ export default defineComponent({
 
     function onErrorSelect(value: string) {
       const ed = getEventDef()
-      if (!getModeler() || !props.element || !ed) return
-      const modeling = getModeler().get('modeling')
-      const moddle = getModeler().get('moddle')
+      if (!ed) return
+      const moddle = getModdle()
 
       if (value === '__none__') {
         selectedErrorId.value = null
         selectedErrorName.value = ''
         selectedErrorCode.value = ''
         selectedErrorMessage.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { errorRef: undefined })
+        updateModdleProperties({ errorRef: undefined }, ed)
         return
       }
 
       if (value === '__create__') {
+        if (!moddle) return
         const id = uid()
         const newError = moddle.create('bpmn:Error', { id, name: id })
         const definitions = getDefinitions(toRaw(props.businessObject))
@@ -96,7 +95,7 @@ export default defineComponent({
         selectedErrorName.value = id
         selectedErrorCode.value = ''
         selectedErrorMessage.value = ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { errorRef: newError })
+        updateModdleProperties({ errorRef: newError }, ed)
         buildErrorOptions()
         return
       }
@@ -108,7 +107,7 @@ export default defineComponent({
         selectedErrorName.value = err.name || ''
         selectedErrorCode.value = err.errorCode || ''
         selectedErrorMessage.value = err.get('camunda:errorMessage') || ''
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { errorRef: err })
+        updateModdleProperties({ errorRef: err }, ed)
       }
     }
 
@@ -116,9 +115,8 @@ export default defineComponent({
       selectedErrorName.value = val ?? ''
       const ed = getEventDef()
       const ref = ed?.errorRef
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { name: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ name: val ?? '' }, ref)
         buildErrorOptions()
       }
     }
@@ -127,42 +125,32 @@ export default defineComponent({
       selectedErrorCode.value = val ?? ''
       const ed = getEventDef()
       const ref = ed?.errorRef
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, { errorCode: val ?? '' })
+      if (ref) {
+        updateModdleProperties({ errorCode: val ?? '' }, ref)
       }
     }
 
     function onErrorMessageChange(val: string | null) {
       selectedErrorMessage.value = val ?? ''
       const ref = getErrorRef()
-      if (ref && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), ref, {
-          'camunda:errorMessage': val ?? '',
-        })
+      if (ref) {
+        updateModdleProperties({ 'camunda:errorMessage': val ?? '' }, ref)
       }
     }
 
     function onErrorCodeVariableChange(val: string | null) {
       errorCodeVariable.value = val ?? ''
       const ed = getEventDef()
-      if (ed && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          'camunda:errorCodeVariable': val ?? '',
-        })
+      if (ed) {
+        updateModdleProperties({ 'camunda:errorCodeVariable': val ?? '' }, ed)
       }
     }
 
     function onErrorMessageVariableChange(val: string | null) {
       errorMessageVariable.value = val ?? ''
       const ed = getEventDef()
-      if (ed && getModeler() && props.element) {
-        const modeling = getModeler().get('modeling')
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
-          'camunda:errorMessageVariable': val ?? '',
-        })
+      if (ed) {
+        updateModdleProperties({ 'camunda:errorMessageVariable': val ?? '' }, ed)
       }
     }
 
@@ -178,7 +166,7 @@ export default defineComponent({
         {selectedErrorId.value && (
           <div class="mt-8px flex flex-col gap-8px">
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorName')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorName')}</div>
               <NInput
                 value={selectedErrorName.value}
                 onUpdateValue={onErrorNameChange}
@@ -187,7 +175,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorCode')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorCode')}</div>
               <NInput
                 value={selectedErrorCode.value}
                 onUpdateValue={onErrorCodeChange}
@@ -196,7 +184,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorMessage')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorMessage')}</div>
               <NInput
                 value={selectedErrorMessage.value}
                 onUpdateValue={onErrorMessageChange}

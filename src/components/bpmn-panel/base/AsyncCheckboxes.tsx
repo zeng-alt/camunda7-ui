@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
+import { defineComponent, ref, watch, computed, type PropType } from 'vue'
 import { NCheckbox, NInput, NTooltip, NFormItem, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 
 export default defineComponent({
   name: 'AsyncCheckboxes',
@@ -33,6 +34,9 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, getOrCreateExtensionElements, updateProperty, updateProperties } =
+      useBpmnProperties(props)
 
     const asyncBefore = ref(false)
     const asyncAfter = ref(false)
@@ -57,12 +61,6 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
-
     function onAsyncBeforeChange(val: boolean) {
       asyncBefore.value = val
       updateProperty('asyncBefore', val)
@@ -80,14 +78,9 @@ export default defineComponent({
 
     function onRetryTimeCycleChange(val: string | null) {
       retryTimeCycle.value = val ?? ''
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const bo = props.businessObject
-      if (!bo) return
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-      const ee = bo.extensionElements
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
       let retry = ee.values.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
       if (val) {
         if (!retry) {
@@ -99,8 +92,7 @@ export default defineComponent({
       } else if (retry) {
         ee.values = ee.values.filter((v: any) => v !== retry)
       }
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { extensionElements: bo.extensionElements })
+      updateProperties({ extensionElements: ee })
     }
 
     function onJobPriorityChange(val: number | null) {
@@ -165,7 +157,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.jobPriority')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.jobPriority')}</div>
               <NInputNumber
                 value={jobPriority.value}
                 onUpdateValue={onJobPriorityChange}

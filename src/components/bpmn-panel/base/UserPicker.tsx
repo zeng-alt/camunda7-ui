@@ -1,6 +1,6 @@
 import { defineComponent, ref, computed, nextTick, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
-import { useCamundaLookups } from '../../../composables'
+import { useCamundaLookups, useFormSize } from '../../../composables'
 import type { CamundaLookupItem } from '../../../composables'
 import {
   NInput,
@@ -38,6 +38,7 @@ export default defineComponent({
   emits: ['update:value'],
   setup(props, { emit }) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const { lookups } = useCamundaLookups()
 
     // 模态框相关状态
@@ -207,7 +208,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        {props.label && <div class="mb-4px text-12px text-#666">{props.label}</div>}
+        {props.label && <div class={`mb-4px ${labelClass}`}>{props.label}</div>}
 
         {/* 根据模式渲染不同的输入区 */}
         {isExpression.value || !props.multiple ? (

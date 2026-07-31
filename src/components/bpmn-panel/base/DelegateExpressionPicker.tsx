@@ -1,7 +1,7 @@
 import { defineComponent, ref, computed, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { useCamundaLookups } from '../../../composables'
+import { useCamundaLookups, useFormSize } from '../../../composables'
 import type { CamundaLookupItem } from '../../../composables'
 
 export default defineComponent({
@@ -21,6 +21,7 @@ export default defineComponent({
   emits: ['update:value'],
   setup(props, { emit }) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const { lookups } = useCamundaLookups()
 
     const items = ref<CamundaLookupItem[]>([])
@@ -65,7 +66,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        {props.label && <div class="mb-4px text-12px text-#666">{props.label}</div>}
+        {props.label && <div class={`mb-4px ${labelClass}`}>{props.label}</div>}
         {hasSearchFn.value ? (
           <NSelect
             value={props.value || null}

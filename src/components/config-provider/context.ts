@@ -1,4 +1,5 @@
 import { type InjectionKey, type Ref, inject } from 'vue'
+import type { CamundaLookups } from '../../composables'
 
 export type ThemeType = 'light' | 'dark' | null
 export type LocaleType = 'zh-CN' | 'en-US' | (string & {})
@@ -32,4 +33,15 @@ export const configProviderInjectionKey: InjectionKey<CamundaConfigContext> =
 export function useCamundaConfig() {
   const config = inject(configProviderInjectionKey, null)
   return config
+}
+
+export interface CamundaLookupsContext {
+  lookups: CamundaLookups
+  registerLookups: (lookups: Partial<CamundaLookups>) => void
+}
+
+export const lookupsInjectionKey: InjectionKey<CamundaLookupsContext> = Symbol('CamundaLookups')
+
+export function useCamundaLookupsContext(): CamundaLookupsContext | null {
+  return inject(lookupsInjectionKey, null)
 }

@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 
 const scriptFormatOptions = [
   { label: 'JavaScript (js)', value: 'js' },
@@ -51,6 +52,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperties, updateModdleProperties } = useBpmnProperties(props)
     const localFormat = ref('js')
     const localValue = ref('')
     const localResultVariable = ref('')
@@ -71,13 +74,11 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function saveProp(key: string, val: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
       const attrs = { [key]: val || undefined }
       if (props.nested) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(props.businessObject), attrs)
+        updateModdleProperties(attrs, props.businessObject)
       } else {
-        modeling.updateProperties(toRaw(props.element), attrs)
+        updateProperties(attrs)
       }
     }
 
@@ -129,7 +130,7 @@ export default defineComponent({
             </div>
           ) : (
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptFormat')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.scriptFormat')}</div>
               <NSelect
                 value={displayFormat()}
                 onUpdateValue={(v: string | null) => onFormatChange(v ?? 'js')}
@@ -140,7 +141,7 @@ export default defineComponent({
           )}
           <div>
             {!props.compact && (
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.scriptValue')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.scriptValue')}</div>
             )}
             <NInput
               value={displayValue()}
@@ -153,7 +154,7 @@ export default defineComponent({
           </div>
           {props.showResultVariable && (
             <div>
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.resultVariable')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.resultVariable')}</div>
               <NInput
                 value={displayResultVariable()}
                 onUpdateValue={(v: string | null) => onResultVariableChange(v ?? '')}

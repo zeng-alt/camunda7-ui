@@ -7,7 +7,12 @@ import FormKeyPicker from './FormKeyPicker'
 import FormFieldEditor from './FormFieldEditor'
 import type { FormFieldItem } from './FormFieldEditor'
 import { useCamundaI18n } from '../../../locales'
-import { useCamundaLookups, type ProcessLookupItem } from '@/composables'
+import {
+  useBpmnProperties,
+  useCamundaLookups,
+  useFormSize,
+  type ProcessLookupItem,
+} from '@/composables'
 import {
   readGlobalForm,
   writeGlobalForm,
@@ -36,7 +41,9 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
     const { lookups } = useCamundaLookups()
+    const { getModdle } = useBpmnProperties(props)
 
     const formType = ref<GlobalFormType>('none')
     const formKey = ref('')
@@ -128,7 +135,9 @@ export default defineComponent({
 
     function persist() {
       if (!props.bpmnModeler || !props.businessObject) return
-      const moddle = props.bpmnModeler.get('moddle')
+      const moddle = getModdle()
+      // 全局表单写入的 target 可能是流程根元素或 businessObject 代理，
+      // 并非当前选中元素，故不能使用 useBpmnProperties.updateProperties（其固定 target props.element）。
       const modeling = props.bpmnModeler.get('modeling')
       const bo = props.businessObject
       const { extensionElements } = writeGlobalForm(bo, moddle, collectData())
@@ -231,7 +240,7 @@ export default defineComponent({
           {type === 'camunda' && (
             <div>
               <div class="mt-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRef')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRef')}</div>
                 <FormRefPicker
                   value={formRef.value}
                   onUpdate:value={onFormRefChange}
@@ -240,7 +249,7 @@ export default defineComponent({
                 />
               </div>
               <div class="mt-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRefBinding')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRefBinding')}</div>
                 <NSelect
                   value={formRefBinding.value}
                   onUpdateValue={(v: string | null) => onFormRefBindingChange(v)}
@@ -250,9 +259,7 @@ export default defineComponent({
               </div>
               {formRefBinding.value === 'version' && (
                 <div class="mt-8px">
-                  <div class="mb-4px text-12px text-#666">
-                    {t('bpmnPanel.fields.formRefVersion')}
-                  </div>
+                  <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRefVersion')}</div>
                   {versionOptions.value.length > 0 ? (
                     <NSelect
                       value={formRefVersion.value || null}
@@ -276,7 +283,7 @@ export default defineComponent({
 
           {type === 'external' && (
             <div class="mt-8px">
-              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formKey')}</div>
+              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formKey')}</div>
               <FormKeyPicker
                 value={formKey.value}
                 onUpdate:value={onFormKeyChange}

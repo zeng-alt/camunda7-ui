@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NButton, NInput, NScrollbar, NEmpty } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
 
 interface PropItem {
   _key: number
@@ -36,6 +37,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { getModdle, getOrCreateExtensionElements, updateProperties } = useBpmnProperties(props)
     const items = ref<PropItem[]>([])
 
     function findPropertiesContainer(extensionElements: any): any {
@@ -62,22 +64,14 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save(items: PropItem[]) {
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const modeling = props.bpmnModeler.get('modeling')
-      const bo = props.businessObject
-      if (!bo) return
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
 
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', {
-          values: [],
-        })
-      }
-
-      let container = findPropertiesContainer(bo.extensionElements)
+      let container = findPropertiesContainer(ee)
       if (!container) {
         container = moddle.create('camunda:Properties')
-        bo.extensionElements.get('values').push(container)
+        ee.get('values').push(container)
       }
 
       const values = items.map((item) =>
@@ -85,9 +79,7 @@ export default defineComponent({
       )
       container.values = values
 
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
+      updateProperties({ extensionElements: ee })
     }
 
     function add() {

@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSwitch, NFormItem, NForm } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '@/composables'
 
 export default defineComponent({
   name: 'GeneralPanel',
@@ -63,11 +64,7 @@ export default defineComponent({
     watch(() => props.businessObject, syncFromModel, { immediate: true })
     watch(() => props.element, syncFromModel, { immediate: true })
 
-    function updateProperty(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
-    }
+    const { updateProperty } = useBpmnProperties(props)
 
     function onNameChange(val: string | null) {
       name.value = val ?? ''

@@ -1,7 +1,8 @@
-import { defineComponent, ref, watch, toRaw, computed, type PropType } from 'vue'
+import { defineComponent, computed, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useCamundaLookups } from '../../../composables'
+import { useAutoField } from '../../../composables/useAutoField'
 import DelegateExpressionPicker from './DelegateExpressionPicker'
 
 export default defineComponent({
@@ -27,52 +28,21 @@ export default defineComponent({
   setup(props) {
     const { t } = useCamundaI18n()
     const { lookups } = useCamundaLookups()
-    const local = ref('')
+    const field = useAutoField(props)
 
     const hasSearchFn = computed(() => !!lookups.searchDelegateExpressions)
-    const isAuto = () => props.businessObject && props.propertyKey
-
-    function syncFromModel() {
-      if (!isAuto()) return
-      const bo = props.businessObject
-      local.value = bo ? bo[props.propertyKey] || '' : ''
-    }
-
-    watch(() => props.businessObject, syncFromModel, { immediate: true })
-    watch(() => props.element, syncFromModel, { immediate: true })
-
-    function onChange(val: string) {
-      if (isAuto()) {
-        local.value = val
-        if (props.bpmnModeler && props.element) {
-          const modeling = props.bpmnModeler.get('modeling')
-          const attrs = { [props.propertyKey]: val || undefined }
-          if (props.nested) {
-            modeling.updateModdleProperties(
-              toRaw(props.element),
-              toRaw(props.businessObject),
-              attrs,
-            )
-          } else {
-            modeling.updateProperties(toRaw(props.element), attrs)
-          }
-        }
-      } else if (props.onUpdateValue) {
-        props.onUpdateValue(val)
-      }
-    }
 
     return () =>
       hasSearchFn.value ? (
         <DelegateExpressionPicker
-          value={isAuto() ? local.value : props.value}
-          onUpdate:value={onChange}
+          value={field.displayValue.value}
+          onUpdate:value={field.onChange}
           formSize={props.formSize}
         />
       ) : (
         <NInput
-          value={isAuto() ? local.value : props.value}
-          onUpdateValue={(v: string | null) => onChange(v ?? '')}
+          value={field.displayValue.value}
+          onUpdateValue={(v: string | null) => field.onChange(v ?? '')}
           placeholder={t('bpmnPanel.placeholders.listenerDelegateExpression')}
           size={props.formSize}
         />

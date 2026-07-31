@@ -1,6 +1,7 @@
-import { defineComponent, ref, computed, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, computed, watch, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import DecisionRefPicker from './DecisionRefPicker'
 import type { ProcessLookupItem } from '../../../composables'
 
@@ -26,6 +27,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperty } = useBpmnProperties(props)
     const decisionRef = ref('')
     const decisionRefBinding = ref('deployment')
     const decisionRefVersion = ref('')
@@ -51,9 +54,7 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save(key: string, val: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = (props.bpmnModeler as any).get('modeling')
-      modeling.updateProperties(toRaw(props.element), { [key]: val || undefined })
+      updateProperty(key, val || undefined)
     }
 
     function onDecisionRefChange(val: string | null) {
@@ -99,7 +100,7 @@ export default defineComponent({
     return () => (
       <div>
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.decisionRef')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.decisionRef')}</div>
           <DecisionRefPicker
             value={decisionRef.value}
             onUpdate:value={onDecisionRefChange}
@@ -108,7 +109,7 @@ export default defineComponent({
           />
         </div>
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.decisionRefBinding')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.decisionRefBinding')}</div>
           <NSelect
             value={decisionRefBinding.value}
             onUpdateValue={onBindingChange}
@@ -118,7 +119,7 @@ export default defineComponent({
         </div>
         {decisionRefBinding.value === 'version' && (
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.decisionRefVersion')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.decisionRefVersion')}</div>
             {versionOptions.value.length > 0 ? (
               <NSelect
                 value={decisionRefVersion.value || null}
@@ -139,7 +140,7 @@ export default defineComponent({
           </div>
         )}
         <div class="mb-8px">
-          <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.decisionRefTenantId')}</div>
+          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.decisionRefTenantId')}</div>
           <NInput
             value={decisionRefTenantId.value}
             onUpdateValue={onTenantIdChange}
@@ -149,7 +150,7 @@ export default defineComponent({
         </div>
         {props.showResultVariable && (
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.resultVariable')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.resultVariable')}</div>
             <NInput
               value={resultVariable.value}
               onUpdateValue={onResultVariableChange}

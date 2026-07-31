@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NButton, NInput, NSelect, NEmpty } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
 import { ScriptFields } from '.'
 
 type AssignmentType = 'value' | 'list' | 'map' | 'script'
@@ -93,6 +94,7 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { getModdle, getOrCreateExtensionElements, updateProperties } = useBpmnProperties(props)
     const items = ref<ParamItem[]>([])
 
     const titleKey =
@@ -169,22 +171,14 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save(itemList: ParamItem[]) {
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const modeling = props.bpmnModeler.get('modeling')
-      const bo = props.businessObject
-      if (!bo) return
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
 
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', {
-          values: [],
-        })
-      }
-
-      let io = findInputOutput(bo.extensionElements)
+      let io = findInputOutput(ee)
       if (!io) {
         io = moddle.create('camunda:InputOutput')
-        bo.extensionElements.values.push(io)
+        ee.values.push(io)
       }
 
       io[paramField] = itemList.map((item) => {
@@ -214,9 +208,7 @@ export default defineComponent({
         return moddle.create(paramType, attrs)
       })
 
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
+      updateProperties({ extensionElements: ee })
     }
 
     function add() {

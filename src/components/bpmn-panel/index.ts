@@ -1,6 +1,6 @@
 export { default as CamundaPropertiesPanel } from './CamundaPropertiesPanel'
 export type { CamundaPropertiesPanelProps } from './CamundaPropertiesPanel'
-export { default as ProcessPropertiesPancel } from './ProcessPropertiesPancel'
+export { default as ProcessPropertiesPanel } from './ProcessPropertiesPanel'
 export * from './designerConfig'
 export * from './base'
 export * from './events'

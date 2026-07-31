@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NCheckbox, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import {
   DocumentationPanel,
   GeneralPanel,
@@ -22,7 +23,7 @@ export default defineComponent({
     // 当前选中的 BPMN 图形元素
     element: { type: Object as PropType<any>, default: null },
     // 流程业务对象（Process），用于读写流程属性
-    processBobject: { type: Object as PropType<any>, default: null },
+    processBusinessObject: { type: Object as PropType<any>, default: null },
     // bpmn-js 模型器实例，用于执行建模命令、读写模型
     bpmnModeler: { type: Object, default: null },
     // 表单控件尺寸：small / medium / large
@@ -36,6 +37,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { updateProperties } = useBpmnProperties(props)
     const versionTag = ref('')
     const startableInTasklist = ref(false)
     const historyTimeToLive = ref('')
@@ -48,7 +51,7 @@ export default defineComponent({
 
     function syncFields() {
       if (syncing) return
-      const p = props.processBobject
+      const p = props.processBusinessObject
       if (p) {
         versionTag.value = p.versionTag || ''
         startableInTasklist.value = p.startableInTasklist !== false
@@ -68,13 +71,11 @@ export default defineComponent({
       }
     }
 
-    watch(() => props.processBobject, syncFields, { immediate: true, deep: true })
+    watch(() => props.processBusinessObject, syncFields, { immediate: true, deep: true })
 
     function updateProp(key: string, value: any) {
-      if (!props.bpmnModeler || !props.element) return
-      const modeling = props.bpmnModeler.get('modeling')
       syncing = true
-      modeling.updateProperties(toRaw(props.element), { [key]: value })
+      updateProperties({ [key]: value })
       syncing = false
     }
 
@@ -99,7 +100,6 @@ export default defineComponent({
     }
 
     function onCandidateStarterUsersChange(val: string) {
-      debugger
       updateProp('candidateStarterUsers', val)
       candidateStarterUsers.value = val
     }
@@ -120,7 +120,7 @@ export default defineComponent({
           {props.showBasic && (
             <>
               <GeneralPanel
-                businessObject={props.processBobject}
+                businessObject={props.processBusinessObject}
                 element={props.element}
                 bpmnModeler={props.bpmnModeler}
                 showExecutable
@@ -130,7 +130,7 @@ export default defineComponent({
             </>
           )}
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.versionTag')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.versionTag')}</div>
             <NInput
               value={versionTag.value}
               onUpdateValue={onVersionTagChange}
@@ -182,7 +182,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.taskPriority')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.taskPriority')}</div>
             <NInputNumber
               value={taskPriority.value}
               onUpdateValue={onTaskPriorityChange}
@@ -192,7 +192,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.jobPriority')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.jobPriority')}</div>
             <NInputNumber
               value={jobPriority.value}
               onUpdateValue={onJobPriorityChange}
@@ -203,7 +203,7 @@ export default defineComponent({
           </div>
           <div>
             <DocumentationPanel
-              businessObject={props.processBobject}
+              businessObject={props.processBusinessObject}
               element={props.element}
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
@@ -214,13 +214,13 @@ export default defineComponent({
     }
 
     return () => {
-      if (!props.processBobject) return null
+      if (!props.processBusinessObject) return null
 
       if (props.tabName === 'globalForm') {
         return (
           <div class="pt-8px">
             <GlobalFormPanel
-              businessObject={props.processBobject}
+              businessObject={props.processBusinessObject}
               element={props.element}
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}

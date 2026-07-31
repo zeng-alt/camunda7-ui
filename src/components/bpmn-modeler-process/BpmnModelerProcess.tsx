@@ -6,7 +6,7 @@ import BpmnModelerProcessContent, {
 } from './BpmnModelerProcessContent'
 
 /**
- *  BPMN 模型器进程组件 
+ *  BPMN 模型器进程组件
  * props
  *  - theme: 主题配置，默认值为 'dark'
  *  - proDesigner: 是否使用专业模式，默认值为 false
@@ -34,8 +34,8 @@ import BpmnModelerProcessContent, {
  *  - update:proDesigner: 专业模式更新事件
  * @author zjj
  * @version 1.0.0
- * 
-*/
+ *
+ */
 export default defineComponent<BpmnModelerProcessProps>({
   name: 'BpmnModelerProcess',
   props: { ...bpmnModelerProcessProps },

@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NCheckbox, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 import { getDefinitions } from './eventHelpers'
 
 function collectActivityIds(bo: any): string[] {
@@ -45,6 +46,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, updateModdleProperties } = useBpmnProperties(props)
     const activityRef = ref('')
     const waitForCompletion = ref(false)
     const activityOptions = ref<{ label: string; value: string }[]>([])
@@ -79,32 +82,31 @@ export default defineComponent({
     function onActivityRefChange(val: string | null) {
       activityRef.value = val ?? ''
       const ed = getEventDef()
-      if (!props.bpmnModeler || !props.element || !ed) return
-      const modeling = props.bpmnModeler.get('modeling')
+      if (!ed) return
 
       if (!val) {
-        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { activityRef: undefined })
+        updateModdleProperties({ activityRef: undefined }, ed)
         return
       }
 
-      const moddle = props.bpmnModeler.get('moddle')
+      const moddle = getModdle()
+      if (!moddle) return
       const ref = moddle.create('bpmn:Activity', { id: val })
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { activityRef: ref })
+      updateModdleProperties({ activityRef: ref }, ed)
     }
 
     function onWaitForCompletionChange(val: boolean) {
       waitForCompletion.value = val
       const ed = getEventDef()
-      if (!props.bpmnModeler || !props.element || !ed) return
-      const modeling = props.bpmnModeler.get('modeling')
-      modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { waitForCompletion: val })
+      if (!ed) return
+      updateModdleProperties({ waitForCompletion: val }, ed)
     }
 
     const checkboxSize = props.formSize === 'small' ? 'small' : 'medium'
 
     return () => (
       <div>
-        <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.activityRef')}</div>
+        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.activityRef')}</div>
         <NSelect
           value={activityRef.value}
           onUpdateValue={onActivityRefChange}

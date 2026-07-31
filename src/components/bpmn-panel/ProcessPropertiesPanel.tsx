@@ -10,7 +10,7 @@ import {
 import ProcessContent, { processTabs } from './swimlanes/ProcessContent'
 
 export default defineComponent({
-  name: 'ProcessPropertiesPancel',
+  name: 'ProcessPropertiesPanel',
   props: {
     // 当前元素的 BPMN 业务对象（BusinessObject），用于读写模型属性
     businessObject: {
@@ -94,7 +94,7 @@ export default defineComponent({
                 <div class="pt-8px">
                   <ProcessContent
                     element={props.element}
-                    processBobject={props.businessObject}
+                    processBusinessObject={props.businessObject}
                     bpmnModeler={props.bpmnModeler}
                     formSize={props.formSize}
                     showBasic={false}

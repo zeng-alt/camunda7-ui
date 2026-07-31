@@ -1,6 +1,7 @@
-import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSelect, NButton } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties, useFormSize } from '../../../composables'
 
 interface HeaderEntry {
   _key: number
@@ -52,6 +53,8 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const { labelClass } = useFormSize(() => props.formSize)
+    const { getModdle, getOrCreateExtensionElements, updateProperties } = useBpmnProperties(props)
 
     const connectorId = ref('')
     const method = ref('GET')
@@ -111,33 +114,23 @@ export default defineComponent({
     watch(() => props.element, syncFromModel, { immediate: true })
 
     function save() {
-      if (!props.bpmnModeler || !props.element) return
-      const moddle = props.bpmnModeler.get('moddle')
-      const modeling = props.bpmnModeler.get('modeling')
-      const bo = props.businessObject
-      if (!bo) return
+      const moddle = getModdle()
+      const ee = getOrCreateExtensionElements()
+      if (!moddle || !ee) return
 
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-
-      let connector = bo.extensionElements.values.find((v: any) => v.$type === 'camunda:Connector')
+      let connector = ee.values.find((v: any) => v.$type === 'camunda:Connector')
 
       if (!connectorId.value) {
         if (connector) {
-          bo.extensionElements.values = bo.extensionElements.values.filter(
-            (v: any) => v !== connector,
-          )
-          modeling.updateProperties(toRaw(props.element), {
-            extensionElements: bo.extensionElements,
-          })
+          ee.values = ee.values.filter((v: any) => v !== connector)
+          updateProperties({ extensionElements: ee })
         }
         return
       }
 
       if (!connector) {
         connector = moddle.create('camunda:Connector', { connectorId: connectorId.value })
-        bo.extensionElements.values.push(connector)
+        ee.values.push(connector)
       }
 
       connector.connectorId = connectorId.value
@@ -182,9 +175,7 @@ export default defineComponent({
         .filter((p) => p.name)
         .map((p) => moddle.create('camunda:OutputParameter', { name: p.name, value: p.value }))
 
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
+      updateProperties({ extensionElements: ee })
     }
 
     function onConnectorIdChange(val: string | null) {
@@ -246,7 +237,7 @@ export default defineComponent({
       return (
         <div>
           <div class="mb-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.connectorId')}</div>
+            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.connectorId')}</div>
             <NSelect
               value={connectorId.value || null}
               onUpdateValue={onConnectorIdChange}
@@ -264,7 +255,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.url')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.url')}</div>
                 <NInput
                   value={url.value}
                   onUpdateValue={onUrlChange}
@@ -273,7 +264,7 @@ export default defineComponent({
                 />
               </div>
               <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.httpMethod')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.httpMethod')}</div>
                 <NSelect
                   value={method.value}
                   onUpdateValue={onMethodChange}
@@ -283,7 +274,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.headers')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.headers')}</div>
                 {headers.value.length === 0 ? (
                   <NButton size="tiny" onClick={addHeader} class="w-full justify-center">
                     + {t('bpmnPanel.buttons.addHeader')}
@@ -320,7 +311,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.requestBody')}</div>
+                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.requestBody')}</div>
                 <NInput
                   value={body.value}
                   onUpdateValue={onBodyChange}
