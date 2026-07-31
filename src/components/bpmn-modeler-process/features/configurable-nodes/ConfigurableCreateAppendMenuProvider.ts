@@ -187,25 +187,27 @@ const CREATE_ACTION_TARGET: Record<string, CreateActionTarget> = {
 export default class ConfigurableCreateAppendMenuProvider {
   static $inject = ['popupMenu', 'configurableNodesConfig']
 
-  private _hiddenActionNames: string[]
+  private configurableNodes: ConfigurableNodesConfig
 
   constructor(popupMenu: any, configurableNodes: ConfigurableNodesConfig) {
-    this._hiddenActionNames = Object.entries(CREATE_ACTION_TARGET).flatMap(
-      ([actionName, target]) => {
-        return configurableNodes.isElementVisible(target.type, target.eventDefinitionType)
-          ? []
-          : [actionName]
-      },
-    )
+    this.configurableNodes = configurableNodes;
 
     popupMenu.registerProvider('bpmn-create', LOW_PRIORITY, this)
     popupMenu.registerProvider('bpmn-append', LOW_PRIORITY, this)
   }
 
   getPopupMenuEntries() {
-    const hiddenActionNames = this._hiddenActionNames
     return (entries: Record<string, any>) => {
-      for (const actionName of hiddenActionNames) {
+      for (const [actionName, target] of Object.entries(CREATE_ACTION_TARGET)) {
+        const visible = this.configurableNodes.isElementVisible(
+          target.type,
+          target.eventDefinitionType,
+        )
+
+        if (visible) {
+          continue
+        }
+
         delete entries[`create-${actionName}`]
         delete entries[`append-${actionName}`]
       }
