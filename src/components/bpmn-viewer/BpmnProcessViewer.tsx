@@ -1,5 +1,13 @@
 import { defineComponent, ref, watch, onMounted, onBeforeUnmount, type PropType } from 'vue'
-import { NButton, NButtonGroup, NIcon, NLayout, NLayoutContent, NLayoutSider, NPopselect } from 'naive-ui'
+import {
+  NButton,
+  NButtonGroup,
+  NIcon,
+  NLayout,
+  NLayoutContent,
+  NLayoutSider,
+  NPopselect,
+} from 'naive-ui'
 import NavigatedViewer from 'camunda-bpmn-js/lib/camunda-platform/NavigatedViewer'
 import { CamundaConfigProvider } from '../config-provider'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
@@ -26,7 +34,10 @@ export default defineComponent({
     theme: { type: String as PropType<ThemeType>, default: undefined },
     locale: { type: String as PropType<LocaleType>, default: undefined },
     localeFallback: { type: String as PropType<LocaleType>, default: undefined },
-    localeMessages: { type: Object as PropType<Record<string, Record<string, any>>>, default: undefined },
+    localeMessages: {
+      type: Object as PropType<Record<string, Record<string, any>>>,
+      default: undefined,
+    },
     availableLocales: {
       type: Array as PropType<LocaleOption[]>,
       default: () => [
@@ -162,8 +173,12 @@ export default defineComponent({
           visitCount: nodeState?.visitCount || 1,
           rejectCount: nodeState?.rejectCount || 0,
           assignee: bo?.assignee || nodeState?.assignee,
-          candidateUsers: bo?.candidateUsers?.split(',').map((s: string) => s.trim()) || nodeState?.candidateUsers,
-          candidateGroups: bo?.candidateGroups?.split(',').map((s: string) => s.trim()) || nodeState?.candidateGroups,
+          candidateUsers:
+            bo?.candidateUsers?.split(',').map((s: string) => s.trim()) ||
+            nodeState?.candidateUsers,
+          candidateGroups:
+            bo?.candidateGroups?.split(',').map((s: string) => s.trim()) ||
+            nodeState?.candidateGroups,
         }
 
         const rect = canvas.getContainer().getBoundingClientRect()
@@ -290,10 +305,7 @@ export default defineComponent({
         {{
           default: () => (
             <NLayout has-sider sider-placement="right" position="absolute">
-              <NLayoutContent
-                class="h-full"
-                content-style="height: 100%; position: relative;"
-              >
+              <NLayoutContent class="h-full" content-style="height: 100%; position: relative;">
                 <div
                   ref={canvasRef}
                   class="bpmn-viewer h-full w-full"
@@ -311,13 +323,19 @@ export default defineComponent({
                     >
                       <NButtonGroup size="small">
                         <NButton ghost onClick={zoomIn}>
-                          <NIcon><span class="i-ic-baseline-add text-[#409eff]" /></NIcon>
+                          <NIcon>
+                            <span class="i-ic-baseline-add text-[#409eff]" />
+                          </NIcon>
                         </NButton>
                         <NButton ghost onClick={zoomOut}>
-                          <NIcon><span class="i-ic-baseline-remove text-[#409eff]" /></NIcon>
+                          <NIcon>
+                            <span class="i-ic-baseline-remove text-[#409eff]" />
+                          </NIcon>
                         </NButton>
                         <NButton ghost onClick={fitViewport}>
-                          <NIcon><span class="i-ic-baseline-center-focus-strong text-[#409eff]" /></NIcon>
+                          <NIcon>
+                            <span class="i-ic-baseline-center-focus-strong text-[#409eff]" />
+                          </NIcon>
                         </NButton>
                         <NPopselect
                           value={currentLocaleRef.value}

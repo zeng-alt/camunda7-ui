@@ -90,6 +90,7 @@ export default defineComponent({
               element={props.element}
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
+              showCodeVariable
             />
           </div>
         </div>

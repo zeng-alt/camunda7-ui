@@ -244,24 +244,25 @@ export default defineComponent({
                 transition: 'border-color .3s var(--n-bezier)',
               }}
             >
-              {selectedValues.value.length > 0 && selectedValues.value.map((val) => (
-                <NTag
-                  key={val}
-                  closable
-                  round
-                  size={props.formSize}
-                  onClose={() => {
-                    const newValues = selectedValues.value.filter((v) => v !== val)
-                    onDynamicTagsUpdate(newValues)
-                  }}
-                  type="primary"
-                >
-                  {{
-                    icon: () => <i class="i-ic-baseline-people text-[#bd93f9]" />,
-                    default: () => val,
-                  }}
-                </NTag>
-              ))}
+              {selectedValues.value.length > 0 &&
+                selectedValues.value.map((val) => (
+                  <NTag
+                    key={val}
+                    closable
+                    round
+                    size={props.formSize}
+                    onClose={() => {
+                      const newValues = selectedValues.value.filter((v) => v !== val)
+                      onDynamicTagsUpdate(newValues)
+                    }}
+                    type="primary"
+                  >
+                    {{
+                      icon: () => <i class="i-ic-baseline-people text-[#bd93f9]" />,
+                      default: () => val,
+                    }}
+                  </NTag>
+                ))}
               {selectedValues.value.length === 0 || showInput.value ? (
                 <NInput
                   ref={inputRef}

@@ -55,9 +55,12 @@ export default defineComponent({
     const taskType = computed(() => getCallActivitySubType(props.businessObject))
     const tabValue = ref('general')
 
-    watch(() => props.businessObject, () => {
-      tabValue.value = 'general'
-    })
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     return () => {
       const type = taskType.value

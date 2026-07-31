@@ -49,8 +49,15 @@
 }
 
 @keyframes pulse-active {
-  0%, 100% { stroke-opacity: 1; filter: none; }
-  50% { stroke-opacity: 0.5; filter: drop-shadow(0 0 4px #2563eb80); }
+  0%,
+  100% {
+    stroke-opacity: 1;
+    filter: none;
+  }
+  50% {
+    stroke-opacity: 0.5;
+    filter: drop-shadow(0 0 4px #2563eb80);
+  }
 }
 
 /* ====== Rejected ====== */

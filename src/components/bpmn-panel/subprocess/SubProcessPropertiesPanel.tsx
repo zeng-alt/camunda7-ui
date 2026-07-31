@@ -40,9 +40,12 @@ export default defineComponent({
     const subType = computed(() => getSubProcessSubType(props.businessObject))
     const tabValue = ref('general')
 
-    watch(() => props.businessObject, () => {
-      tabValue.value = 'general'
-    })
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     return () => {
       const type = subType.value

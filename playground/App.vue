@@ -153,6 +153,8 @@ async function handlePublish(modeler: any) {
     await request.post('/deployment/create', formData)
     alert('发布成功')
   } catch (e: any) {
+    console.log('发布失败: ' + (e?.response?.data?.message || e.message));
+    
     alert('发布失败: ' + (e?.response?.data?.message || e.message))
   }
 }

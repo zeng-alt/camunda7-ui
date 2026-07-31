@@ -14,7 +14,10 @@ export default defineComponent({
   props: {
     visible: { type: Boolean, default: false },
     data: { type: Object as PropType<TooltipData | null>, default: null },
-    position: { type: Object as PropType<{ x: number; y: number }>, default: () => ({ x: 0, y: 0 }) },
+    position: {
+      type: Object as PropType<{ x: number; y: number }>,
+      default: () => ({ x: 0, y: 0 }),
+    },
     onSearchUsers: { type: Function as PropType<(name: string) => any>, default: null },
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
   },
@@ -83,7 +86,9 @@ export default defineComponent({
           >
             <div class="p-8px border-b border-solid border-#e5e7eb dark:border-#444">
               <div class="font-bold text-13px text-#1a1a1a dark:text-#eee truncate">{d.name}</div>
-              <div class="text-#888 dark:text-#aaa text-11px mt-2px">{d.type.replace('bpmn:', '')}</div>
+              <div class="text-#888 dark:text-#aaa text-11px mt-2px">
+                {d.type.replace('bpmn:', '')}
+              </div>
             </div>
             <div class="p-8px flex flex-col gap-4px text-#333 dark:text-#ccc">
               <div class="flex items-center gap-6px">

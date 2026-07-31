@@ -1,6 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { HintTooltip } from '../base'
 import { uid, getDefinitions } from './eventHelpers'
 
 export default defineComponent({
@@ -10,12 +11,14 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    showCodeVariable: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
     const selectedEscId = ref<string | null>(null)
     const selectedEscName = ref('')
     const selectedEscCode = ref('')
+    const codeVariable = ref('')
     const escalationOptions = ref<{ label: string; value: string }[]>([])
 
     function getModeler() {
@@ -47,6 +50,7 @@ export default defineComponent({
       selectedEscId.value = ref?.id || null
       selectedEscName.value = ref?.name || ''
       selectedEscCode.value = ref?.escalationCode || ''
+      codeVariable.value = def.get('camunda:escalationCodeVariable') || ''
       buildEscalationOptions()
     }
 
@@ -115,6 +119,17 @@ export default defineComponent({
       }
     }
 
+    function onCodeVariableChange(val: string | null) {
+      codeVariable.value = val ?? ''
+      const ed = getEventDef()
+      if (ed && getModeler() && props.element) {
+        const modeling = getModeler().get('modeling')
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
+          'camunda:escalationCodeVariable': val ?? '',
+        })
+      }
+    }
+
     return () => (
       <div>
         <NSelect
@@ -142,6 +157,20 @@ export default defineComponent({
               placeholder={t('bpmnPanel.fields.escalationCode')}
               size={props.formSize}
             />
+            {props.showCodeVariable && (
+              <div class="mt-8px">
+                <HintTooltip
+                  label={t('bpmnPanel.fields.escalationCodeVariable')}
+                  hint={t('bpmnPanel.fields.hintEscalationCodeVariable')}
+                />
+                <NInput
+                  value={codeVariable.value}
+                  onUpdateValue={onCodeVariableChange}
+                  size={props.formSize}
+                  class="mt-4px"
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

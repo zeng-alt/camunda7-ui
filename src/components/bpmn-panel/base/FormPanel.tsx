@@ -294,7 +294,8 @@ export default defineComponent({
       if (type === 'camunda') {
         updates.formRef = formRef.value || null
         updates.formRefBinding = formRefBinding.value || 'deployment'
-        updates.formRefVersion = formRefBinding.value === 'version' ? (formRefVersion.value || null) : undefined
+        updates.formRefVersion =
+          formRefBinding.value === 'version' ? formRefVersion.value || null : undefined
         updates.formKey = formKey.value || null
       } else if (type === 'external') {
         updates.formKey = formKey.value || null
@@ -750,6 +751,7 @@ export default defineComponent({
                   <div class="text-12px font-bold mb-4px">{t('bpmnPanel.fields.constraints')}</div>
                   <div class="flex gap-12px items-center mb-4px">
                     <NCheckbox
+                      v-show={item.type !== 'boolean'}
                       checked={item.constraints.required}
                       onUpdateChecked={(v: boolean) => updateConstraint(index, 'required', v)}
                       size={props.formSize === 'small' ? 'small' : 'medium'}
@@ -1008,7 +1010,9 @@ export default defineComponent({
               </div>
               {formRefBinding.value === 'version' && (
                 <div class="mt-8px">
-                  <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.formRefVersion')}</div>
+                  <div class="mb-4px text-12px text-#666">
+                    {t('bpmnPanel.fields.formRefVersion')}
+                  </div>
                   {versionOptions.value.length > 0 ? (
                     <NSelect
                       value={formRefVersion.value || null}

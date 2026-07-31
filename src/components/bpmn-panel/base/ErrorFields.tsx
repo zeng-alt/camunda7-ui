@@ -16,6 +16,10 @@ function uid(): string {
   return `Error_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
 }
 
+function defUid(): string {
+  return `ErrorEventDefinition_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+}
+
 interface ErrorItem {
   _key: number
   errorRefId: string | null
@@ -62,9 +66,9 @@ export default defineComponent({
       ]
     }
 
-    function findPropertiesContainer(extensionElements: any): any {
-      if (!extensionElements?.values) return null
-      return extensionElements.values.find((v: any) => v.$type === 'camunda:Properties') || null
+    function findErrorRootById(id: string): any {
+      const definitions = getDefinitions(toRaw(props.businessObject))
+      return definitions?.rootElements?.find((e: any) => e.$type === 'bpmn:Error' && e.id === id)
     }
 
     function syncFromModel() {
@@ -76,23 +80,18 @@ export default defineComponent({
 
       buildErrorOptions()
 
-      const container = findPropertiesContainer(bo.extensionElements)
-      const raw: any[] = container?.values || []
-      const errorRefProps = raw.filter((p: any) => p.name?.startsWith('errorRef_'))
+      const ee = bo.extensionElements
+      const defs = ee?.values?.filter((v: any) => v.$type === 'camunda:ErrorEventDefinition') || []
 
-      items.value = errorRefProps.map((p: any) => {
-        const idx = p.name.replace('errorRef_', '')
-        const nameProp = raw.find((r: any) => r.name === `errorName_${idx}`)
-        const codeProp = raw.find((r: any) => r.name === `errorCode_${idx}`)
-        const msgProp = raw.find((r: any) => r.name === `errorMessage_${idx}`)
-        const exprProp = raw.find((r: any) => r.name === `errorThrowExpression_${idx}`)
+      items.value = defs.map((def: any) => {
+        const ref = def.errorRef
         return {
           _key: keySeq++,
-          errorRefId: p.value || null,
-          name: nameProp?.value || '',
-          code: codeProp?.value || '',
-          message: msgProp?.value || '',
-          throwExpression: exprProp?.value || '',
+          errorRefId: ref?.id || null,
+          name: ref?.name || '',
+          code: ref?.errorCode || '',
+          message: ref?.get('camunda:errorMessage') || '',
+          throwExpression: def.get('expression') || '',
         }
       })
     }
@@ -111,47 +110,29 @@ export default defineComponent({
         bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
       }
 
-      let container = findPropertiesContainer(bo.extensionElements)
-      if (!container) {
-        container = moddle.create('camunda:Properties')
-        bo.extensionElements.get('values').push(container)
-      }
-
-      container.values = (container.values || []).filter(
-        (p: any) =>
-          !p.name?.startsWith('errorRef_') &&
-          !p.name?.startsWith('errorName_') &&
-          !p.name?.startsWith('errorCode_') &&
-          !p.name?.startsWith('errorMessage_') &&
-          !p.name?.startsWith('errorThrowExpression_'),
+      const ee = bo.extensionElements
+      const others = (ee.values || []).filter(
+        (v: any) => v.$type !== 'camunda:ErrorEventDefinition',
       )
 
-      items.value.forEach((item, i) => {
+      items.value.forEach((item) => {
         if (!item.errorRefId) return
-        container.values.push(
-          moddle.create('camunda:Property', { name: `errorRef_${i}`, value: item.errorRefId }),
-        )
-        if (item.name)
-          container.values.push(
-            moddle.create('camunda:Property', { name: `errorName_${i}`, value: item.name }),
-          )
-        if (item.code)
-          container.values.push(
-            moddle.create('camunda:Property', { name: `errorCode_${i}`, value: item.code }),
-          )
-        if (item.message)
-          container.values.push(
-            moddle.create('camunda:Property', { name: `errorMessage_${i}`, value: item.message }),
-          )
-        if (item.throwExpression)
-          container.values.push(
-            moddle.create('camunda:Property', {
-              name: `errorThrowExpression_${i}`,
-              value: item.throwExpression,
-            }),
-          )
+
+        const err = findErrorRootById(item.errorRefId)
+        const attrs: Record<string, any> = {
+          id: defUid(),
+        }
+        if (err) {
+          attrs.errorRef = err
+        }
+        if (item.throwExpression) {
+          attrs.expression = item.throwExpression
+        }
+        const def = moddle.create('camunda:ErrorEventDefinition', attrs)
+        others.push(def)
       })
 
+      ee.values = others
       modeling.updateProperties(toRaw(props.element), {
         extensionElements: bo.extensionElements,
       })
@@ -206,10 +187,7 @@ export default defineComponent({
       save()
 
       if (item?.errorRefId && props.bpmnModeler && props.element) {
-        const definitions = getDefinitions(toRaw(props.businessObject))
-        const err = definitions?.rootElements?.find(
-          (e: any) => e.$type === 'bpmn:Error' && e.id === item.errorRefId,
-        )
+        const err = findErrorRootById(item.errorRefId)
         if (err) {
           const modeling = props.bpmnModeler.get('modeling')
           modeling.updateModdleProperties(toRaw(props.element), err, { name: val ?? '' })
@@ -224,10 +202,7 @@ export default defineComponent({
       save()
 
       if (item?.errorRefId && props.bpmnModeler && props.element) {
-        const definitions = getDefinitions(toRaw(props.businessObject))
-        const err = definitions?.rootElements?.find(
-          (e: any) => e.$type === 'bpmn:Error' && e.id === item.errorRefId,
-        )
+        const err = findErrorRootById(item.errorRefId)
         if (err) {
           const modeling = props.bpmnModeler.get('modeling')
           modeling.updateModdleProperties(toRaw(props.element), err, { errorCode: val ?? '' })
@@ -236,11 +211,22 @@ export default defineComponent({
     }
 
     function onMessageChange(index: number, val: string | null) {
+      const item = items.value[index]
       const next = items.value.map((item, i) =>
         i === index ? { ...item, message: val ?? '' } : item,
       )
       items.value = next
       save()
+
+      if (item?.errorRefId && props.bpmnModeler && props.element) {
+        const err = findErrorRootById(item.errorRefId)
+        if (err) {
+          const modeling = props.bpmnModeler.get('modeling')
+          modeling.updateModdleProperties(toRaw(props.element), err, {
+            'camunda:errorMessage': val ?? '',
+          })
+        }
+      }
     }
 
     function onThrowExpressionChange(index: number, val: string) {

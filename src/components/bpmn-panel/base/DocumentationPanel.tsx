@@ -49,14 +49,15 @@ export default defineComponent({
       if (!props.bpmnModeler || !props.element) return
 
       const modeling = props.bpmnModeler.get('modeling')
+      const moddle = props.bpmnModeler.get('moddle')
       const bo = props.businessObject
       if (!bo) return
 
-      const doc = val ? [{ text: val }] : []
+      const doc = val ? [moddle.create('bpmn:Documentation', { text: val })] : []
 
       modeling.updateProperties(toRaw(props.element), {
         documentation: doc,
-      } as any)
+      })
     }
 
     return () => {

@@ -35,9 +35,7 @@ const messages: Record<string, any> = reactive({
   'en-US': enUS,
 })
 
-const defaultLocale = ref<LocaleType>(
-  (localStorage.getItem('locale') as LocaleType) || 'zh-CN',
-)
+const defaultLocale = ref<LocaleType>((localStorage.getItem('locale') as LocaleType) || 'zh-CN')
 
 const defaultFallback = ref<LocaleType>('en-US')
 

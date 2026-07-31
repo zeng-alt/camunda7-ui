@@ -2,7 +2,7 @@ import { defineComponent, computed, ref, watch, type PropType } from 'vue'
 import { NTabs, NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { GeneralPanel, DocumentationPanel } from '../base'
-import SequenceFlowExtraFields from './SequenceFlowExtraFields'
+import SequenceFlowExtraFields, { sequenceFlowTabs } from './SequenceFlowExtraFields'
 
 function getFlowSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -40,9 +40,12 @@ export default defineComponent({
     const flowType = computed(() => getFlowSubType(props.businessObject))
     const tabValue = ref('general')
 
-    watch(() => props.businessObject, () => {
-      tabValue.value = 'general'
-    })
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     return () => {
       const type = flowType.value
@@ -84,14 +87,18 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            {type === 'sequence-flow' && (
-              <SequenceFlowExtraFields
-                businessObject={props.businessObject}
-                element={props.element}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-              />
-            )}
+            {type === 'sequence-flow' &&
+              sequenceFlowTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <SequenceFlowExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
           </NTabs>
         </div>
       )

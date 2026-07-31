@@ -16,10 +16,7 @@ export default defineComponent({
       <div class="flex flex-col gap-4px p-8px bg-#ffffffcc dark:bg-#1a1a1acc rounded-4px shadow-sm border border-solid border-light_border dark:border-dark_border text-12px">
         {items.map((item) => (
           <div class="flex items-center gap-6px whitespace-nowrap">
-            <div
-              class="w-10px h-10px rounded-50% shrink-0"
-              style={{ background: item.color }}
-            />
+            <div class="w-10px h-10px rounded-50% shrink-0" style={{ background: item.color }} />
             <span class="text-#333 dark:text-#ccc">{t(item.labelKey)}</span>
           </div>
         ))}

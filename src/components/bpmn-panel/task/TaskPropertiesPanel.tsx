@@ -203,7 +203,7 @@ export default defineComponent({
               ))}
             {type !== 'user-task' && (
               <NTabPane name="multiInstance" tab={t('bpmnPanel.tabs.multiInstance')}>
-              <div class="pt-8px">
+                <div class="pt-8px">
                   <MultiInstanceFields
                     businessObject={props.businessObject}
                     element={props.element}
@@ -212,8 +212,8 @@ export default defineComponent({
                     userResolver={props.userResolver}
                     groupResolver={props.groupResolver}
                   />
-              </div>
-            </NTabPane>
+                </div>
+              </NTabPane>
             )}
             <NTabPane name="input" tab={t('bpmnPanel.tabs.input')}>
               <div class="pt-8px">

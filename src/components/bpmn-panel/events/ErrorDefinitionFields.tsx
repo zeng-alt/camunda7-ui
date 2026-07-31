@@ -1,12 +1,8 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
+import { HintTooltip } from '../base'
 import { uid, getDefinitions } from './eventHelpers'
-
-function findPropertiesContainer(extensionElements: any): any {
-  if (!extensionElements?.values) return null
-  return extensionElements.values.find((v: any) => v.$type === 'camunda:Properties') || null
-}
 
 export default defineComponent({
   name: 'ErrorDefinitionFields',
@@ -15,6 +11,7 @@ export default defineComponent({
     element: { type: Object as PropType<any>, default: null },
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    showVariableEvents: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -22,6 +19,8 @@ export default defineComponent({
     const selectedErrorName = ref('')
     const selectedErrorCode = ref('')
     const selectedErrorMessage = ref('')
+    const errorCodeVariable = ref('')
+    const errorMessageVariable = ref('')
     const errorOptions = ref<{ label: string; value: string }[]>([])
 
     function getModeler() {
@@ -30,6 +29,11 @@ export default defineComponent({
 
     function getEventDef() {
       return props.businessObject?.eventDefinitions?.[0]
+    }
+
+    function getErrorRef(): any {
+      const ed = getEventDef()
+      return ed?.errorRef || null
     }
 
     function buildErrorOptions() {
@@ -45,48 +49,6 @@ export default defineComponent({
       errorOptions.value = opts
     }
 
-    function loadMessageFromProperties() {
-      const bo = props.businessObject
-      if (!bo || !bo.extensionElements) {
-        selectedErrorMessage.value = ''
-        return
-      }
-      const container = findPropertiesContainer(bo.extensionElements)
-      if (!container) {
-        selectedErrorMessage.value = ''
-        return
-      }
-      const prop = container.values?.find((p: any) => p.name === 'errorMessage')
-      selectedErrorMessage.value = prop?.value || ''
-    }
-
-    function saveMessageToProperties(msg: string) {
-      if (!getModeler() || !props.element) return
-      const moddle = getModeler().get('moddle')
-      const modeling = getModeler().get('modeling')
-      const bo = props.businessObject
-      if (!bo) return
-
-      if (!bo.extensionElements) {
-        bo.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
-      }
-
-      let container = findPropertiesContainer(bo.extensionElements)
-      if (!container) {
-        container = moddle.create('camunda:Properties')
-        bo.extensionElements.get('values').push(container)
-      }
-
-      const others = (container.values || []).filter((p: any) => p.name !== 'errorMessage')
-      if (msg) {
-        others.push(moddle.create('camunda:Property', { name: 'errorMessage', value: msg }))
-      }
-      container.values = others
-      modeling.updateProperties(toRaw(props.element), {
-        extensionElements: bo.extensionElements,
-      })
-    }
-
     function syncFromModel() {
       const def = getEventDef()
       if (!def) return
@@ -94,7 +56,9 @@ export default defineComponent({
       selectedErrorId.value = ref?.id || null
       selectedErrorName.value = ref?.name || ''
       selectedErrorCode.value = ref?.errorCode || ''
-      loadMessageFromProperties()
+      selectedErrorMessage.value = ref?.get('camunda:errorMessage') || ''
+      errorCodeVariable.value = def.get('camunda:errorCodeVariable') || ''
+      errorMessageVariable.value = def.get('camunda:errorMessageVariable') || ''
       buildErrorOptions()
     }
 
@@ -138,6 +102,7 @@ export default defineComponent({
         selectedErrorId.value = value
         selectedErrorName.value = err.name || ''
         selectedErrorCode.value = err.errorCode || ''
+        selectedErrorMessage.value = err.get('camunda:errorMessage') || ''
         modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), { errorRef: err })
       }
     }
@@ -165,7 +130,35 @@ export default defineComponent({
 
     function onErrorMessageChange(val: string | null) {
       selectedErrorMessage.value = val ?? ''
-      saveMessageToProperties(val ?? '')
+      const ref = getErrorRef()
+      if (ref && getModeler() && props.element) {
+        const modeling = getModeler().get('modeling')
+        modeling.updateModdleProperties(toRaw(props.element), ref, {
+          'camunda:errorMessage': val ?? '',
+        })
+      }
+    }
+
+    function onErrorCodeVariableChange(val: string | null) {
+      errorCodeVariable.value = val ?? ''
+      const ed = getEventDef()
+      if (ed && getModeler() && props.element) {
+        const modeling = getModeler().get('modeling')
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
+          'camunda:errorCodeVariable': val ?? '',
+        })
+      }
+    }
+
+    function onErrorMessageVariableChange(val: string | null) {
+      errorMessageVariable.value = val ?? ''
+      const ed = getEventDef()
+      if (ed && getModeler() && props.element) {
+        const modeling = getModeler().get('modeling')
+        modeling.updateModdleProperties(toRaw(props.element), toRaw(ed), {
+          'camunda:errorMessageVariable': val ?? '',
+        })
+      }
     }
 
     return () => (
@@ -178,30 +171,62 @@ export default defineComponent({
           placeholder={t('bpmnPanel.placeholders.errorRef')}
         />
         {selectedErrorId.value && (
-          <div class="mt-8px">
-            <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorName')}</div>
-            <NInput
-              value={selectedErrorName.value}
-              onUpdateValue={onErrorNameChange}
-              placeholder={t('bpmnPanel.fields.errorName')}
-              size={props.formSize}
-            />
-            <div class="mt-8px mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorCode')}</div>
-            <NInput
-              value={selectedErrorCode.value}
-              onUpdateValue={onErrorCodeChange}
-              placeholder={t('bpmnPanel.fields.errorCode')}
-              size={props.formSize}
-            />
-            <div class="mt-8px mb-4px text-12px text-#666">
-              {t('bpmnPanel.fields.errorMessage')}
+          <div class="mt-8px flex flex-col gap-8px">
+            <div>
+              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorName')}</div>
+              <NInput
+                value={selectedErrorName.value}
+                onUpdateValue={onErrorNameChange}
+                placeholder={t('bpmnPanel.fields.errorName')}
+                size={props.formSize}
+              />
             </div>
-            <NInput
-              value={selectedErrorMessage.value}
-              onUpdateValue={onErrorMessageChange}
-              placeholder={t('bpmnPanel.fields.errorMessage')}
-              size={props.formSize}
-            />
+            <div>
+              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorCode')}</div>
+              <NInput
+                value={selectedErrorCode.value}
+                onUpdateValue={onErrorCodeChange}
+                placeholder={t('bpmnPanel.placeholders.errorCode')}
+                size={props.formSize}
+              />
+            </div>
+            <div>
+              <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.errorMessage')}</div>
+              <NInput
+                value={selectedErrorMessage.value}
+                onUpdateValue={onErrorMessageChange}
+                placeholder={t('bpmnPanel.placeholders.errorMessage')}
+                size={props.formSize}
+              />
+            </div>
+            {props.showVariableEvents && (
+              <>
+                <div>
+                  <HintTooltip
+                    label={t('bpmnPanel.fields.errorCodeVariable')}
+                    hint={t('bpmnPanel.fields.hintErrorCodeVariable')}
+                  />
+                  <NInput
+                    value={errorCodeVariable.value}
+                    onUpdateValue={onErrorCodeVariableChange}
+                    size={props.formSize}
+                    class="mt-4px"
+                  />
+                </div>
+                <div>
+                  <HintTooltip
+                    label={t('bpmnPanel.fields.errorMessageVariable')}
+                    hint={t('bpmnPanel.fields.hintErrorMessageVariable')}
+                  />
+                  <NInput
+                    value={errorMessageVariable.value}
+                    onUpdateValue={onErrorMessageVariableChange}
+                    size={props.formSize}
+                    class="mt-4px"
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

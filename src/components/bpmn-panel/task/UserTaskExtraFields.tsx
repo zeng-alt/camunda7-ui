@@ -1,7 +1,14 @@
 import { defineComponent, ref, computed, watch, toRaw, type PropType } from 'vue'
 import {
-  NCheckbox, NInput, NInputNumber, NSelect, NDatePicker,
-  NRadioGroup, NRadioButton, NRadio, NTooltip,
+  NCheckbox,
+  NInput,
+  NInputNumber,
+  NSelect,
+  NDatePicker,
+  NRadioGroup,
+  NRadioButton,
+  NRadio,
+  NTooltip,
 } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import type { ExtraFieldTab } from '../base'
@@ -169,7 +176,9 @@ export default defineComponent({
         completionCondition.value = body
         const anyMatch = body.match(/^\$\{nrOfCompletedInstances\s*>=\s*1\}$/)
         const qtyMatch = body.match(/^\$\{nrOfCompletedInstances\s*>=\s*(\d+)\}$/)
-        const pctMatch = body.match(/^\$\{nrOfCompletedInstances\s*>=\s*nrOfInstances\s*\*\s*(\d+)\s*\/\s*100\}$/)
+        const pctMatch = body.match(
+          /^\$\{nrOfCompletedInstances\s*>=\s*nrOfInstances\s*\*\s*(\d+)\s*\/\s*100\}$/,
+        )
         if (anyMatch) {
           completionType.value = 'any'
           completionValue.value = null
@@ -205,7 +214,8 @@ export default defineComponent({
         const userMatch = col.match(userRe)
         const groupMatch = col.match(groupRe)
         const formFieldMatch = col.match(formFieldRe)
-        const exprMatch = !userMatch && !groupMatch && !formFieldMatch && col.startsWith('${') && col.endsWith('}')
+        const exprMatch =
+          !userMatch && !groupMatch && !formFieldMatch && col.startsWith('${') && col.endsWith('}')
         if (userMatch) {
           approverMode.value = 'user'
           approverValue.value = userMatch[1] ?? ''
@@ -227,7 +237,9 @@ export default defineComponent({
         asyncAfter.value = lc.asyncAfter === true
         exclusive.value = lc.exclusive !== false
         const lcExtValues = lc.extensionElements?.values || []
-        const lcRetryCycle = lcExtValues.find((v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle')
+        const lcRetryCycle = lcExtValues.find(
+          (v: any) => v.$type === 'camunda:FailedJobRetryTimeCycle',
+        )
         retryTimeCycle.value = lcRetryCycle?.body ?? ''
       } else {
         isSequential.value = false
@@ -364,7 +376,9 @@ export default defineComponent({
           if (!lc.extensionElements) {
             lc.extensionElements = moddle.create('bpmn:ExtensionElements', { values: [] })
           }
-          const retry = moddle.create('camunda:FailedJobRetryTimeCycle', { body: retryTimeCycle.value })
+          const retry = moddle.create('camunda:FailedJobRetryTimeCycle', {
+            body: retryTimeCycle.value,
+          })
           lc.extensionElements.get('values').push(retry)
         }
         saveProperties({
@@ -452,11 +466,21 @@ export default defineComponent({
 
     function onPermissionChange(key: string, val: boolean) {
       switch (key) {
-        case 'allowAddSign': allowAddSign.value = val; break
-        case 'allowTransfer': allowTransfer.value = val; break
-        case 'allowDelegate': allowDelegate.value = val; break
-        case 'allowReject': allowReject.value = val; break
-        case 'allowCopy': allowCopy.value = val; break
+        case 'allowAddSign':
+          allowAddSign.value = val
+          break
+        case 'allowTransfer':
+          allowTransfer.value = val
+          break
+        case 'allowDelegate':
+          allowDelegate.value = val
+          break
+        case 'allowReject':
+          allowReject.value = val
+          break
+        case 'allowCopy':
+          allowCopy.value = val
+          break
       }
       writePermissions()
     }
@@ -562,7 +586,9 @@ export default defineComponent({
           break
         case 'percentage':
           if (completionValue.value != null) {
-            setCompletionBody(`\${nrOfCompletedInstances >= nrOfInstances * ${completionValue.value} / 100}`)
+            setCompletionBody(
+              `\${nrOfCompletedInstances >= nrOfInstances * ${completionValue.value} / 100}`,
+            )
           } else {
             setCompletionBody('')
           }
@@ -741,7 +767,9 @@ export default defineComponent({
                   <div class="flex flex-col gap-4px">
                     <NRadio value="countersign">{t('bpmnPanel.multiInstance.countersign')}</NRadio>
                     <NRadio value="orsign">{t('bpmnPanel.multiInstance.orsign')}</NRadio>
-                    <NRadio value="sequential">{t('bpmnPanel.multiInstance.sequentialSign')}</NRadio>
+                    <NRadio value="sequential">
+                      {t('bpmnPanel.multiInstance.sequentialSign')}
+                    </NRadio>
                   </div>
                 </NRadioGroup>
               </div>
@@ -755,10 +783,18 @@ export default defineComponent({
                   onUpdateValue={onApproverModeChange}
                   size={props.formSize}
                 >
-                  <NRadioButton value="variable">{t('bpmnPanel.multiInstance.approverVariable')}</NRadioButton>
-                  <NRadioButton value="user">{t('bpmnPanel.multiInstance.approverUser')}</NRadioButton>
-                  <NRadioButton value="group">{t('bpmnPanel.multiInstance.approverGroup')}</NRadioButton>
-                  <NRadioButton value="formField">{t('bpmnPanel.multiInstance.approverFormField')}</NRadioButton>
+                  <NRadioButton value="variable">
+                    {t('bpmnPanel.multiInstance.approverVariable')}
+                  </NRadioButton>
+                  <NRadioButton value="user">
+                    {t('bpmnPanel.multiInstance.approverUser')}
+                  </NRadioButton>
+                  <NRadioButton value="group">
+                    {t('bpmnPanel.multiInstance.approverGroup')}
+                  </NRadioButton>
+                  <NRadioButton value="formField">
+                    {t('bpmnPanel.multiInstance.approverFormField')}
+                  </NRadioButton>
                 </NRadioGroup>
                 <div class="mt-8px">
                   {approverMode.value === 'variable' && (
@@ -795,7 +831,9 @@ export default defineComponent({
                   )}
                   {collection.value && (
                     <div class="mt-4px text-11px text-#999">
-                      <code class="bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">{collection.value}</code>
+                      <code class="bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">
+                        {collection.value}
+                      </code>
                     </div>
                   )}
                 </div>
@@ -812,12 +850,18 @@ export default defineComponent({
                     size={props.formSize}
                   >
                     <div class="flex flex-col gap-4px w-full">
-                      <NRadio size={props.formSize} value="all">{t('bpmnPanel.multiInstance.completionAll')}</NRadio>
+                      <NRadio size={props.formSize} value="all">
+                        {t('bpmnPanel.multiInstance.completionAll')}
+                      </NRadio>
                       {executionMode.value !== 'countersign' && (
-                        <NRadio size={props.formSize} value="any">{t('bpmnPanel.multiInstance.completionAny')}</NRadio>
+                        <NRadio size={props.formSize} value="any">
+                          {t('bpmnPanel.multiInstance.completionAny')}
+                        </NRadio>
                       )}
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
-                        <NRadio size={props.formSize} value="quantity" >{t('bpmnPanel.multiInstance.completionQuantity')}</NRadio>
+                        <NRadio size={props.formSize} value="quantity">
+                          {t('bpmnPanel.multiInstance.completionQuantity')}
+                        </NRadio>
                         {completionType.value === 'quantity' && (
                           <NInputNumber
                             value={completionValue.value}
@@ -830,7 +874,9 @@ export default defineComponent({
                         )}
                       </div>
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
-                        <NRadio size={props.formSize} value="percentage" >{t('bpmnPanel.multiInstance.completionPercentage')}</NRadio>
+                        <NRadio size={props.formSize} value="percentage">
+                          {t('bpmnPanel.multiInstance.completionPercentage')}
+                        </NRadio>
                         {completionType.value === 'percentage' && (
                           <div class="flex items-center gap-2px" style="width:100%">
                             <NInputNumber
@@ -848,7 +894,9 @@ export default defineComponent({
                       </div>
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
                         <NRadio size={props.formSize} value="advanced" />
-                        <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.completionAdvanced')}</span>
+                        <span class="text-12px flex-shrink-0">
+                          {t('bpmnPanel.multiInstance.completionAdvanced')}
+                        </span>
                         {completionType.value === 'advanced' && (
                           <NInput
                             value={completionCondition.value}
@@ -948,7 +996,9 @@ export default defineComponent({
                 />
               </div>
               <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.loopCardinality')}</div>
+                <div class="mb-4px text-12px text-#666">
+                  {t('bpmnPanel.fields.loopCardinality')}
+                </div>
                 <NInput
                   value={loopCardinality.value}
                   onUpdateValue={onLoopCardinalityChange}
@@ -957,18 +1007,24 @@ export default defineComponent({
                 />
               </div>
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class="mb-4px text-12px text-#666">
-                  {t('bpmnPanel.fields.collection')}
-                </div>
+                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.collection')}</div>
                 <NRadioGroup
                   value={approverMode.value}
                   onUpdateValue={onApproverModeChange}
                   size={props.formSize}
                 >
-                  <NRadioButton value="variable">{t('bpmnPanel.multiInstance.approverVariable')}</NRadioButton>
-                  <NRadioButton value="user">{t('bpmnPanel.multiInstance.approverUser')}</NRadioButton>
-                  <NRadioButton value="group">{t('bpmnPanel.multiInstance.approverGroup')}</NRadioButton>
-                  <NRadioButton value="formField">{t('bpmnPanel.multiInstance.approverFormField')}</NRadioButton>
+                  <NRadioButton value="variable">
+                    {t('bpmnPanel.multiInstance.approverVariable')}
+                  </NRadioButton>
+                  <NRadioButton value="user">
+                    {t('bpmnPanel.multiInstance.approverUser')}
+                  </NRadioButton>
+                  <NRadioButton value="group">
+                    {t('bpmnPanel.multiInstance.approverGroup')}
+                  </NRadioButton>
+                  <NRadioButton value="formField">
+                    {t('bpmnPanel.multiInstance.approverFormField')}
+                  </NRadioButton>
                 </NRadioGroup>
                 <div class="mt-8px">
                   {approverMode.value === 'variable' && (
@@ -1005,13 +1061,17 @@ export default defineComponent({
                   )}
                   {collection.value && (
                     <div class="mt-4px text-11px text-#999">
-                      <code class="bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">{collection.value}</code>
+                      <code class="bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">
+                        {collection.value}
+                      </code>
                     </div>
                   )}
                 </div>
               </div>
               <div>
-                <div class="mb-4px text-12px text-#666">{t('bpmnPanel.fields.elementVariable')}</div>
+                <div class="mb-4px text-12px text-#666">
+                  {t('bpmnPanel.fields.elementVariable')}
+                </div>
                 <NInput
                   value={elementVariable.value}
                   onUpdateValue={onElementVariableChange}
@@ -1030,13 +1090,19 @@ export default defineComponent({
                     size={props.formSize}
                   >
                     <div class="flex flex-col gap-4px w-full">
-                      <NRadio size={props.formSize} value="all">{t('bpmnPanel.multiInstance.completionAll')}</NRadio>
+                      <NRadio size={props.formSize} value="all">
+                        {t('bpmnPanel.multiInstance.completionAll')}
+                      </NRadio>
                       {executionMode.value !== 'countersign' && (
-                        <NRadio size={props.formSize} value="any">{t('bpmnPanel.multiInstance.completionAny')}</NRadio>
+                        <NRadio size={props.formSize} value="any">
+                          {t('bpmnPanel.multiInstance.completionAny')}
+                        </NRadio>
                       )}
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
                         <NRadio size={props.formSize} value="quantity" />
-                        <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.completionQuantity')}</span>
+                        <span class="text-12px flex-shrink-0">
+                          {t('bpmnPanel.multiInstance.completionQuantity')}
+                        </span>
                         {completionType.value === 'quantity' && (
                           <NInputNumber
                             value={completionValue.value}
@@ -1050,7 +1116,9 @@ export default defineComponent({
                       </div>
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
                         <NRadio size={props.formSize} value="percentage" />
-                        <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.completionPercentage')}</span>
+                        <span class="text-12px flex-shrink-0">
+                          {t('bpmnPanel.multiInstance.completionPercentage')}
+                        </span>
                         {completionType.value === 'percentage' && (
                           <div class="flex items-center gap-2px" style="width:100%">
                             <NInputNumber
@@ -1068,7 +1136,9 @@ export default defineComponent({
                       </div>
                       <div class="grid grid-cols-[auto_auto_1fr] items-center gap-4px w-full">
                         <NRadio size={props.formSize} value="advanced" />
-                        <span class="text-12px flex-shrink-0">{t('bpmnPanel.multiInstance.completionAdvanced')}</span>
+                        <span class="text-12px flex-shrink-0">
+                          {t('bpmnPanel.multiInstance.completionAdvanced')}
+                        </span>
                         {completionType.value === 'advanced' && (
                           <NInput
                             value={completionCondition.value}

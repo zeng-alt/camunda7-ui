@@ -114,6 +114,7 @@ export default defineComponent({
     bpmnModeler: { type: Object, default: null },
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     showVariableEvents: { type: Boolean, default: false },
+    showCodeVariable: { type: Boolean, default: false },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -271,6 +272,7 @@ export default defineComponent({
             element={props.element}
             bpmnModeler={props.bpmnModeler}
             formSize={props.formSize}
+            showVariableEvents={props.showVariableEvents}
           />
         )
       }
@@ -282,6 +284,7 @@ export default defineComponent({
             element={props.element}
             bpmnModeler={props.bpmnModeler}
             formSize={props.formSize}
+            showCodeVariable={props.showCodeVariable}
           />
         )
       }

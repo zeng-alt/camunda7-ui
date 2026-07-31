@@ -69,9 +69,12 @@ export default defineComponent({
     const eventType = computed(() => getEventSubType(props.businessObject))
     const tabValue = ref('general')
 
-    watch(() => props.businessObject, () => {
-      tabValue.value = 'general'
-    })
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     const defType = computed(() => getEventDefType(props.businessObject))
 

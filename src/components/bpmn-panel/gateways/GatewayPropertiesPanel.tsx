@@ -51,9 +51,12 @@ export default defineComponent({
     const gatewayType = computed(() => getGatewaySubType(props.businessObject))
     const tabValue = ref('general')
 
-    watch(() => props.businessObject, () => {
-      tabValue.value = 'general'
-    })
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     return () => {
       const type = gatewayType.value

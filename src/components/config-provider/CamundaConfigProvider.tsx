@@ -9,7 +9,12 @@ import {
   type GlobalThemeOverrides,
 } from 'naive-ui'
 import { configProviderInjectionKey, type LocaleType, type ThemeType } from './context'
-import { setLocale, setLocaleMessages, resolveNaiveLocale, resolveNaiveDateLocale } from '../../locales'
+import {
+  setLocale,
+  setLocaleMessages,
+  resolveNaiveLocale,
+  resolveNaiveDateLocale,
+} from '../../locales'
 
 export default defineComponent({
   name: 'CamundaConfigProvider',
