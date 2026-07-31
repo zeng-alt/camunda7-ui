@@ -37,7 +37,7 @@ export default defineComponent({
       if (p) {
         versionTag.value = p.versionTag || ''
         startableInTasklist.value = p.startableInTasklist !== false
-        historyTimeToLive.value = p.historyTimeToLive || '180'
+        historyTimeToLive.value = p.historyTimeToLive || ''
         candidateStarterGroups.value = p.candidateStarterGroups || ''
         candidateStarterUsers.value = p.candidateStarterUsers || ''
         taskPriority.value = p.taskPriority ?? null

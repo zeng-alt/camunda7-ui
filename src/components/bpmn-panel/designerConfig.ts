@@ -116,7 +116,7 @@ export type TabName =
 
 export const defaultElementVisibility: Record<ElementKey, boolean> = {
   // events
-  'bpmn:StartEvent': false,
+  'bpmn:StartEvent': true,
   'bpmn:IntermediateCatchEvent': true,
   'bpmn:IntermediateThrowEvent': true,
   'bpmn:EndEvent': true,
@@ -125,7 +125,7 @@ export const defaultElementVisibility: Record<ElementKey, boolean> = {
   'bpmn:ExclusiveGateway': true,
   'bpmn:ParallelGateway': true,
   'bpmn:InclusiveGateway': true,
-  'bpmn:ComplexGateway': true,
+  'bpmn:ComplexGateway': false,
   'bpmn:EventBasedGateway': true,
   // tasks & call activity
   'bpmn:Task': true,
@@ -133,21 +133,21 @@ export const defaultElementVisibility: Record<ElementKey, boolean> = {
   'bpmn:ServiceTask': true,
   'bpmn:SendTask': true,
   'bpmn:ReceiveTask': true,
-  'bpmn:ManualTask': true,
-  'bpmn:BusinessRuleTask': true,
-  'bpmn:ScriptTask': true,
-  'bpmn:CallActivity': true,
+  'bpmn:ManualTask': false,
+  'bpmn:BusinessRuleTask': false,
+  'bpmn:ScriptTask': false,
+  'bpmn:CallActivity': false,
   // sub-processes
-  'bpmn:SubProcess': true,
-  'bpmn:AdHocSubProcess': true,
+  'bpmn:SubProcess': false,
+  'bpmn:AdHocSubProcess': false,
   'bpmn:Transaction': true,
   // data
   'bpmn:DataObjectReference': false,
   'bpmn:DataStoreReference': false,
   // collaboration
-  'bpmn:Participant': true,
+  'bpmn:Participant': false,
   // artifacts
-  'bpmn:Group': true,
+  'bpmn:Group': false,
   'bpmn:TextAnnotation': true,
   // start event variants
   'bpmn:StartEvent#none': true,
@@ -155,9 +155,9 @@ export const defaultElementVisibility: Record<ElementKey, boolean> = {
   'bpmn:StartEvent#bpmn:TimerEventDefinition': true,
   'bpmn:StartEvent#bpmn:ConditionalEventDefinition': true,
   'bpmn:StartEvent#bpmn:SignalEventDefinition': true,
-  'bpmn:StartEvent#bpmn:EscalationEventDefinition': true,
-  'bpmn:StartEvent#bpmn:ErrorEventDefinition': true,
-  'bpmn:StartEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:StartEvent#bpmn:EscalationEventDefinition': false,
+  'bpmn:StartEvent#bpmn:ErrorEventDefinition': false,
+  'bpmn:StartEvent#bpmn:CompensateEventDefinition': false,
   // intermediate catch event variants
   'bpmn:IntermediateCatchEvent#bpmn:MessageEventDefinition': true,
   'bpmn:IntermediateCatchEvent#bpmn:TimerEventDefinition': true,
@@ -167,43 +167,43 @@ export const defaultElementVisibility: Record<ElementKey, boolean> = {
   // intermediate throw event variants
   'bpmn:IntermediateThrowEvent#none': true,
   'bpmn:IntermediateThrowEvent#bpmn:MessageEventDefinition': true,
-  'bpmn:IntermediateThrowEvent#bpmn:EscalationEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:EscalationEventDefinition': false,
   'bpmn:IntermediateThrowEvent#bpmn:LinkEventDefinition': true,
-  'bpmn:IntermediateThrowEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:CompensateEventDefinition': false,
   'bpmn:IntermediateThrowEvent#bpmn:SignalEventDefinition': true,
   // end event variants
   'bpmn:EndEvent#none': true,
   'bpmn:EndEvent#bpmn:MessageEventDefinition': true,
-  'bpmn:EndEvent#bpmn:EscalationEventDefinition': true,
-  'bpmn:EndEvent#bpmn:ErrorEventDefinition': true,
+  'bpmn:EndEvent#bpmn:EscalationEventDefinition': false,
+  'bpmn:EndEvent#bpmn:ErrorEventDefinition': false,
   'bpmn:EndEvent#bpmn:CancelEventDefinition': true,
-  'bpmn:EndEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:EndEvent#bpmn:CompensateEventDefinition': false,
   'bpmn:EndEvent#bpmn:SignalEventDefinition': true,
   'bpmn:EndEvent#bpmn:TerminateEventDefinition': true,
   // boundary event variants
-  'bpmn:BoundaryEvent#none': true,
-  'bpmn:BoundaryEvent#bpmn:MessageEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:TimerEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:EscalationEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:ConditionalEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:ErrorEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:CancelEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:SignalEventDefinition': true,
-  'bpmn:BoundaryEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:BoundaryEvent#none': false,
+  'bpmn:BoundaryEvent#bpmn:MessageEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:TimerEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:EscalationEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:ConditionalEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:ErrorEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:CancelEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:SignalEventDefinition': false,
+  'bpmn:BoundaryEvent#bpmn:CompensateEventDefinition': false,
 }
 
 export const defaultTabVisibility: Record<TabName, boolean> = {
   // common
   general: true,
-  extensionProperties: true,
+  extensionProperties: false,
   custom: true,
   // camunda common
-  executionListeners: true,
+  executionListeners: false,
   multiInstance: true,
-  input: true,
-  output: true,
-  inputs: true,
-  outputs: true,
+  input: false,
+  output: false,
+  inputs: false,
+  outputs: false,
   taskListeners: true,
   process: true,
   // start event
@@ -213,7 +213,7 @@ export const defaultTabVisibility: Record<TabName, boolean> = {
   intermediateThrow: true,
   intermediateCatch: true,
   endEvent: true,
-  boundary: true,
+  boundary: false,
   // tasks
   implementation: true,
   fieldInjections: true,

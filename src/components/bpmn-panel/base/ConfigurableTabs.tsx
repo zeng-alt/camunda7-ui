@@ -1,9 +1,23 @@
-import { computed, defineComponent, type PropType } from 'vue'
+import { Fragment, computed, defineComponent, type PropType } from 'vue'
 import type { VNode } from 'vue'
 import { NTabs } from 'naive-ui'
 import type { TabsProps } from 'naive-ui'
 import { useCamundaI18n } from '@/locales'
 import { useDesignerConfig } from '../designerConfig'
+
+function collectPanes(nodes: VNode[]): VNode[] {
+  const result: VNode[] = []
+  for (const node of nodes) {
+    if (!node || typeof node !== 'object') continue
+    if (Array.isArray(node) || node.type === Fragment) {
+      const children = Array.isArray(node) ? node : (node.children as VNode[])
+      if (Array.isArray(children)) result.push(...collectPanes(children))
+    } else if (node.props && typeof node.props.name === 'string') {
+      result.push(node)
+    }
+  }
+  return result
+}
 
 export default defineComponent({
   name: 'ConfigurableTabs',
@@ -38,16 +52,9 @@ export default defineComponent({
       const tabs = designerState.value.tabs
       return new Set(Object.keys(tabs).filter((name) => tabs[name as keyof typeof tabs] === false))
     })
-
     return () => {
-      const children = (slots.default?.() ?? []).flat(Infinity) as VNode[]
-      const panes = children.filter(
-        (vnode) =>
-          vnode &&
-          typeof vnode === 'object' &&
-          (vnode as any).props &&
-          typeof (vnode as any).props.name === 'string',
-      )
+      const raw = slots.default?.() ?? []
+      const panes = collectPanes(Array.isArray(raw) ? raw : [raw])
       const visible = panes.filter((vnode) => !hiddenTabs.value.has((vnode as any).props.name))
 
       if (!visible.length) {

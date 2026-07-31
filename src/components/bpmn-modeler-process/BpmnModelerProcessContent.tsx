@@ -61,6 +61,8 @@ export interface BpmnModelerProcessProps {
   xml?: string
   /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner?: boolean
+  /** 是否显示模式切换按钮，默认值为 true */
+  showDesignerSwitch?: boolean
   /** 设计器配置：限制模式下隐藏的节点（大类 + 事件定义变体）与属性 tab */
   designerConfig?: DesignerConfig
   /** 是否自动把 XML 暂存到 localStorage（用于刷新恢复） */
@@ -137,6 +139,11 @@ export const bpmnModelerProcessProps = {
   },
   /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner: {
+    type: Boolean,
+    default: true,
+  },
+  /** 是否显示模式切换按钮，默认值为 true */
+  showDesignerSwitch: {
     type: Boolean,
     default: true,
   },
@@ -246,13 +253,15 @@ export const bpmnModelerProcessProps = {
 export default defineComponent({
   name: 'BpmnModelerProcessContent',
   props: { ...bpmnModelerProcessProps },
-  emits: ['update:theme', 'update:locale'],
+  emits: ['update:theme', 'update:locale', 'update:proDesigner'],
   setup(props, { emit, slots }) {
     const message = useMessage()
     const { t, currentLocale } = useCamundaI18n()
 
+    const proDesigner = ref(props.proDesigner ?? true)
+
     const designerState = ref(
-      resolveDesignerConfig(props.proDesigner ?? true, props.designerConfig),
+      resolveDesignerConfig(proDesigner.value, props.designerConfig),
     )
     provideDesignerConfig(designerState)
 
@@ -268,15 +277,29 @@ export default defineComponent({
     })
 
     watch(
-      [() => props.proDesigner, () => props.designerConfig],
+      [proDesigner, () => props.designerConfig],
       () => {
-        designerState.value = resolveDesignerConfig(props.proDesigner ?? true, props.designerConfig)
+        designerState.value = resolveDesignerConfig(proDesigner.value, props.designerConfig)
         if (bpmnModeler) {
           bpmnModeler.get('eventBus')?.fire('i18n.changed')
         }
       },
       { deep: true },
     )
+
+    watch(
+      () => props.proDesigner,
+      (val) => {
+        if (typeof val === 'boolean' && val !== proDesigner.value) {
+          proDesigner.value = val
+        }
+      },
+    )
+
+    function setProDesigner(val: boolean) {
+      proDesigner.value = val
+      emit('update:proDesigner', val)
+    }
 
     const currentTheme = ref<ThemeType>(props.theme ?? 'light')
     const currentLocaleRef = ref<LocaleType>(props.locale ?? currentLocale.value ?? 'zh-CN')
@@ -584,9 +607,28 @@ export default defineComponent({
                 content-style="height: 100%; display: flex; flex-direction: column;"
               >
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
-                {slots.footer && (
+                {(slots.footer || props.showDesignerSwitch) && (
                   <div class="absolute bottom-12px left-1/2 -translate-x-1/2 z-10">
-                    {slots.footer()}
+                    <NButtonGroup size={props.size}>
+                      {slots.footer && slots.footer()}
+                      {props.showDesignerSwitch && (
+                        <div class="mx-8px">
+                          <NButton
+                            type={proDesigner.value ? 'primary' : 'default'}
+                            onClick={() => setProDesigner(true)}
+                          >
+                            {t('bpmnPanel.designerSwitch.pro')}
+                          </NButton>
+                          <NButton
+                            type={!proDesigner.value ? 'primary' : 'default'}
+                            onClick={() => setProDesigner(false)}
+                          >
+                            {t('bpmnPanel.designerSwitch.restricted')}
+                          </NButton>
+                        </div>
+                      )}
+                    </NButtonGroup>
+                    
                   </div>
                 )}
                 <div

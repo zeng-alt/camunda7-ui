@@ -494,6 +494,10 @@
       "download": "Download",
       "save": "Save to Modeler",
       "importError": "Failed to import XML:"
+    },
+    "designerSwitch": {
+      "pro": "Pro Mode",
+      "restricted": "Restricted Mode"
     }
   },
   "bpmnViewer": {

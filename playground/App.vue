@@ -6,23 +6,23 @@ import request from './utils/request'
 
 const theme = ref<ThemeType>('dark')
 const proDesigner = ref(true)
-const designerConfig = ref<DesignerConfig>({
-  elements: {
-    'bpmn:SubProcess': false,
-    'bpmn:UserTask': false,
-    'bpmn:StartEvent#bpmn:ConditionalEventDefinition': false,
-    'bpmn:EndEvent#bpmn:ErrorEventDefinition': false,
-  },
-  tabs: {
-    input: false,
-    output: false,
-    extensionProperties: false,
-  },
-})
-const extraTabLabels = ref({
-  'start-event': '自定义配置',
-  'end-event': '自定义配置',
-})
+// const designerConfig = ref<DesignerConfig>({
+//   elements: {
+//     'bpmn:SubProcess': false,
+//     'bpmn:UserTask': false,
+//     'bpmn:StartEvent#bpmn:ConditionalEventDefinition': false,
+//     'bpmn:EndEvent#bpmn:ErrorEventDefinition': false,
+//   },
+//   tabs: {
+//     input: false,
+//     output: false,
+//     extensionProperties: false,
+//   },
+// })
+// const extraTabLabels = ref({
+//   'start-event': '自定义配置',
+//   'end-event': '自定义配置',
+// })
 
 const localeMessages = {
   'de-DE': {
@@ -268,8 +268,7 @@ async function onSearchDelegateExpressions(name: string) {
       <BpmnModelerProcess
       :theme="theme"
       :proDesigner="proDesigner"
-      :designerConfig="designerConfig"
-      :extraTabLabels="extraTabLabels"
+  
       :onSearchUsers="onSearchUsers"
       :autoStash="true"
       :onSearchUserGroups="onSearchUserGroups"
@@ -291,22 +290,6 @@ async function onSearchDelegateExpressions(name: string) {
         </NButton>
       </template>
       <template #footer>
-        <div class="flex items-center gap-8px">
-          <NButton
-            size="small"
-            :type="proDesigner ? 'primary' : 'default'"
-            @click="proDesigner = true"
-          >
-            专业模式
-          </NButton>
-          <NButton
-            size="small"
-            :type="!proDesigner ? 'primary' : 'default'"
-            @click="proDesigner = false"
-          >
-            受限模式
-          </NButton>
-        </div>
       </template>
       <!-- <template #start-event-extra="{ type }">
         <div class="p-8px text-14px text-#666">

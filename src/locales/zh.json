@@ -492,6 +492,10 @@
       "download": "下载",
       "save": "保存到建模器",
       "importError": "导入 XML 失败:"
+    },
+    "designerSwitch": {
+      "pro": "专业模式",
+      "restricted": "受限模式"
     }
   },
   "bpmn": {
