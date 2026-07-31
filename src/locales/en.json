@@ -446,7 +446,8 @@
       "noProcess": "No process selected",
       "comingSoon": "properties (coming soon)",
       "noFields": "No fields yet",
-      "noData": "No data"
+      "noData": "No data",
+      "noEditableProps": "No editable properties"
     },
     "formPreview": {
       "noFields": "No form fields configured",

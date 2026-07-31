@@ -1,5 +1,5 @@
 import { defineComponent, computed, ref, watch, type PropType } from 'vue'
-import { NTabs, NTabPane } from 'naive-ui'
+import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import {
   GeneralPanel,
@@ -9,6 +9,7 @@ import {
   AsyncCheckboxes,
   InputsPanel,
   OutputsPanel,
+  ConfigurableTabs,
 } from '../base'
 import SubProcessExtraFields, { subProcessTabs } from './SubProcessExtraFields'
 import MultiInstanceFields from '../base/MultiInstanceFields'
@@ -60,7 +61,7 @@ export default defineComponent({
 
       return (
         <div class="p-8px">
-          <NTabs
+          <ConfigurableTabs
             value={tabValue.value}
             onUpdateValue={(v: string) => {
               tabValue.value = v
@@ -139,7 +140,7 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            <NTabPane name="executionListeners" tab={t('bpmnPanel.tabs.input')}>
+            <NTabPane name="input" tab={t('bpmnPanel.tabs.input')}>
               <div class="pt-8px">
                 <InputsPanel
                   businessObject={props.businessObject}
@@ -149,7 +150,7 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-            <NTabPane name="executionListeners" tab={t('bpmnPanel.tabs.output')}>
+            <NTabPane name="output" tab={t('bpmnPanel.tabs.output')}>
               <div class="pt-8px">
                 <OutputsPanel
                   businessObject={props.businessObject}
@@ -179,7 +180,7 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-          </NTabs>
+          </ConfigurableTabs>
         </div>
       )
     }

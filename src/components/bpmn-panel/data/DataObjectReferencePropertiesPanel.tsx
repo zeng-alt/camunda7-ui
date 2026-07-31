@@ -1,7 +1,12 @@
 import { defineComponent, ref, watch, type PropType } from 'vue'
-import { NTabs, NTabPane } from 'naive-ui'
+import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel } from '../base'
+import {
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  ConfigurableTabs,
+} from '../base'
 
 export default defineComponent({
   name: 'DataObjectReferencePropertiesPanel',
@@ -25,7 +30,7 @@ export default defineComponent({
 
     return () => (
       <div class="p-8px">
-        <NTabs
+        <ConfigurableTabs
           value={tabValue.value}
           onUpdateValue={(v: string) => {
             tabValue.value = v
@@ -62,7 +67,7 @@ export default defineComponent({
               />
             </div>
           </NTabPane>
-        </NTabs>
+        </ConfigurableTabs>
       </div>
     )
   },

@@ -1,10 +1,22 @@
 <script setup lang="ts">
-import { BpmnModelerProcess, type ThemeType } from 'camunda7-ui'
+import { BpmnModelerProcess, type ThemeType, type DesignerConfig } from 'camunda7-ui'
 import { ref } from 'vue'
 import type { ProcessLookupItem } from 'camunda7-ui'
 import request from './utils/request'
 
 const theme = ref<ThemeType>('dark')
+const proDesigner = ref(true)
+const designerConfig = ref<DesignerConfig>({
+  elements: {
+    'bpmn:SubProcess': false,
+    'bpmn:UserTask': false,
+  },
+  tabs: {
+    input: false,
+    output: false,
+    extensionProperties: false,
+  },
+})
 const extraTabLabels = ref({
   'start-event': '自定义配置',
   'end-event': '自定义配置',
@@ -250,9 +262,11 @@ async function onSearchDelegateExpressions(name: string) {
 </script>
 
 <template>
-  <div class="h-screen relative w-full">
-    <BpmnModelerProcess
+    <div class="h-screen relative w-full">
+      <BpmnModelerProcess
       :theme="theme"
+      :proDesigner="proDesigner"
+      :designerConfig="designerConfig"
       :extraTabLabels="extraTabLabels"
       :onSearchUsers="onSearchUsers"
       :autoStash="true"
@@ -273,6 +287,24 @@ async function onSearchDelegateExpressions(name: string) {
             <span class="i-ic-baseline-upload" />
           </NIcon>
         </NButton>
+      </template>
+      <template #footer>
+        <div class="flex items-center gap-8px">
+          <NButton
+            size="small"
+            :type="proDesigner ? 'primary' : 'default'"
+            @click="proDesigner = true"
+          >
+            专业模式
+          </NButton>
+          <NButton
+            size="small"
+            :type="!proDesigner ? 'primary' : 'default'"
+            @click="proDesigner = false"
+          >
+            受限模式
+          </NButton>
+        </div>
       </template>
       <!-- <template #start-event-extra="{ type }">
         <div class="p-8px text-14px text-#666">

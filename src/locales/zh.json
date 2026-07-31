@@ -444,7 +444,8 @@
       "noProcess": "未选择流程",
       "comingSoon": "属性编辑（即将支持）",
       "noFields": "暂无字段",
-      "noData": "暂无数据"
+      "noData": "暂无数据",
+      "noEditableProps": "无可编辑属性"
     },
     "formPreview": {
       "noFields": "未配置表单字段",

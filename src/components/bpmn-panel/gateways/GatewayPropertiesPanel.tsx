@@ -1,7 +1,12 @@
 import { defineComponent, computed, ref, watch, toRaw, type PropType } from 'vue'
-import { NTabs, NTabPane, NCheckbox } from 'naive-ui'
+import { NTabPane, NCheckbox } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { GeneralPanel, DocumentationPanel, ExtensionPropertiesPanel } from '../base'
+import {
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  ConfigurableTabs,
+} from '../base'
 import { AsyncCheckboxes, ExecutionListenersPanel } from '../base'
 
 function getGatewaySubType(businessObject: any): string {
@@ -71,7 +76,7 @@ export default defineComponent({
 
       return (
         <div class="p-8px">
-          <NTabs
+          <ConfigurableTabs
             value={tabValue.value}
             onUpdateValue={(v: string) => {
               tabValue.value = v
@@ -133,7 +138,7 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-          </NTabs>
+          </ConfigurableTabs>
         </div>
       )
     }

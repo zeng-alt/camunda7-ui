@@ -1,7 +1,12 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NTabs, NTabPane, NInput, NSelect, NForm, NFormItem } from 'naive-ui'
+import { NTabPane, NInput, NSelect, NForm, NFormItem } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { DocumentationPanel, ExtensionPropertiesPanel, GeneralPanel } from '../base'
+import {
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  GeneralPanel,
+  ConfigurableTabs,
+} from '../base'
 
 const ExtensionContent = defineComponent({
   name: 'AssociationExtensionContent',
@@ -47,7 +52,7 @@ export default defineComponent({
 
     return () => (
       <div class="p-8px">
-        <NTabs
+        <ConfigurableTabs
           value={tabValue.value}
           onUpdateValue={(v: string) => {
             tabValue.value = v
@@ -81,7 +86,7 @@ export default defineComponent({
               formSize={props.formSize}
             />
           </NTabPane>
-        </NTabs>
+        </ConfigurableTabs>
       </div>
     )
   },

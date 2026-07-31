@@ -5,6 +5,13 @@ import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
 import { useCamundaLookups } from '@/composables'
 import { useMessage } from 'naive-ui'
 import {
+  resolveDesignerConfig,
+  provideDesignerConfig,
+  type DesignerConfig,
+  type ElementName,
+} from '../bpmn-panel/designerConfig'
+import createConfigurableNodesModule from './features/configurable-nodes/createConfigurableNodesModule'
+import {
   NButton,
   NButtonGroup,
   NIcon,
@@ -65,6 +72,14 @@ export const bpmnModelerProcessProps = {
   },
   xml: {
     type: String,
+    default: undefined,
+  },
+  proDesigner: {
+    type: Boolean,
+    default: true,
+  },
+  designerConfig: {
+    type: Object as PropType<DesignerConfig>,
     default: undefined,
   },
   autoStash: {
@@ -157,6 +172,27 @@ export default defineComponent({
     const message = useMessage()
     const { t, currentLocale } = useCamundaI18n()
 
+    const designerState = ref(
+      resolveDesignerConfig(props.proDesigner ?? true, props.designerConfig),
+    )
+    provideDesignerConfig(designerState)
+
+    const nodesModule = createConfigurableNodesModule({
+      isElementVisible: (type: string) =>
+        designerState.value.elements[type as ElementName] !== false,
+    })
+
+    watch(
+      [() => props.proDesigner, () => props.designerConfig],
+      () => {
+        designerState.value = resolveDesignerConfig(props.proDesigner ?? true, props.designerConfig)
+        if (bpmnModeler) {
+          bpmnModeler.get('eventBus')?.fire('i18n.changed')
+        }
+      },
+      { deep: true },
+    )
+
     const currentTheme = ref<ThemeType>(props.theme ?? 'light')
     const currentLocaleRef = ref<LocaleType>(props.locale ?? currentLocale.value ?? 'zh-CN')
 
@@ -242,7 +278,7 @@ export default defineComponent({
       if (canvasRef.value) {
         bpmnModeler = new BpmnModeler({
           container: canvasRef.value,
-          additionalModules: [customTranslateModule],
+          additionalModules: [customTranslateModule, nodesModule],
         })
         modelerRef.value = bpmnModeler
 
@@ -463,6 +499,11 @@ export default defineComponent({
                 content-style="height: 100%; display: flex; flex-direction: column;"
               >
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
+                {slots.footer && (
+                  <div class="absolute bottom-12px left-1/2 -translate-x-1/2 z-10">
+                    {slots.footer()}
+                  </div>
+                )}
                 <div
                   class="floating-btn-group"
                   style="position: absolute; top: 24px; right: 8px; z-index: 10;"

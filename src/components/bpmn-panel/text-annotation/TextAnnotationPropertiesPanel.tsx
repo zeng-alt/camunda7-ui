@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
-import { NTabs, NTabPane, NInput } from 'naive-ui'
+import { NTabPane, NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { DocumentationPanel, ExtensionPropertiesPanel } from '../base'
+import { DocumentationPanel, ExtensionPropertiesPanel, ConfigurableTabs } from '../base'
 
 const GeneralContent = defineComponent({
   name: 'TextAnnotationGeneralContent',
@@ -97,7 +97,7 @@ export default defineComponent({
 
     return () => (
       <div class="p-8px">
-        <NTabs
+        <ConfigurableTabs
           value={tabValue.value}
           onUpdateValue={(v: string) => {
             tabValue.value = v
@@ -118,7 +118,7 @@ export default defineComponent({
               />
             </div>
           </NTabPane>
-        </NTabs>
+        </ConfigurableTabs>
       </div>
     )
   },

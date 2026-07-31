@@ -1,5 +1,5 @@
 import { defineComponent, computed, ref, watch, type PropType } from 'vue'
-import { NTabs, NTabPane } from 'naive-ui'
+import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import {
   GeneralPanel,
@@ -7,6 +7,7 @@ import {
   ExtensionPropertiesPanel,
   ExecutionListenersPanel,
   AsyncCheckboxes,
+  ConfigurableTabs,
 } from '../base'
 import StartEventExtraFields, { startEventTabs } from './StartEventExtraFields'
 import IntermediateCatchEventExtraFields, {
@@ -98,7 +99,7 @@ export default defineComponent({
 
       return (
         <div class="p-8px">
-          <NTabs
+          <ConfigurableTabs
             value={tabValue.value}
             onUpdateValue={(v: string) => {
               tabValue.value = v
@@ -171,7 +172,7 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
-          </NTabs>
+          </ConfigurableTabs>
         </div>
       )
     }
