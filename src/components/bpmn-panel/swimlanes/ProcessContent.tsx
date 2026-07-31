@@ -1,7 +1,20 @@
 import { defineComponent, ref, watch, toRaw, type PropType } from 'vue'
 import { NInput, NCheckbox, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { DocumentationPanel, GeneralPanel, HintTooltip, UserPicker, GroupPicker } from '../base'
+import {
+  DocumentationPanel,
+  GeneralPanel,
+  HintTooltip,
+  UserPicker,
+  GroupPicker,
+  GlobalFormPanel,
+  type ExtraFieldTab,
+} from '../base'
+
+export const processTabs: ExtraFieldTab[] = [
+  { name: 'process', labelKey: 'bpmnPanel.tabs.poolProcess' },
+  { name: 'globalForm', labelKey: 'bpmnPanel.tabs.globalForm' },
+]
 
 export default defineComponent({
   name: 'ProcessContent',
@@ -18,6 +31,8 @@ export default defineComponent({
     showBasic: { type: Boolean, default: true },
     // 标签位置：left（左侧）/ top（顶部）
     labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'top' },
+    // 所属 tab 名称
+    tabName: { type: String, default: 'process' },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -99,9 +114,7 @@ export default defineComponent({
       updateProp('jobPriority', val ?? null)
     }
 
-    return () => {
-      if (!props.processBobject) return null
-
+    function renderProcessFields() {
       return (
         <div class="flex flex-col gap-12px">
           {props.showBasic && (
@@ -198,6 +211,25 @@ export default defineComponent({
           </div>
         </div>
       )
+    }
+
+    return () => {
+      if (!props.processBobject) return null
+
+      if (props.tabName === 'globalForm') {
+        return (
+          <div class="pt-8px">
+            <GlobalFormPanel
+              businessObject={props.processBobject}
+              element={props.element}
+              bpmnModeler={props.bpmnModeler}
+              formSize={props.formSize}
+            />
+          </div>
+        )
+      }
+
+      return renderProcessFields()
     }
   },
 })

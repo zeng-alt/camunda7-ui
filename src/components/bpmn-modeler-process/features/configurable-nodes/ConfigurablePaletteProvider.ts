@@ -7,7 +7,7 @@ const PALETTE_ENTRY_TYPE: Record<string, ElementName> = {
   'create.intermediate-event': 'bpmn:IntermediateThrowEvent',
   'create.end-event': 'bpmn:EndEvent',
   'create.exclusive-gateway': 'bpmn:ExclusiveGateway',
-  'create.task': 'bpmn:Task',
+  'create.task': 'bpmn:UserTask',
   'create.data-object': 'bpmn:DataObjectReference',
   'create.data-store': 'bpmn:DataStoreReference',
   'create.subprocess-expanded': 'bpmn:SubProcess',
@@ -19,6 +19,9 @@ export default class ConfigurablePaletteProvider extends PaletteProvider {
   static $inject = [...PaletteProvider.$inject, 'configurableNodesConfig']
 
   private _configurableNodes: ConfigurableNodesConfig
+  private _create: any
+  private _elementFactory: any
+  private _translate: any
 
   constructor(
     palette: any,
@@ -33,6 +36,9 @@ export default class ConfigurablePaletteProvider extends PaletteProvider {
   ) {
     super(palette, create, elementFactory, spaceTool, lassoTool, handTool, globalConnect, translate)
     this._configurableNodes = configurableNodes
+    this._create = create
+    this._elementFactory = elementFactory
+    this._translate = translate
   }
 
   getPaletteEntries(): ReturnType<PaletteProvider['getPaletteEntries']> {
@@ -46,6 +52,23 @@ export default class ConfigurablePaletteProvider extends PaletteProvider {
       }
     }
 
+    const taskEntry = entries['create.task']
+    if (taskEntry) {
+      entries['create.task'] = {
+        ...taskEntry,
+        title: this._translate('Create user task'),
+        action: {
+          dragstart: (event: any) => this.createUserTask(event),
+          click: (event: any) => this.createUserTask(event),
+        },
+      }
+    }
+
     return entries
+  }
+
+  private createUserTask(event: any) {
+    const shape = this._elementFactory.createShape({ type: 'bpmn:UserTask' })
+    this._create.start(event, shape)
   }
 }

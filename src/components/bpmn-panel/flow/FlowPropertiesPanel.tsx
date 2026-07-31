@@ -3,6 +3,7 @@ import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { GeneralPanel, DocumentationPanel, ConfigurableTabs } from '../base'
 import SequenceFlowExtraFields, { sequenceFlowTabs } from './SequenceFlowExtraFields'
+import SequenceFlowConditionButtons from './SequenceFlowConditionButtons'
 
 function getFlowSubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -91,6 +92,16 @@ export default defineComponent({
                   formSize={props.formSize}
                 />
               </div>
+              {type === 'sequence-flow' && (
+                <div class="pt-8px">
+                  <SequenceFlowConditionButtons
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                  />
+                </div>
+              )}
             </NTabPane>
             {type === 'sequence-flow' &&
               sequenceFlowTabs.map((tab) => (

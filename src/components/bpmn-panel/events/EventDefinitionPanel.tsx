@@ -61,7 +61,7 @@ const defIconSuffix: Record<string, string> = {
   Escalation: 'escalation',
   Cancel: 'cancel',
   Terminate: 'terminate',
-  Compensation: 'compensation',
+  Compensate: 'compensation',
   Multiple: 'multiple',
   ParallelMultiple: 'parallel-multiple',
 }

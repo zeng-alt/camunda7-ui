@@ -34,6 +34,7 @@
       "gateway": "复杂网关",
       "sequence-flow": "顺序流",
       "default-flow": "默认流",
+      "conditional-flow": "条件流",
       "participant": "参与者",
       "lane": "泳道",
       "text-annotation": "文本注解",
@@ -126,6 +127,9 @@
       "followUpDate": "跟进时间",
       "priority": "优先级",
       "defaultFlow": "默认流",
+      "flowConfig": "流向配置",
+      "flowAgree": "同意",
+      "flowDisagree": "不同意",
       "jobExecution": "作业执行",
       "asyncContinuousExecution": "异步连续",
       "retryTimeCycle": "重试时间周期",
@@ -360,6 +364,7 @@
       "adHocSubProcess": "即时",
       "transaction": "事务",
       "forms": "表单",
+      "globalForm": "全局表单",
       "script": "脚本",
       "receiveTask": "消息",
       "poolProcess": "流程",
@@ -424,6 +429,7 @@
       "formTypeCamunda": "Camunda 表单",
       "formTypeExternal": "嵌入式 / 外部任务表单",
       "formTypeGenerated": "生成的表单",
+      "formTypeGlobal": "全局表单",
       "fieldTypeString": "字符串",
       "fieldTypeLong": "长整型",
       "fieldTypeBoolean": "布尔值",
@@ -446,6 +452,11 @@
       "noFields": "暂无字段",
       "noData": "暂无数据",
       "noEditableProps": "无可编辑属性"
+    },
+    "globalForm": {
+      "hint": "全局表单在流程级别配置，所有用户任务共享，存储于流程扩展属性中。",
+      "noGlobalForm": "流程尚未配置全局表单",
+      "editHint": "编辑全局表单请到流程的「表单」页签"
     },
     "formPreview": {
       "noFields": "未配置表单字段",
@@ -495,7 +506,7 @@
     },
     "designerSwitch": {
       "pro": "专业模式",
-      "restricted": "受限模式"
+      "restricted": "简单模式"
     }
   },
   "bpmn": {

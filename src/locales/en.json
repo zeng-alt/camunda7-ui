@@ -34,6 +34,7 @@
       "gateway": "Complex Gateway",
       "sequence-flow": "Sequence Flow",
       "default-flow": "Default Flow",
+      "conditional-flow": "Conditional Flow",
       "participant": "Participant",
       "lane": "Lane",
       "text-annotation": "Text Annotation",
@@ -126,6 +127,9 @@
       "followUpDate": "Follow-up Date",
       "priority": "Priority",
       "defaultFlow": "Default Flow",
+      "flowConfig": "Flow Config",
+      "flowAgree": "Agree",
+      "flowDisagree": "Disagree",
       "jobExecution": "Job Execution",
       "asyncContinuousExecution": "Asynchronous continuations",
       "retryTimeCycle": "Retry Time Cycle",
@@ -362,6 +366,7 @@
       "adHocSubProcess": "Ad Hoc",
       "transaction": "Transaction",
       "forms": "Forms",
+      "globalForm": "Global Form",
       "script": "Script",
       "receiveTask": "Message",
       "poolProcess": "Process",
@@ -426,6 +431,7 @@
       "formTypeCamunda": "Camunda Forms",
       "formTypeExternal": "Embedded / External Task Forms",
       "formTypeGenerated": "Generated Task Forms",
+      "formTypeGlobal": "Global Form",
       "fieldTypeString": "String",
       "fieldTypeLong": "Long",
       "fieldTypeBoolean": "Boolean",
@@ -448,6 +454,11 @@
       "noFields": "No fields yet",
       "noData": "No data",
       "noEditableProps": "No editable properties"
+    },
+    "globalForm": {
+      "hint": "The global form is configured at the process level and shared by all user tasks. It is stored in the process extension properties.",
+      "noGlobalForm": "No global form configured on the process",
+      "editHint": "Edit the global form on the process's 'Forms' tab"
     },
     "formPreview": {
       "noFields": "No form fields configured",
@@ -497,7 +508,7 @@
     },
     "designerSwitch": {
       "pro": "Pro Mode",
-      "restricted": "Restricted Mode"
+      "restricted": "Simple Mode"
     }
   },
   "bpmnViewer": {

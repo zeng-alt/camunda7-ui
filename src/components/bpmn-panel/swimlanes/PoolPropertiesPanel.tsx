@@ -7,7 +7,7 @@ import {
   ExtensionPropertiesPanel,
   ConfigurableTabs,
 } from '../base'
-import ProcessContent from './ProcessContent'
+import ProcessContent, { processTabs } from './ProcessContent'
 
 const ProcessTabContent = defineComponent({
   name: 'PoolProcessTabContent',
@@ -20,6 +20,8 @@ const ProcessTabContent = defineComponent({
     bpmnModeler: { type: Object, default: null },
     // 表单控件尺寸：small / medium / large
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    // 所属 tab 名称
+    tabName: { type: String, default: 'process' },
   },
   setup(props) {
     return () => {
@@ -33,6 +35,7 @@ const ProcessTabContent = defineComponent({
               bpmnModeler={props.bpmnModeler}
               formSize={props.formSize}
               showBasic
+              tabName={props.tabName}
             />
           )}
         </div>
@@ -96,9 +99,13 @@ export default defineComponent({
               </div>
             </div>
           </NTabPane>
-          <NTabPane name="process" tab={t('bpmnPanel.tabs.poolProcess')}>
-            <ProcessTabContent {...props} />
-          </NTabPane>
+
+          {processTabs.map((tab) => (
+            <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+              <ProcessTabContent {...props} tabName={tab.name} />
+            </NTabPane>
+          ))}
+
           <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
             <div class="pt-8px">
               <ExtensionPropertiesPanel

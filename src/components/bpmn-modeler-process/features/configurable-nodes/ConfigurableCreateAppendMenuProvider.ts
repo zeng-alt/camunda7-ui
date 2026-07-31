@@ -190,7 +190,7 @@ export default class ConfigurableCreateAppendMenuProvider {
   private configurableNodes: ConfigurableNodesConfig
 
   constructor(popupMenu: any, configurableNodes: ConfigurableNodesConfig) {
-    this.configurableNodes = configurableNodes;
+    this.configurableNodes = configurableNodes
 
     popupMenu.registerProvider('bpmn-create', LOW_PRIORITY, this)
     popupMenu.registerProvider('bpmn-append', LOW_PRIORITY, this)

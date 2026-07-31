@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, type PropType } from 'vue'
+import { defineComponent, ref, computed, watch, type PropType } from 'vue'
 import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useCamundaLookups } from '../../../composables'
@@ -43,6 +43,12 @@ export default defineComponent({
       } catch {
         items.value = []
       }
+      emitMatchedItem()
+    }
+
+    function emitMatchedItem() {
+      const item = items.value.find((p) => p.value === props.value) || null
+      emit('update:item', item)
     }
 
     function onOpen() {
@@ -54,6 +60,8 @@ export default defineComponent({
       emit('update:value', val ?? '')
       emit('update:item', item)
     }
+
+    watch(() => props.value, emitMatchedItem)
 
     const placeholderText = computed(() => props.placeholder || t('bpmnPanel.placeholders.formRef'))
 

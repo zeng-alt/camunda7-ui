@@ -1,4 +1,4 @@
-import { defineComponent, ref, onBeforeUnmount, watch, type PropType } from 'vue'
+import { defineComponent, ref, onBeforeUnmount, watch, toRaw, type PropType } from 'vue'
 import { useCamundaI18n } from '../../locales'
 import ProcessPropertiesPancel from './ProcessPropertiesPancel'
 import {
@@ -24,6 +24,11 @@ function isDefaultFlow(sequenceFlow: any) {
   if (!source) return false
   const bo = source.businessObject
   return bo.default && bo.default.id === sequenceFlow.id
+}
+
+function isConditionalFlow(sequenceFlow: any) {
+  const bo = sequenceFlow.businessObject
+  return !!bo?.conditionExpression
 }
 
 function getElementType(element: any): string {
@@ -248,7 +253,9 @@ export default defineComponent<CamundaPropertiesPanelProps>({
     }
 
     function handleElementChanged(event: any) {
-      if (event.element === selectedElement.value) {
+      const element = event.element
+      const selected = toRaw(selectedElement.value)
+      if (element === selected || element === selected?.source) {
         updateKey.value++
       }
     }
@@ -306,6 +313,10 @@ export default defineComponent<CamundaPropertiesPanelProps>({
         type === 'sequence-flow' && selectedElement.value
           ? isDefaultFlow(selectedElement.value)
           : false
+      const isConditional =
+        type === 'sequence-flow' && selectedElement.value
+          ? isConditionalFlow(selectedElement.value)
+          : false
       const elementName = selectedBusinessObject.value?.name
       const isEvent = eventTypes.has(type)
 
@@ -315,6 +326,9 @@ export default defineComponent<CamundaPropertiesPanelProps>({
       if (isDefault) {
         typeLabel = t('bpmnPanel.types.default-flow')
         iconClass = 'bpmn-icon-default-flow'
+      } else if (isConditional) {
+        typeLabel = t('bpmnPanel.types.conditional-flow')
+        iconClass = 'bpmn-icon-conditional-flow'
       } else if (isEvent) {
         const defType = getEventDefType(selectedBusinessObject.value)
         const categoryKey = getCategoryLabelKey(type)

@@ -94,6 +94,7 @@ export type TabName =
   | 'outputs'
   | 'taskListeners'
   | 'process'
+  | 'globalForm'
   // start event
   | 'startEvent'
   | 'forms'
@@ -206,6 +207,7 @@ export const defaultTabVisibility: Record<TabName, boolean> = {
   outputs: false,
   taskListeners: true,
   process: true,
+  globalForm: true,
   // start event
   startEvent: true,
   forms: true,

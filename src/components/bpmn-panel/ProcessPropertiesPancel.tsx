@@ -1,7 +1,13 @@
-import { defineComponent, ref, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType } from 'vue'
+import { NTabPane } from 'naive-ui'
 import { useCamundaI18n } from '../../locales'
-import { GeneralPanel } from './base'
-import { ProcessContent } from './swimlanes'
+import {
+  GeneralPanel,
+  DocumentationPanel,
+  ExtensionPropertiesPanel,
+  ConfigurableTabs,
+} from './base'
+import ProcessContent, { processTabs } from './swimlanes/ProcessContent'
 
 export default defineComponent({
   name: 'ProcessPropertiesPancel',
@@ -34,6 +40,14 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useCamundaI18n()
+    const tabValue = ref('general')
+
+    watch(
+      () => props.businessObject,
+      () => {
+        tabValue.value = 'general'
+      },
+    )
 
     return () => {
       if (!props.businessObject) {
@@ -46,25 +60,61 @@ export default defineComponent({
 
       return (
         <div class="p-8px">
-          <div class="pt-8px">
-            <GeneralPanel
-              businessObject={props.businessObject}
-              element={props.element}
-              bpmnModeler={props.bpmnModeler}
-              showExecutable
-              formSize={props.formSize}
-              labelPlacement={props.labelPlacement}
-            />
-            <div class="mt-12px">
-              <ProcessContent
-                element={props.element}
-                processBobject={props.businessObject}
-                bpmnModeler={props.bpmnModeler}
-                formSize={props.formSize}
-                showBasic={false}
-              />
-            </div>
-          </div>
+          <ConfigurableTabs
+            value={tabValue.value}
+            onUpdateValue={(v: string) => {
+              tabValue.value = v
+            }}
+            size={props.formSize}
+            type="line"
+          >
+            <NTabPane name="general" tab={t('bpmnPanel.tabs.general')}>
+              <div class="pt-8px">
+                <GeneralPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  showExecutable
+                  formSize={props.formSize}
+                  labelPlacement={props.labelPlacement}
+                />
+                <div class="pt-8px">
+                  <DocumentationPanel
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                  />
+                </div>
+              </div>
+            </NTabPane>
+
+            {processTabs.map((tab) => (
+              <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                <div class="pt-8px">
+                  <ProcessContent
+                    element={props.element}
+                    processBobject={props.businessObject}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    showBasic={false}
+                    tabName={tab.name}
+                  />
+                </div>
+              </NTabPane>
+            ))}
+
+            <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
+              <div class="pt-8px">
+                <ExtensionPropertiesPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
+          </ConfigurableTabs>
         </div>
       )
     }
