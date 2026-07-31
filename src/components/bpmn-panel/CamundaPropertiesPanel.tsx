@@ -158,30 +158,37 @@ function showRootProcess(modeler: any) {
 export default defineComponent({
   name: 'CamundaPropertiesPanel',
   props: {
+    // bpmn-js 模型器实例：用于监听选中元素并读写模型属性
     bpmnModeler: {
       type: Object,
       default: null,
     },
+    // 属性表单尺寸：small / medium / large
     formSize: {
       type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'small',
     },
+    // 标签位置：left（左侧）/ top（顶部）
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
       default: 'top',
     },
+    // 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab
     extraTabs: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({}),
     },
+    // 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 }
     extraTabLabels: {
       type: Object as PropType<Record<string, string>>,
       default: () => ({}),
     },
+    // 用户解析器表达式：用于解析办理人/候选人的 JS 表达式
     userResolver: {
       type: String,
       default: 'approverResolver.getUsers',
     },
+    // 用户组解析器表达式：用于解析候选用户组的 JS 表达式
     groupResolver: {
       type: String,
       default: 'approverResolver.getUserGroups',

@@ -5,7 +5,7 @@ import ConfigurableCreateAppendMenuProvider from './ConfigurableCreateAppendMenu
 import ConfigurableReplaceMenuProvider from './ConfigurableReplaceMenuProvider'
 
 export interface ConfigurableNodesConfig {
-  isElementVisible: (type: string) => boolean
+  isElementVisible: (type: string, eventDefinitionType?: string) => boolean
 }
 
 export default function createConfigurableNodesModule(config: ConfigurableNodesConfig) {

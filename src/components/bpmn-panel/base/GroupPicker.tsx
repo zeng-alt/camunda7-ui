@@ -7,15 +7,22 @@ import { NInput, NButton, NInputGroup, NTag, NModal, NIcon, NDataTable, NEmpty }
 export default defineComponent({
   name: 'GroupPicker',
   props: {
+    // 当前值（受控模式由父级传入）
     value: { type: String, default: null },
+    // 是否支持多选
     multiple: { type: Boolean, default: true },
+    // 表单控件尺寸：small / medium / large
     formSize: {
       type: String as PropType<'small' | 'medium' | 'large'>,
       default: 'small',
     },
+    // 输入占位提示
     placeholder: { type: String, default: '' },
+    // 表单标签文本
     label: { type: String, default: '' },
+    // 提示文本
     hint: { type: String, default: '' },
+    // 是否允许输入表达式（如 ${...}）
     allowExpression: { type: Boolean, default: true },
   },
   emits: ['update:value'],

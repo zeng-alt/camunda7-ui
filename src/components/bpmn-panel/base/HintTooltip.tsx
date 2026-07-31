@@ -4,9 +4,13 @@ import { NTooltip } from 'naive-ui'
 export default defineComponent({
   name: 'HintTooltip',
   props: {
+    // 表单标签文本
     label: { type: String, required: true },
+    // 提示文本
     hint: { type: String, default: '' },
+    // 提示 HTML
     hintHtml: { type: String, default: '' },
+    // 悬浮层位置
     placement: { type: String as PropType<'top' | 'bottom' | 'left' | 'right'>, default: 'top' },
   },
   setup(props) {

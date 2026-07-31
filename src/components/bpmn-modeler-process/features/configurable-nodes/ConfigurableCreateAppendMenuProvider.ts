@@ -3,80 +3,185 @@ import type { ConfigurableNodesConfig } from './createConfigurableNodesModule'
 
 const LOW_PRIORITY = 100
 
-const CREATE_ACTION_NAMES_BY_TYPE: Partial<Record<ElementName, string[]>> = {
-  'bpmn:StartEvent': [
-    'none-start-event',
-    'message-start',
-    'timer-start',
-    'conditional-start',
-    'signal-start',
-    'replace-with-non-interrupting-message-start',
-    'replace-with-non-interrupting-timer-start',
-    'replace-with-non-interrupting-conditional-start',
-    'replace-with-non-interrupting-signal-start',
-    'replace-with-non-interrupting-escalation-start',
-  ],
-  'bpmn:IntermediateCatchEvent': [
-    'message-intermediate-catch',
-    'timer-intermediate-catch',
-    'conditional-intermediate-catch',
-    'link-intermediate-catch',
-    'signal-intermediate-catch',
-  ],
-  'bpmn:IntermediateThrowEvent': [
-    'none-intermediate-throwing',
-    'message-intermediate-throw',
-    'escalation-intermediate-throw',
-    'link-intermediate-throw',
-    'compensation-intermediate-throw',
-    'signal-intermediate-throw',
-  ],
-  'bpmn:EndEvent': [
-    'none-end-event',
-    'message-end',
-    'escalation-end',
-    'error-end',
-    'cancel-end',
-    'compensation-end',
-    'signal-end',
-    'terminate-end',
-  ],
-  'bpmn:BoundaryEvent': [
-    'none-boundary-event',
-    'message-boundary',
-    'timer-boundary',
-    'escalation-boundary',
-    'conditional-boundary',
-    'error-boundary',
-    'cancel-boundary',
-    'signal-boundary',
-    'compensation-boundary',
-    'non-interrupting-message-boundary',
-    'non-interrupting-timer-boundary',
-    'non-interrupting-escalation-boundary',
-    'non-interrupting-conditional-boundary',
-    'non-interrupting-signal-boundary',
-  ],
-  'bpmn:ExclusiveGateway': ['exclusive-gateway'],
-  'bpmn:ParallelGateway': ['parallel-gateway'],
-  'bpmn:InclusiveGateway': ['inclusive-gateway'],
-  'bpmn:ComplexGateway': ['complex-gateway'],
-  'bpmn:EventBasedGateway': ['event-based-gateway'],
-  'bpmn:Task': ['task'],
-  'bpmn:UserTask': ['user-task'],
-  'bpmn:ServiceTask': ['service-task'],
-  'bpmn:SendTask': ['send-task'],
-  'bpmn:ReceiveTask': ['receive-task'],
-  'bpmn:ManualTask': ['manual-task'],
-  'bpmn:BusinessRuleTask': ['rule-task'],
-  'bpmn:ScriptTask': ['script-task'],
-  'bpmn:CallActivity': ['call-activity'],
-  'bpmn:SubProcess': ['event-subprocess', 'collapsed-subprocess', 'expanded-subprocess'],
-  'bpmn:AdHocSubProcess': ['collapsed-ad-hoc-subprocess', 'expanded-ad-hoc-subprocess'],
-  'bpmn:Transaction': ['transaction'],
-  'bpmn:DataObjectReference': ['data-object-reference'],
-  'bpmn:DataStoreReference': ['data-store-reference'],
-  'bpmn:Participant': ['expanded-pool', 'collapsed-pool'],
+interface CreateActionTarget {
+  type: ElementName
+  eventDefinitionType?: string
+}
+
+const CREATE_ACTION_TARGET: Record<string, CreateActionTarget> = {
+  // start events
+  'none-start-event': { type: 'bpmn:StartEvent' },
+  'message-start': { type: 'bpmn:StartEvent', eventDefinitionType: 'bpmn:MessageEventDefinition' },
+  'timer-start': { type: 'bpmn:StartEvent', eventDefinitionType: 'bpmn:TimerEventDefinition' },
+  'conditional-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'signal-start': { type: 'bpmn:StartEvent', eventDefinitionType: 'bpmn:SignalEventDefinition' },
+  'replace-with-non-interrupting-message-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'replace-with-non-interrupting-timer-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:TimerEventDefinition',
+  },
+  'replace-with-non-interrupting-conditional-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'replace-with-non-interrupting-signal-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  'replace-with-non-interrupting-escalation-start': {
+    type: 'bpmn:StartEvent',
+    eventDefinitionType: 'bpmn:EscalationEventDefinition',
+  },
+  // intermediate catch events
+  'message-intermediate-catch': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'timer-intermediate-catch': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:TimerEventDefinition',
+  },
+  'conditional-intermediate-catch': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'link-intermediate-catch': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:LinkEventDefinition',
+  },
+  'signal-intermediate-catch': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  // intermediate throw events
+  'none-intermediate-throwing': { type: 'bpmn:IntermediateThrowEvent' },
+  'message-intermediate-throw': {
+    type: 'bpmn:IntermediateThrowEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'escalation-intermediate-throw': {
+    type: 'bpmn:IntermediateThrowEvent',
+    eventDefinitionType: 'bpmn:EscalationEventDefinition',
+  },
+  'link-intermediate-throw': {
+    type: 'bpmn:IntermediateThrowEvent',
+    eventDefinitionType: 'bpmn:LinkEventDefinition',
+  },
+  'compensation-intermediate-throw': {
+    type: 'bpmn:IntermediateThrowEvent',
+    eventDefinitionType: 'bpmn:CompensateEventDefinition',
+  },
+  'signal-intermediate-throw': {
+    type: 'bpmn:IntermediateThrowEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  // end events
+  'none-end-event': { type: 'bpmn:EndEvent' },
+  'message-end': { type: 'bpmn:EndEvent', eventDefinitionType: 'bpmn:MessageEventDefinition' },
+  'escalation-end': {
+    type: 'bpmn:EndEvent',
+    eventDefinitionType: 'bpmn:EscalationEventDefinition',
+  },
+  'error-end': { type: 'bpmn:EndEvent', eventDefinitionType: 'bpmn:ErrorEventDefinition' },
+  'cancel-end': { type: 'bpmn:EndEvent', eventDefinitionType: 'bpmn:CancelEventDefinition' },
+  'compensation-end': {
+    type: 'bpmn:EndEvent',
+    eventDefinitionType: 'bpmn:CompensateEventDefinition',
+  },
+  'signal-end': { type: 'bpmn:EndEvent', eventDefinitionType: 'bpmn:SignalEventDefinition' },
+  'terminate-end': {
+    type: 'bpmn:EndEvent',
+    eventDefinitionType: 'bpmn:TerminateEventDefinition',
+  },
+  // boundary events
+  'none-boundary-event': { type: 'bpmn:BoundaryEvent' },
+  'message-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'timer-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:TimerEventDefinition',
+  },
+  'escalation-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:EscalationEventDefinition',
+  },
+  'conditional-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'error-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:ErrorEventDefinition',
+  },
+  'cancel-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:CancelEventDefinition',
+  },
+  'signal-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  'compensation-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:CompensateEventDefinition',
+  },
+  'non-interrupting-message-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'non-interrupting-timer-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:TimerEventDefinition',
+  },
+  'non-interrupting-escalation-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:EscalationEventDefinition',
+  },
+  'non-interrupting-conditional-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'non-interrupting-signal-boundary': {
+    type: 'bpmn:BoundaryEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  // gateways
+  'exclusive-gateway': { type: 'bpmn:ExclusiveGateway' },
+  'parallel-gateway': { type: 'bpmn:ParallelGateway' },
+  'inclusive-gateway': { type: 'bpmn:InclusiveGateway' },
+  'complex-gateway': { type: 'bpmn:ComplexGateway' },
+  'event-based-gateway': { type: 'bpmn:EventBasedGateway' },
+  // tasks
+  task: { type: 'bpmn:Task' },
+  'user-task': { type: 'bpmn:UserTask' },
+  'service-task': { type: 'bpmn:ServiceTask' },
+  'send-task': { type: 'bpmn:SendTask' },
+  'receive-task': { type: 'bpmn:ReceiveTask' },
+  'manual-task': { type: 'bpmn:ManualTask' },
+  'rule-task': { type: 'bpmn:BusinessRuleTask' },
+  'script-task': { type: 'bpmn:ScriptTask' },
+  // call activity & sub-processes
+  'call-activity': { type: 'bpmn:CallActivity' },
+  transaction: { type: 'bpmn:Transaction' },
+  'event-subprocess': { type: 'bpmn:SubProcess' },
+  'collapsed-subprocess': { type: 'bpmn:SubProcess' },
+  'expanded-subprocess': { type: 'bpmn:SubProcess' },
+  'collapsed-ad-hoc-subprocess': { type: 'bpmn:AdHocSubProcess' },
+  'expanded-ad-hoc-subprocess': { type: 'bpmn:AdHocSubProcess' },
+  // data
+  'data-store-reference': { type: 'bpmn:DataStoreReference' },
+  'data-object-reference': { type: 'bpmn:DataObjectReference' },
+  // collaboration
+  'expanded-pool': { type: 'bpmn:Participant' },
+  'collapsed-pool': { type: 'bpmn:Participant' },
 }
 
 export default class ConfigurableCreateAppendMenuProvider {
@@ -85,10 +190,11 @@ export default class ConfigurableCreateAppendMenuProvider {
   private _hiddenActionNames: string[]
 
   constructor(popupMenu: any, configurableNodes: ConfigurableNodesConfig) {
-    this._hiddenActionNames = Object.entries(CREATE_ACTION_NAMES_BY_TYPE).flatMap(
-      ([type, actionNames]) => {
-        const names = actionNames ?? []
-        return configurableNodes.isElementVisible(type) ? [] : names
+    this._hiddenActionNames = Object.entries(CREATE_ACTION_TARGET).flatMap(
+      ([actionName, target]) => {
+        return configurableNodes.isElementVisible(target.type, target.eventDefinitionType)
+          ? []
+          : [actionName]
       },
     )
 

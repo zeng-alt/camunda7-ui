@@ -12,13 +12,18 @@ const statusColorMap: Record<ExecutionStatus, string> = {
 export default defineComponent({
   name: 'NodeTooltip',
   props: {
+    // 是否显示 Tooltip
     visible: { type: Boolean, default: false },
+    // Tooltip 展示的节点数据（名称、类型、执行状态、办理人/候选等）
     data: { type: Object as PropType<TooltipData | null>, default: null },
+    // Tooltip 的定位坐标（相对画布容器）
     position: {
       type: Object as PropType<{ x: number; y: number }>,
       default: () => ({ x: 0, y: 0 }),
     },
+    // 搜索用户回调：用于把候选办理人 id 解析为名称
     onSearchUsers: { type: Function as PropType<(name: string) => any>, default: null },
+    // 搜索用户组回调：用于把候选用户组 id 解析为名称
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
   },
   setup(props) {

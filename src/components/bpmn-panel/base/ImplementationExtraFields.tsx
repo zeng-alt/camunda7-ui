@@ -28,12 +28,19 @@ type ImplType =
 export default defineComponent({
   name: 'ImplementationExtraFields',
   props: {
+    // 当前元素的 BPMN 业务对象（BusinessObject），用于读写模型属性
     businessObject: { type: Object as PropType<any>, default: null },
+    // 当前选中的 BPMN 图形元素
     element: { type: Object as PropType<any>, default: null },
+    // bpmn-js 模型器实例，用于执行建模命令、读写模型
     bpmnModeler: { type: Object, default: null },
+    // 表单控件尺寸：small / medium / large
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    // 是否显示外部任务错误定义配置
     showExternalErrors: { type: Boolean, default: false },
+    // 默认实现类型（固定类型时不显示选择器）
     defaultType: { type: String as PropType<ImplType | null>, default: null },
+    // 是否显示 DMN（业务规则任务）选项
     showDmn: { type: Boolean, default: false },
   },
   setup(props) {

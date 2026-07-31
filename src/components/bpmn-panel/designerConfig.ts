@@ -36,6 +36,50 @@ export type ElementName =
   | 'bpmn:Group'
   | 'bpmn:TextAnnotation'
 
+export type ElementKey =
+  | ElementName
+  // start event variants
+  | 'bpmn:StartEvent#none'
+  | 'bpmn:StartEvent#bpmn:MessageEventDefinition'
+  | 'bpmn:StartEvent#bpmn:TimerEventDefinition'
+  | 'bpmn:StartEvent#bpmn:ConditionalEventDefinition'
+  | 'bpmn:StartEvent#bpmn:SignalEventDefinition'
+  | 'bpmn:StartEvent#bpmn:EscalationEventDefinition'
+  | 'bpmn:StartEvent#bpmn:ErrorEventDefinition'
+  | 'bpmn:StartEvent#bpmn:CompensateEventDefinition'
+  // intermediate catch event variants
+  | 'bpmn:IntermediateCatchEvent#bpmn:MessageEventDefinition'
+  | 'bpmn:IntermediateCatchEvent#bpmn:TimerEventDefinition'
+  | 'bpmn:IntermediateCatchEvent#bpmn:ConditionalEventDefinition'
+  | 'bpmn:IntermediateCatchEvent#bpmn:LinkEventDefinition'
+  | 'bpmn:IntermediateCatchEvent#bpmn:SignalEventDefinition'
+  // intermediate throw event variants
+  | 'bpmn:IntermediateThrowEvent#none'
+  | 'bpmn:IntermediateThrowEvent#bpmn:MessageEventDefinition'
+  | 'bpmn:IntermediateThrowEvent#bpmn:EscalationEventDefinition'
+  | 'bpmn:IntermediateThrowEvent#bpmn:LinkEventDefinition'
+  | 'bpmn:IntermediateThrowEvent#bpmn:CompensateEventDefinition'
+  | 'bpmn:IntermediateThrowEvent#bpmn:SignalEventDefinition'
+  // end event variants
+  | 'bpmn:EndEvent#none'
+  | 'bpmn:EndEvent#bpmn:MessageEventDefinition'
+  | 'bpmn:EndEvent#bpmn:EscalationEventDefinition'
+  | 'bpmn:EndEvent#bpmn:ErrorEventDefinition'
+  | 'bpmn:EndEvent#bpmn:CancelEventDefinition'
+  | 'bpmn:EndEvent#bpmn:CompensateEventDefinition'
+  | 'bpmn:EndEvent#bpmn:SignalEventDefinition'
+  | 'bpmn:EndEvent#bpmn:TerminateEventDefinition'
+  // boundary event variants
+  | 'bpmn:BoundaryEvent#none'
+  | 'bpmn:BoundaryEvent#bpmn:MessageEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:TimerEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:EscalationEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:ConditionalEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:ErrorEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:CancelEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:SignalEventDefinition'
+  | 'bpmn:BoundaryEvent#bpmn:CompensateEventDefinition'
+
 export type TabName =
   // common
   | 'general'
@@ -70,7 +114,7 @@ export type TabName =
   | 'adHocSubProcess'
   | 'callActivity'
 
-export const defaultElementVisibility: Record<ElementName, boolean> = {
+export const defaultElementVisibility: Record<ElementKey, boolean> = {
   // events
   'bpmn:StartEvent': false,
   'bpmn:IntermediateCatchEvent': true,
@@ -98,13 +142,54 @@ export const defaultElementVisibility: Record<ElementName, boolean> = {
   'bpmn:AdHocSubProcess': true,
   'bpmn:Transaction': true,
   // data
-  'bpmn:DataObjectReference': true,
-  'bpmn:DataStoreReference': true,
+  'bpmn:DataObjectReference': false,
+  'bpmn:DataStoreReference': false,
   // collaboration
   'bpmn:Participant': true,
   // artifacts
   'bpmn:Group': true,
   'bpmn:TextAnnotation': true,
+  // start event variants
+  'bpmn:StartEvent#none': true,
+  'bpmn:StartEvent#bpmn:MessageEventDefinition': true,
+  'bpmn:StartEvent#bpmn:TimerEventDefinition': true,
+  'bpmn:StartEvent#bpmn:ConditionalEventDefinition': true,
+  'bpmn:StartEvent#bpmn:SignalEventDefinition': true,
+  'bpmn:StartEvent#bpmn:EscalationEventDefinition': true,
+  'bpmn:StartEvent#bpmn:ErrorEventDefinition': true,
+  'bpmn:StartEvent#bpmn:CompensateEventDefinition': true,
+  // intermediate catch event variants
+  'bpmn:IntermediateCatchEvent#bpmn:MessageEventDefinition': true,
+  'bpmn:IntermediateCatchEvent#bpmn:TimerEventDefinition': true,
+  'bpmn:IntermediateCatchEvent#bpmn:ConditionalEventDefinition': true,
+  'bpmn:IntermediateCatchEvent#bpmn:LinkEventDefinition': true,
+  'bpmn:IntermediateCatchEvent#bpmn:SignalEventDefinition': true,
+  // intermediate throw event variants
+  'bpmn:IntermediateThrowEvent#none': true,
+  'bpmn:IntermediateThrowEvent#bpmn:MessageEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:EscalationEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:LinkEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:IntermediateThrowEvent#bpmn:SignalEventDefinition': true,
+  // end event variants
+  'bpmn:EndEvent#none': true,
+  'bpmn:EndEvent#bpmn:MessageEventDefinition': true,
+  'bpmn:EndEvent#bpmn:EscalationEventDefinition': true,
+  'bpmn:EndEvent#bpmn:ErrorEventDefinition': true,
+  'bpmn:EndEvent#bpmn:CancelEventDefinition': true,
+  'bpmn:EndEvent#bpmn:CompensateEventDefinition': true,
+  'bpmn:EndEvent#bpmn:SignalEventDefinition': true,
+  'bpmn:EndEvent#bpmn:TerminateEventDefinition': true,
+  // boundary event variants
+  'bpmn:BoundaryEvent#none': true,
+  'bpmn:BoundaryEvent#bpmn:MessageEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:TimerEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:EscalationEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:ConditionalEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:ErrorEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:CancelEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:SignalEventDefinition': true,
+  'bpmn:BoundaryEvent#bpmn:CompensateEventDefinition': true,
 }
 
 export const defaultTabVisibility: Record<TabName, boolean> = {
@@ -143,7 +228,7 @@ export const defaultTabVisibility: Record<TabName, boolean> = {
 }
 
 export interface DesignerConfig {
-  elements?: Partial<Record<ElementName, boolean>>
+  elements?: Partial<Record<ElementKey, boolean>>
   tabs?: Partial<Record<TabName, boolean>>
 }
 
@@ -154,7 +239,7 @@ export const defaultDesignerConfig: DesignerConfig = {
 
 export interface DesignerConfigState {
   proDesigner: boolean
-  elements: Record<ElementName, boolean>
+  elements: Partial<Record<ElementKey, boolean>>
   tabs: Record<TabName, boolean>
 }
 

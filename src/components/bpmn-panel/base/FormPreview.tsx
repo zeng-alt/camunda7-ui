@@ -50,11 +50,17 @@ function typedProps(props: Record<string, string>): Record<string, any> {
 export default defineComponent({
   name: 'FormPreview',
   props: {
+    // 预览表单字段列表
     fields: { type: Array as PropType<PreviewField[]>, default: () => [] },
+    // 是否显示重置按钮
     showReset: { type: Boolean, default: true },
+    // 是否显示提交按钮
     showSubmit: { type: Boolean, default: true },
+    // 提交按钮文案
     submitLabel: { type: String, default: undefined },
+    // 重置按钮文案
     resetLabel: { type: String, default: undefined },
+    // 表单控件尺寸：small / medium / large
     size: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
   },
   emits: ['submit', 'reset'],

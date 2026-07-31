@@ -16,21 +16,37 @@ export { scriptFormatOptions }
 export default defineComponent({
   name: 'ScriptFields',
   props: {
+    // 脚本格式
     scriptFormat: { type: String, default: 'js' },
+    // 脚本内容
     scriptValue: { type: String, default: '' },
+    // 脚本格式变更回调
     onUpdateScriptFormat: { type: Function as PropType<(val: string) => void>, default: null },
+    // 脚本内容变更回调
     onUpdateScriptValue: { type: Function as PropType<(val: string) => void>, default: null },
+    // 表单控件尺寸：small / medium / large
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    // 是否紧凑模式
     compact: { type: Boolean, default: false },
+    // 当前元素的 BPMN 业务对象（BusinessObject），用于读写模型属性
     businessObject: { type: Object as PropType<any>, default: null },
+    // 当前选中的 BPMN 图形元素
     element: { type: Object as PropType<any>, default: null },
+    // bpmn-js 模型器实例，用于执行建模命令、读写模型
     bpmnModeler: { type: Object, default: null },
+    // 脚本格式属性名（业务对象属性名）
     scriptFormatPropertyKey: { type: String, default: 'scriptFormat' },
+    // 脚本内容属性名（业务对象属性名）
     scriptValuePropertyKey: { type: String, default: 'scriptValue' },
+    // 是否为嵌套渲染（用于子流程等内部面板场景）
     nested: { type: Boolean, default: false },
+    // 是否显示结果变量输入框
     showResultVariable: { type: Boolean, default: false },
+    // 结果变量名
     resultVariable: { type: String, default: '' },
+    // 结果变量变更回调
     onUpdateResultVariable: { type: Function as PropType<(val: string) => void>, default: null },
+    // 结果变量属性名（业务对象属性名）
     resultVariablePropertyKey: { type: String, default: '' },
   },
   setup(props) {

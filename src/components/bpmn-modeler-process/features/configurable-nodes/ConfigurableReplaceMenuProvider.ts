@@ -25,8 +25,8 @@ export default class ConfigurableReplaceMenuProvider extends ReplaceMenuProvider
     const configurableNodes = this._configurableNodes
 
     const filtered = replaceOptions.filter((option) => {
-      const type = option.target?.type
-      return !type || configurableNodes.isElementVisible(type)
+      const { type, eventDefinitionType } = option.target ?? {}
+      return !type || configurableNodes.isElementVisible(type, eventDefinitionType)
     })
 
     const prototype: any = ReplaceMenuProvider.prototype

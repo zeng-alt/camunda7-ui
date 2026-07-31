@@ -6,11 +6,17 @@ import { DocumentationPanel, GeneralPanel, HintTooltip, UserPicker, GroupPicker 
 export default defineComponent({
   name: 'ProcessContent',
   props: {
+    // 当前选中的 BPMN 图形元素
     element: { type: Object as PropType<any>, default: null },
+    // 流程业务对象（Process），用于读写流程属性
     processBobject: { type: Object as PropType<any>, default: null },
+    // bpmn-js 模型器实例，用于执行建模命令、读写模型
     bpmnModeler: { type: Object, default: null },
+    // 表单控件尺寸：small / medium / large
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    // 是否显示基础信息面板
     showBasic: { type: Boolean, default: true },
+    // 标签位置：left（左侧）/ top（顶部）
     labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'top' },
   },
   setup(props) {

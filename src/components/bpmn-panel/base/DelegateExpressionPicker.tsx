@@ -7,10 +7,15 @@ import type { CamundaLookupItem } from '../../../composables'
 export default defineComponent({
   name: 'DelegateExpressionPicker',
   props: {
+    // 当前值（受控模式由父级传入）
     value: { type: String, default: '' },
+    // 表单控件尺寸：small / medium / large
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
+    // 输入占位提示
     placeholder: { type: String, default: '' },
+    // 表单标签文本
     label: { type: String, default: '' },
+    // 提示文本
     hint: { type: String, default: '' },
   },
   emits: ['update:value'],

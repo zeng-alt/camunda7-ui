@@ -9,18 +9,22 @@ export default defineComponent({
   name: 'ConfigurableTabs',
   inheritAttrs: false,
   props: {
+    // 当前激活的 tab 值（受控模式由父级传入）
     value: {
       type: [String, Number] as PropType<string | number>,
       default: undefined,
     },
+    // tab 切换变更回调（受控模式）
     onUpdateValue: {
       type: Function,
       default: null,
     },
+    // tab 尺寸
     size: {
       type: String as PropType<TabsProps['size']>,
       default: undefined,
     },
+    // tab 类型
     type: {
       type: String as PropType<TabsProps['type']>,
       default: undefined,

@@ -10,6 +10,8 @@ const designerConfig = ref<DesignerConfig>({
   elements: {
     'bpmn:SubProcess': false,
     'bpmn:UserTask': false,
+    'bpmn:StartEvent#bpmn:ConditionalEventDefinition': false,
+    'bpmn:EndEvent#bpmn:ErrorEventDefinition': false,
   },
   tabs: {
     input: false,

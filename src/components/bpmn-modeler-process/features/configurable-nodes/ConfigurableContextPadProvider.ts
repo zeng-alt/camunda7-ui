@@ -2,18 +2,35 @@ import ContextPadProvider from 'bpmn-js/lib/features/context-pad/ContextPadProvi
 import type { ElementName } from '@/components/bpmn-panel/designerConfig'
 import type { ConfigurableNodesConfig } from './createConfigurableNodesModule'
 
-const CONTEXT_PAD_APPEND_ENTRY_TYPE: Record<string, ElementName> = {
-  'append.end-event': 'bpmn:EndEvent',
-  'append.gateway': 'bpmn:ExclusiveGateway',
-  'append.append-task': 'bpmn:Task',
-  'append.intermediate-event': 'bpmn:IntermediateThrowEvent',
-  'append.receive-task': 'bpmn:ReceiveTask',
-  'append.message-intermediate-event': 'bpmn:IntermediateCatchEvent',
-  'append.timer-intermediate-event': 'bpmn:IntermediateCatchEvent',
-  'append.condition-intermediate-event': 'bpmn:IntermediateCatchEvent',
-  'append.signal-intermediate-event': 'bpmn:IntermediateCatchEvent',
-  'append.compensation-activity': 'bpmn:Task',
-  'append.text-annotation': 'bpmn:TextAnnotation',
+interface ContextPadTarget {
+  type: ElementName
+  eventDefinitionType?: string
+}
+
+const CONTEXT_PAD_APPEND_ENTRY_TYPE: Record<string, ContextPadTarget> = {
+  'append.end-event': { type: 'bpmn:EndEvent' },
+  'append.gateway': { type: 'bpmn:ExclusiveGateway' },
+  'append.append-task': { type: 'bpmn:Task' },
+  'append.intermediate-event': { type: 'bpmn:IntermediateThrowEvent' },
+  'append.receive-task': { type: 'bpmn:ReceiveTask' },
+  'append.message-intermediate-event': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:MessageEventDefinition',
+  },
+  'append.timer-intermediate-event': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:TimerEventDefinition',
+  },
+  'append.condition-intermediate-event': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+  },
+  'append.signal-intermediate-event': {
+    type: 'bpmn:IntermediateCatchEvent',
+    eventDefinitionType: 'bpmn:SignalEventDefinition',
+  },
+  'append.compensation-activity': { type: 'bpmn:Task' },
+  'append.text-annotation': { type: 'bpmn:TextAnnotation' },
 }
 
 export default class ConfigurableContextPadProvider extends ContextPadProvider {
@@ -60,8 +77,8 @@ export default class ConfigurableContextPadProvider extends ContextPadProvider {
     const configurableNodes = this._configurableNodes
 
     for (const id of Object.keys(entries)) {
-      const type = CONTEXT_PAD_APPEND_ENTRY_TYPE[id]
-      if (type && !configurableNodes.isElementVisible(type)) {
+      const target = CONTEXT_PAD_APPEND_ENTRY_TYPE[id]
+      if (target && !configurableNodes.isElementVisible(target.type, target.eventDefinitionType)) {
         delete entries[id]
       }
     }

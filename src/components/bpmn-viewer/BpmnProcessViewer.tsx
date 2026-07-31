@@ -31,13 +31,18 @@ import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
 export default defineComponent({
   name: 'BpmnProcessViewer',
   props: {
+    // 主题：light（浅色）/ dark（深色）
     theme: { type: String as PropType<ThemeType>, default: undefined },
+    // 语言：zh-CN / en-US 等
     locale: { type: String as PropType<LocaleType>, default: undefined },
+    // 语言回退：当前语言缺少翻译时使用的兜底语言
     localeFallback: { type: String as PropType<LocaleType>, default: undefined },
+    // 自定义语言包：按语言聚合的翻译键值
     localeMessages: {
       type: Object as PropType<Record<string, Record<string, any>>>,
       default: undefined,
     },
+    // 语言切换下拉框的可选语言列表
     availableLocales: {
       type: Array as PropType<LocaleOption[]>,
       default: () => [
@@ -45,10 +50,15 @@ export default defineComponent({
         { label: 'English', value: 'en-US' },
       ],
     },
+    // BPMN XML 内容，传入后自动加载到查看器
     processXml: { type: String, default: '' },
+    // 流程执行状态：用于渲染高亮、徽标、时间线等执行痕迹
     executionState: { type: Object as PropType<ProcessExecutionState | null>, default: null },
+    // 是否显示右侧执行时间线面板
     showTimeline: { type: Boolean, default: false },
+    // 搜索用户回调：用于节点 Tooltip 中解析候选办理人
     onSearchUsers: { type: Function as PropType<(name: string) => any>, default: null },
+    // 搜索用户组回调：用于节点 Tooltip 中解析候选用户组
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
   },
   emits: ['update:theme', 'update:locale'],
