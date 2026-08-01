@@ -166,7 +166,7 @@ export default defineComponent({
         {selectedErrorId.value && (
           <div class="mt-8px flex flex-col gap-8px">
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorName')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.errorName')}</div>
               <NInput
                 value={selectedErrorName.value}
                 onUpdateValue={onErrorNameChange}
@@ -175,7 +175,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorCode')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.errorCode')}</div>
               <NInput
                 value={selectedErrorCode.value}
                 onUpdateValue={onErrorCodeChange}
@@ -184,7 +184,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.errorMessage')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.errorMessage')}</div>
               <NInput
                 value={selectedErrorMessage.value}
                 onUpdateValue={onErrorMessageChange}

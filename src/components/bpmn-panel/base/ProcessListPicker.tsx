@@ -62,7 +62,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        {props.label && <div class={`mb-4px ${labelClass}`}>{props.label}</div>}
+        {props.label && <div class={`mb-4px ${labelClass.value}`}>{props.label}</div>}
         {hasFetchFn.value ? (
           <NSelect
             value={props.value || null}

@@ -193,7 +193,7 @@ export default defineComponent({
             />
           </div>
           <div class="mt-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.jobPriority')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.jobPriority')}</div>
             <NInputNumber
               value={jobPriority.value}
               onUpdateValue={onJobPriorityChange}

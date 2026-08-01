@@ -1,55 +1,127 @@
 import { ref, computed, toRaw, type Ref } from 'vue'
 
+/** 多实例组件的基础属性 */
 export interface UseMultiInstanceProps {
+  /** BPMN 业务对象（businessObject） */
   businessObject: any
+  /** BPMN 图形元素 */
   element: any
+  /** bpmn-js 建模器实例 */
   bpmnModeler: any
 }
 
+/** useMultiInstance 的配置选项 */
 export interface UseMultiInstanceOptions {
+  /** 获取当前组件的 props（businessObject / element / bpmnModeler） */
   props: () => UseMultiInstanceProps
+  /** 构建循环特性后的钩子，可补充自定义 moddle 属性 */
   onBuildLc?: (lc: any, moddle: any) => void
+  /** 启用多实例后的回调 */
   onEnable?: (lc: any) => void
+  /** 禁用多实例后的回调 */
   onDisable?: () => void
+  /** 元素变量变化回调 */
   onElementVariableChange?: (val: string) => void
 }
 
+/**
+ * useMultiInstance 的返回值：多实例状态与操作方法
+ *
+ * - 状态均为响应式 ref，可直接绑定到表单控件
+ * - 操作方法会把变更写入 bpmn-js 建模器并同步模型
+ */
 export interface UseMultiInstance {
+  /** 是否启用多实例 */
   enabled: Ref<boolean>
+  /** 是否串行执行 */
   isSequential: Ref<boolean>
+  /** 循环次数表达式（loopCardinality） */
   loopCardinality: Ref<string>
+  /** 集合变量名 */
   collection: Ref<string>
+  /** 元素变量名 */
   elementVariable: Ref<string>
+  /** 完成条件表达式（原生 body） */
   completionCondition: Ref<string>
+  /** 完成类型：all / any / quantity / percentage / advanced */
   completionType: Ref<'all' | 'any' | 'quantity' | 'percentage' | 'advanced'>
+  /** 数量 / 百分比完成条件的数值 */
   completionValue: Ref<number | null>
+  /** 异步前置 */
   asyncBefore: Ref<boolean>
+  /** 异步后置 */
   asyncAfter: Ref<boolean>
+  /** 是否排他 */
   exclusive: Ref<boolean>
+  /** 失败重试时间周期（ISO 8601） */
   retryTimeCycle: Ref<string>
+  /** 是否显示异步 / 重试配置 */
   showJobExecution: Ref<boolean>
+  /** 完成条件的展示表达式 */
   completionExpressionDisplay: Ref<string>
+  /** 获取当前循环特性对象 */
   getLoopCharacteristics: () => any
+  /** 从模型同步本地状态 */
   syncFromModel: () => void
+  /** 调用建模器更新元素属性 */
   saveProperties: (attrs: Record<string, any>) => void
+  /** 更新单个元素属性 */
   updateProperty: (key: string, value: any) => void
+  /** 启用 / 禁用多实例 */
   enable: (val: boolean, extraAttrs?: Record<string, any>) => void
+  /** 切换串行 / 并行 */
   onSequentialChange: (val: boolean) => void
+  /** 修改循环次数表达式 */
   onLoopCardinalityChange: (val: string | null) => void
+  /** 修改集合变量名 */
   onCollectionChange: (val: string | null) => void
+  /** 修改元素变量名 */
   onElementVariableChange: (val: string | null) => void
+  /** 修改完成类型 */
   onCompletionTypeChange: (val: 'all' | 'any' | 'quantity' | 'percentage' | 'advanced') => void
+  /** 修改完成数值（数量 / 百分比） */
   onCompletionValueChange: (val: number | null) => void
+  /** 修改高级完成表达式 */
   onCompletionAdvancedChange: (val: string | null) => void
+  /** 切换异步前置 */
   onAsyncBeforeChange: (val: boolean) => void
+  /** 切换异步后置 */
   onAsyncAfterChange: (val: boolean) => void
+  /** 切换排他 */
   onExclusiveChange: (val: boolean) => void
+  /** 修改失败重试时间周期 */
   onRetryTimeCycleChange: (val: string | null) => void
+  /** 直接设置完成条件表达式 */
   setCompletionBody: (body: string) => void
+  /** 更新集合变量（仅写模型） */
   updateCollection: (val: string) => void
+  /** 更新元素变量（仅写模型） */
   updateElementVariable: (val: string) => void
 }
 
+/**
+ * @description 多实例循环特性（Multi-Instance）的状态管理与模型同步。
+ *
+ * 封装 `bpmn:MultiInstanceLoopCharacteristics` 的读写能力：
+ * 启用 / 禁用、串行 / 并行、循环次数、集合与元素变量、完成条件
+ * （全部 / 任一 / 数量 / 百分比 / 高级表达式）、异步执行与失败重试周期，
+ * 所有变更都会同步回 bpmn-js 建模器。
+ *
+ * ## 基本用法
+ *
+ * ```ts
+ * const mi = useMultiInstance({
+ *   props: () => ({ businessObject, element, bpmnModeler }),
+ * })
+ *
+ * mi.syncFromModel()
+ * mi.enable(true)
+ * mi.onCompletionTypeChange('quantity')
+ * ```
+ *
+ * @param options 配置选项，见 {@link UseMultiInstanceOptions}
+ * @returns 多实例状态与操作方法，见 {@link UseMultiInstance}
+ */
 export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInstance {
   const enabled = ref(false)
   const isSequential = ref(false)
@@ -66,6 +138,7 @@ export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInst
 
   const showJobExecution = computed(() => asyncBefore.value || asyncAfter.value)
 
+  /** 根据完成类型生成对应的完成条件表达式 */
   const completionExpressionDisplay = computed(() => {
     switch (completionType.value) {
       case 'all':
@@ -85,6 +158,7 @@ export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInst
     }
   })
 
+  /** 获取业务对象上的多实例循环特性 */
   function getLoopCharacteristics(): any {
     const bo = options.props().businessObject
     if (!bo) return null
@@ -93,6 +167,7 @@ export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInst
     return null
   }
 
+  /** 从模型读取循环特性并同步本地状态 */
   function syncFromModel() {
     const lc = getLoopCharacteristics()
     enabled.value = !!lc
@@ -147,6 +222,7 @@ export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInst
     }
   }
 
+  /** 调用建模器更新元素属性 */
   function saveProperties(attrs: Record<string, any>) {
     const { bpmnModeler, element } = options.props()
     if (!bpmnModeler || !element) return
@@ -187,6 +263,7 @@ export function useMultiInstance(options: UseMultiInstanceOptions): UseMultiInst
     }
   }
 
+  /** 启用/禁用多实例（创建或移除循环特性） */
   function enable(val: boolean, extraAttrs: Record<string, any> = {}) {
     enabled.value = val
     const { bpmnModeler, businessObject } = options.props()

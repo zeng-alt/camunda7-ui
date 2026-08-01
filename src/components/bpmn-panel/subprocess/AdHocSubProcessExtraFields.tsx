@@ -77,7 +77,9 @@ export default defineComponent({
               </NCheckbox>
             </div>
             <div class="mb-12px">
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.completionCondition')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>
+                {t('bpmnPanel.fields.completionCondition')}
+              </div>
               <NInput
                 value={completionCondition.value}
                 onUpdateValue={onCompletionConditionChange}

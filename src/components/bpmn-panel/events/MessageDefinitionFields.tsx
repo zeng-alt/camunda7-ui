@@ -116,7 +116,7 @@ export default defineComponent({
         />
         {selectedMsgId.value && (
           <div class="mt-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.messageName')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.messageName')}</div>
             <NInput
               value={selectedMsgName.value}
               onUpdateValue={onMessageNameChange}

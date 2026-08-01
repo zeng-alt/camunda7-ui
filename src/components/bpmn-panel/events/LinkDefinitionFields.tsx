@@ -42,7 +42,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.linkName')}</div>
+        <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.linkName')}</div>
         <NInput
           value={linkName.value}
           onUpdateValue={onLinkNameChange}

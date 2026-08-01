@@ -237,7 +237,7 @@ export default defineComponent({
       return (
         <div>
           <div class="mb-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.connectorId')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.connectorId')}</div>
             <NSelect
               value={connectorId.value || null}
               onUpdateValue={onConnectorIdChange}
@@ -255,7 +255,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.url')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.url')}</div>
                 <NInput
                   value={url.value}
                   onUpdateValue={onUrlChange}
@@ -264,7 +264,7 @@ export default defineComponent({
                 />
               </div>
               <div class="mb-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.httpMethod')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.httpMethod')}</div>
                 <NSelect
                   value={method.value}
                   onUpdateValue={onMethodChange}
@@ -274,7 +274,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.headers')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.headers')}</div>
                 {headers.value.length === 0 ? (
                   <NButton size="tiny" onClick={addHeader} class="w-full justify-center">
                     + {t('bpmnPanel.buttons.addHeader')}
@@ -311,7 +311,7 @@ export default defineComponent({
               </div>
 
               <div class="mb-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.requestBody')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.requestBody')}</div>
                 <NInput
                   value={body.value}
                   onUpdateValue={onBodyChange}

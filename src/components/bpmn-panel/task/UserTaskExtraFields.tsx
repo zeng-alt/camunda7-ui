@@ -361,7 +361,7 @@ export default defineComponent({
       return (
         <div class="flex flex-col gap-12px">
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.dueDate')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.dueDate')}</div>
             <NDatePicker
               value={toTimestamp(dueDate.value)}
               onUpdateValue={(v: number | null) => onDueDateChange(toIsoString(v))}
@@ -372,7 +372,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.followUpDate')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.followUpDate')}</div>
             <NDatePicker
               value={toTimestamp(followUpDate.value)}
               onUpdateValue={(v: number | null) => onFollowUpDateChange(toIsoString(v))}
@@ -383,7 +383,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.priority')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.priority')}</div>
             <NInputNumber
               value={priority.value}
               onUpdateValue={onPriorityChange}
@@ -500,7 +500,7 @@ export default defineComponent({
           {enabled.value && panelMode.value === 'normal' && (
             <div class="flex flex-col gap-12px">
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>
+                <div class={`mb-4px ${labelClass.value}`}>
                   {t('bpmnPanel.multiInstance.executionMode')}
                 </div>
                 <NRadioGroup
@@ -519,7 +519,7 @@ export default defineComponent({
               </div>
 
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>
+                <div class={`mb-4px ${labelClass.value}`}>
                   {t('bpmnPanel.multiInstance.approverSource')}
                 </div>
                 <NRadioGroup
@@ -585,7 +585,7 @@ export default defineComponent({
 
               {(executionMode.value === 'countersign' || executionMode.value === 'sequential') && (
                 <div class="border-t border-#eee dark:border-#333 pt-12px">
-                  <div class={`mb-4px ${labelClass} flex items-center gap-4px`}>
+                  <div class={`mb-4px ${labelClass.value} flex items-center gap-4px`}>
                     <span>{t('bpmnPanel.multiInstance.completionCondition')}</span>
                   </div>
                   <NRadioGroup
@@ -632,7 +632,7 @@ export default defineComponent({
                               max={100}
                               placeholder="0"
                             />
-                            <span class={`${labelClass} flex-shrink-0`}>%</span>
+                            <span class={`${labelClass.value} flex-shrink-0`}>%</span>
                           </div>
                         )}
                       </div>
@@ -657,7 +657,9 @@ export default defineComponent({
               )}
 
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.multiInstance.permissions')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>
+                  {t('bpmnPanel.multiInstance.permissions')}
+                </div>
                 <div class="flex flex-wrap gap-x-16px gap-y-4px">
                   <NCheckbox
                     checked={allowAddSign.value}
@@ -729,7 +731,7 @@ export default defineComponent({
               />
               <div class="border-t border-#eee dark:border-#333 pt-12px" />
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.multiInstance.type')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.multiInstance.type')}</div>
                 <NSelect
                   value={isSequential.value ? 'true' : 'false'}
                   onUpdateValue={(v: string | null) => mi.onSequentialChange(v === 'true')}
@@ -738,7 +740,9 @@ export default defineComponent({
                 />
               </div>
               <div>
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.loopCardinality')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>
+                  {t('bpmnPanel.fields.loopCardinality')}
+                </div>
                 <NInput
                   value={loopCardinality.value}
                   onUpdateValue={mi.onLoopCardinalityChange}
@@ -747,7 +751,7 @@ export default defineComponent({
                 />
               </div>
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.collection')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.collection')}</div>
                 <NRadioGroup
                   value={approverMode.value}
                   onUpdateValue={onApproverModeChange}
@@ -809,7 +813,9 @@ export default defineComponent({
                 </div>
               </div>
               <div>
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.elementVariable')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>
+                  {t('bpmnPanel.fields.elementVariable')}
+                </div>
                 <NInput
                   value={elementVariable.value}
                   onUpdateValue={mi.onElementVariableChange}
@@ -819,7 +825,7 @@ export default defineComponent({
               </div>
               {(executionMode.value === 'countersign' || executionMode.value === 'sequential') && (
                 <div>
-                  <div class={`mb-4px ${labelClass} flex items-center gap-4px`}>
+                  <div class={`mb-4px ${labelClass.value} flex items-center gap-4px`}>
                     <span>{t('bpmnPanel.multiInstance.completionCondition')}</span>
                   </div>
                   <NRadioGroup
@@ -868,7 +874,7 @@ export default defineComponent({
                               max={100}
                               placeholder="0"
                             />
-                            <span class={`${labelClass} flex-shrink-0`}>%</span>
+                            <span class={`${labelClass.value} flex-shrink-0`}>%</span>
                           </div>
                         )}
                       </div>
@@ -892,7 +898,9 @@ export default defineComponent({
                 </div>
               )}
               <div class="border-t border-#eee dark:border-#333 pt-12px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.multiInstance.permissions')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>
+                  {t('bpmnPanel.multiInstance.permissions')}
+                </div>
                 <div class="flex flex-wrap gap-x-16px gap-y-4px">
                   <NCheckbox
                     checked={allowAddSign.value}
@@ -934,7 +942,7 @@ export default defineComponent({
 
               {renderBottomDateFields()}
 
-              <div class={`mb-4px mt-4px ${labelClass}`}>
+              <div class={`mb-4px mt-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.asyncContinuousExecution')}
               </div>
               <div class="flex flex-row gap-8px">

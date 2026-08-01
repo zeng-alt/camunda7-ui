@@ -6,35 +6,70 @@ import BpmnModelerProcessContent, {
 } from './BpmnModelerProcessContent'
 
 /**
- *  BPMN 模型器进程组件
- * props
- *  - theme: 主题配置，默认值为 'dark'
- *  - proDesigner: 是否使用专业模式，默认值为 false
- *  - designerConfig: 设计器配置，默认值为 {}
- *  - extraTabLabels: 额外标签页标签，默认值为 []
- *  - onSearchUsers: 搜索用户回调，默认值为 null
- *  - autoStash: 是否自动保存存档，默认值为 false
- *  - onSearchUserGroups: 搜索用户组回调，默认值为 null
- *  - onSearchJavaClasses: 搜索 Java 类回调，默认值为 null
- *  - onSearchDelegateExpressions: 搜索委托表达式回调，默认值为 null
- *  - onSearchExternalTopics: 搜索外部任务主题回调，默认值为 null
- *  - onFetchProcessList: 获取流程列表回调，默认值为 null
- *  - onSearchDecisionRefs: 搜索决策引用回调，默认值为 null
- *  - onSearchFormRefs: 搜索表单引用回调，默认值为 null
- *  - onSearchFormKeys: 搜索表单键回调，默认值为 null
- *  - localeMessages: 本地化消息配置，默认值为 null
- *  - availableLocales: 可用语言配置，默认值为 null
- *  - onPublish: 发布回调，默认值为 null
- *  - onPublishError: 发布错误回调，默认值为 null
- *  - onPublishSuccess: 发布成功回调，默认值为 null
- *  - onPublishCancel: 发布取消回调，默认值为 null
- * emits
- *  - update:theme: 主题配置更新事件
- *  - update:locale: 本地化消息配置更新事件
- *  - update:proDesigner: 专业模式更新事件
+ * @description 基于 camunda-bpmn-js 的 BPMN 流程设计器组件。
+ * 内置完整建模能力：画布编辑、属性面板、工具栏（缩放 / 撤销重做 / 导入导出 / 清空 /
+ * 迷你地图）、专业与受限双模式切换、localStorage 暂存恢复，并支持多语言与深浅主题。
+ *
+ * ## 基本用法
+ *
+ * ```tsx
+ * <BpmnModelerProcess
+ *   xml={initialXml}
+ *   proDesigner
+ *   autoStash
+ *   onSaveXml={(xml) => console.log(xml)}
+ * />
+ * ```
+ *
+ * ## Props
+ *
+ * ### 主题与语言
+ * - `theme`：`light` / `dark`，默认 `undefined`（跟随全局）
+ * - `locale`：界面语言，如 `zh-CN`、`en-US`，默认 `zh-CN`
+ * - `localeFallback`：翻译缺失时的兜底语言
+ * - `localeMessages`：自定义语言包，按语言聚合键值覆盖内置文案
+ * - `availableLocales`：语言下拉框可选列表，默认中 / 英
+ *
+ * ### 画布与模式
+ * - `xml`：BPMN XML，传入后自动导入画布
+ * - `proDesigner`：专业模式（显示全部节点与属性），默认 `true`
+ * - `showDesignerSwitch`：是否显示模式切换按钮，默认 `true`
+ * - `designerConfig`：受限模式下隐藏的节点与属性 tab 配置
+ *
+ * ### 暂存与表单
+ * - `autoStash`：自动暂存 XML 到 localStorage，默认 `true`
+ * - `stashKey`：暂存键名，默认 `camunda7-ui:stash:xml`
+ * - `size`：表单尺寸 `small` / `medium` / `large`，默认 `small`
+ * - `extraTabLabels`：额外 tab 标签文本映射
+ *
+ * ### 数据源回调
+ * - `onSaveXml(xml)`：保存时回传最新 XML
+ * - `onSearchUsers(name, pageNo, pageSize)`：分页搜索用户
+ * - `onSearchUserGroups(name)`：搜索用户组
+ * - `onFetchProcessList()`：获取流程定义列表
+ * - `onSearchJavaClasses(name)`：搜索实现类
+ * - `onSearchDelegateExpressions(name)`：搜索委托表达式
+ * - `onSearchExternalTopics(name)`：搜索外部任务主题
+ * - `onSearchDecisionRefs(name)`：搜索 DMN 决策
+ * - `onSearchFormRefs(name)` / `onSearchFormKeys(name)`：搜索表单引用 / 表单 Key
+ * - `userResolver` / `groupResolver`：办理人 / 用户组解析器表达式
+ *
+ * ## Emits
+ *
+ * - `update:theme`：切换主题时触发
+ * - `update:locale`：切换语言时触发
+ * - `update:proDesigner`：切换专业 / 受限模式时触发
+ *
+ * ## 插槽
+ *
+ * 以下具名插槽会透传到内容组件：
+ * - `start-event-extra` / `end-event-extra` / `intermediate-throw-event-extra` /
+ *   `intermediate-catch-event-extra` / `task-extra` / `gateway-extra`：属性面板额外 tab
+ * - `buttons`：工具栏自定义按钮
+ * - `footer`：模式切换器底部自定义内容
+ *
  * @author zjj
  * @version 1.0.0
- *
  */
 export default defineComponent<BpmnModelerProcessProps>({
   name: 'BpmnModelerProcess',

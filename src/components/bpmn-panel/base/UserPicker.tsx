@@ -208,7 +208,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        {props.label && <div class={`mb-4px ${labelClass}`}>{props.label}</div>}
+        {props.label && <div class={`mb-4px ${labelClass.value}`}>{props.label}</div>}
 
         {/* 根据模式渲染不同的输入区 */}
         {isExpression.value || !props.multiple ? (

@@ -138,14 +138,16 @@ export default defineComponent({
         />
         {selectedEscId.value && (
           <div class="mt-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.escalationName')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.escalationName')}</div>
             <NInput
               value={selectedEscName.value}
               onUpdateValue={onEscalationNameChange}
               placeholder={t('bpmnPanel.fields.escalationName')}
               size={props.formSize}
             />
-            <div class={`mt-8px mb-4px ${labelClass}`}>{t('bpmnPanel.fields.escalationCode')}</div>
+            <div class={`mt-8px mb-4px ${labelClass.value}`}>
+              {t('bpmnPanel.fields.escalationCode')}
+            </div>
             <NInput
               value={selectedEscCode.value}
               onUpdateValue={onEscalationCodeChange}

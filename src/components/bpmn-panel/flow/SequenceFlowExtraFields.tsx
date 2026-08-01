@@ -87,7 +87,7 @@ export default defineComponent({
           </div>
         )}
         <div class="mt-12px">
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionType')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.conditionType')}</div>
           <NSelect
             value={conditionType.value}
             onUpdateValue={onConditionTypeChange}
@@ -97,7 +97,9 @@ export default defineComponent({
         </div>
         {conditionType.value === 'expression' && conditionExpr.value && (
           <div class="mt-12px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionExpression')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>
+              {t('bpmnPanel.fields.conditionExpression')}
+            </div>
             <ExpressionField
               businessObject={conditionExpr.value}
               element={props.element}

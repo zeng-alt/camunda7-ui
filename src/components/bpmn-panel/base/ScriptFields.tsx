@@ -130,7 +130,7 @@ export default defineComponent({
             </div>
           ) : (
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.scriptFormat')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.scriptFormat')}</div>
               <NSelect
                 value={displayFormat()}
                 onUpdateValue={(v: string | null) => onFormatChange(v ?? 'js')}
@@ -141,7 +141,7 @@ export default defineComponent({
           )}
           <div>
             {!props.compact && (
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.scriptValue')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.scriptValue')}</div>
             )}
             <NInput
               value={displayValue()}
@@ -154,7 +154,7 @@ export default defineComponent({
           </div>
           {props.showResultVariable && (
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.resultVariable')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.resultVariable')}</div>
               <NInput
                 value={displayResultVariable()}
                 onUpdateValue={(v: string | null) => onResultVariableChange(v ?? '')}

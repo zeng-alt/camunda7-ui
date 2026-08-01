@@ -111,7 +111,7 @@ export default defineComponent({
         />
         {selectedSignalId.value && (
           <div class="mt-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.signalName')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.signalName')}</div>
             <NInput
               value={selectedSignalName.value}
               onUpdateValue={onSignalNameChange}

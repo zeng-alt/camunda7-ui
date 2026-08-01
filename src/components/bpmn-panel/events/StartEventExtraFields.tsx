@@ -80,7 +80,7 @@ export default defineComponent({
       return (
         <div class="pt-8px">
           <div class="mt-12px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.initiator')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.initiator')}</div>
             <NInput
               value={initiator.value}
               onUpdateValue={onInitiatorChange}
@@ -89,7 +89,7 @@ export default defineComponent({
             />
           </div>
           <div class="mt-16px">
-            <div class={`mb-8px ${labelClass}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
+            <div class={`mb-8px ${labelClass.value}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
             <EventDefinitionPanel
               businessObject={props.businessObject}
               element={props.element}

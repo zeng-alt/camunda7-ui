@@ -33,7 +33,7 @@ export default defineComponent({
       if (props.tabName === 'boundary') {
         return (
           <div class="pt-8px">
-            <div class={`mb-8px ${labelClass}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
+            <div class={`mb-8px ${labelClass.value}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
             <EventDefinitionPanel
               businessObject={props.businessObject}
               element={props.element}

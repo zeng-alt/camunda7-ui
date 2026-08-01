@@ -106,7 +106,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.activityRef')}</div>
+        <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.activityRef')}</div>
         <NSelect
           value={activityRef.value}
           onUpdateValue={onActivityRefChange}

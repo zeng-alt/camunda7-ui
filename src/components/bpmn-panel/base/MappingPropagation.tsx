@@ -91,7 +91,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class={`mb-4px ${labelClass}`}>{t(cfg.heading)}</div>
+        <div class={`mb-4px ${labelClass.value}`}>{t(cfg.heading)}</div>
         <div class="flex items-center gap-12px">
           <NCheckbox
             checked={propagateAll.value}

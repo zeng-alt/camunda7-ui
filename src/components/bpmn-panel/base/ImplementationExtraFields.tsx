@@ -137,7 +137,9 @@ export default defineComponent({
         <div class="pt-8px">
           {!props.defaultType && (
             <div class="mb-8px">
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.implementationType')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>
+                {t('bpmnPanel.fields.implementationType')}
+              </div>
               <NSelect
                 value={implType.value}
                 onUpdateValue={onImplTypeChange}
@@ -149,7 +151,7 @@ export default defineComponent({
 
           {implType.value === 'class' && (
             <div class="mb-8px">
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.listenerClass')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.listenerClass')}</div>
               <JavaClassField
                 businessObject={props.businessObject}
                 element={props.element}
@@ -176,7 +178,7 @@ export default defineComponent({
 
           {implType.value === 'delegateExpression' && (
             <div class="mb-8px">
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.listenerDelegateExpression')}
               </div>
               <DelegateExpressionField

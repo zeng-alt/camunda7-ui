@@ -47,7 +47,7 @@ const GeneralContent = defineComponent({
     return () => (
       <div class="pt-8px flex flex-col gap-12px">
         <div>
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.id')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.id')}</div>
           <NInput
             value={id.value}
             onUpdateValue={onIdChange}
@@ -56,7 +56,7 @@ const GeneralContent = defineComponent({
           />
         </div>
         <div>
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.textAnnotationText')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.textAnnotationText')}</div>
           <NInput
             type="textarea"
             rows={4}

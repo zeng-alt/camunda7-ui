@@ -61,7 +61,7 @@ export default defineComponent({
       return (
         <div class="pt-8px">
           <div class="mb-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.topic')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.topic')}</div>
             <NInput
               value={topic.value}
               onUpdateValue={onTopicChange}
@@ -71,7 +71,9 @@ export default defineComponent({
           </div>
 
           <div class="mb-8px">
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.externalTaskPriority')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>
+              {t('bpmnPanel.fields.externalTaskPriority')}
+            </div>
             <NInputNumber
               value={priority.value}
               onUpdateValue={onPriorityChange}

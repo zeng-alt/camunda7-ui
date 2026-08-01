@@ -265,7 +265,9 @@ export default defineComponent({
                 </div>
                 <div class="flex gap-4px">
                   <div style="flex:1">
-                    <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.listenerClass')}</div>
+                    <div class={`mb-2px ${labelClass.value}`}>
+                      {t('bpmnPanel.fields.listenerClass')}
+                    </div>
                     <NInput
                       value={item.name}
                       onUpdateValue={(v: string | null) => onNameChange(index, v)}
@@ -274,7 +276,9 @@ export default defineComponent({
                     />
                   </div>
                   <div style="flex:1">
-                    <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.errorCode')}</div>
+                    <div class={`mb-2px ${labelClass.value}`}>
+                      {t('bpmnPanel.fields.errorCode')}
+                    </div>
                     <NInput
                       value={item.code}
                       onUpdateValue={(v: string | null) => onCodeChange(index, v)}
@@ -284,7 +288,9 @@ export default defineComponent({
                   </div>
                 </div>
                 <div>
-                  <div class={`mb-2px ${labelClass}`}>{t('bpmnPanel.fields.errorMessage')}</div>
+                  <div class={`mb-2px ${labelClass.value}`}>
+                    {t('bpmnPanel.fields.errorMessage')}
+                  </div>
                   <NInput
                     value={item.message}
                     onUpdateValue={(v: string | null) => onMessageChange(index, v)}
@@ -293,7 +299,7 @@ export default defineComponent({
                   />
                 </div>
                 <div>
-                  <div class={`mb-2px ${labelClass}`}>
+                  <div class={`mb-2px ${labelClass.value}`}>
                     {t('bpmnPanel.fields.errorThrowExpression')}
                   </div>
                   <ExpressionField

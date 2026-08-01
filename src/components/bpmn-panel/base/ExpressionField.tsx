@@ -73,11 +73,13 @@ export default defineComponent({
       return (
         <div class="flex flex-col gap-8px">
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.listenerExpression')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>
+              {t('bpmnPanel.fields.listenerExpression')}
+            </div>
             {input}
           </div>
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.resultVariable')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.resultVariable')}</div>
             <NInput
               value={resultField.displayValue.value}
               onUpdateValue={(v: string | null) => resultField.onChange(v ?? '')}

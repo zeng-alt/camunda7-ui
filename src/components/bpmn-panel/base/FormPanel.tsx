@@ -332,20 +332,20 @@ export default defineComponent({
       }
       return (
         <div class="mt-8px">
-          <div class={`mb-4px ${labelClass}`}>
+          <div class={`mb-4px ${labelClass.value}`}>
             {t('bpmnPanel.fields.formType')}:{' '}
             <span class="text-#333 dark:text-#ddd">
               {t('bpmnPanel.options.formType' + g.type.charAt(0).toUpperCase() + g.type.slice(1))}
             </span>
           </div>
           {g.type === 'camunda' && g.formRef && (
-            <div class={`mb-4px ${labelClass}`}>
+            <div class={`mb-4px ${labelClass.value}`}>
               {t('bpmnPanel.fields.formRef')}:{' '}
               <span class="text-#333 dark:text-#ddd">{g.formRef}</span>
             </div>
           )}
           {g.type === 'external' && g.formKey && (
-            <div class={`mb-4px ${labelClass}`}>
+            <div class={`mb-4px ${labelClass.value}`}>
               {t('bpmnPanel.fields.formKey')}:{' '}
               <span class="text-#333 dark:text-#ddd">{g.formKey}</span>
             </div>
@@ -407,7 +407,7 @@ export default defineComponent({
           {type === 'camunda' && (
             <div>
               <div class="mt-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRef')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.formRef')}</div>
                 <FormRefPicker
                   value={formRef.value}
                   onUpdate:value={onFormRefChange}
@@ -416,7 +416,9 @@ export default defineComponent({
                 />
               </div>
               <div class="mt-8px">
-                <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRefBinding')}</div>
+                <div class={`mb-4px ${labelClass.value}`}>
+                  {t('bpmnPanel.fields.formRefBinding')}
+                </div>
                 <NSelect
                   value={formRefBinding.value}
                   onUpdateValue={onFormRefBindingChange}
@@ -426,7 +428,9 @@ export default defineComponent({
               </div>
               {formRefBinding.value === 'version' && (
                 <div class="mt-8px">
-                  <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formRefVersion')}</div>
+                  <div class={`mb-4px ${labelClass.value}`}>
+                    {t('bpmnPanel.fields.formRefVersion')}
+                  </div>
                   {versionOptions.value.length > 0 ? (
                     <NSelect
                       value={formRefVersion.value || null}
@@ -450,7 +454,7 @@ export default defineComponent({
 
           {type === 'external' && (
             <div class="mt-8px">
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.formKey')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.formKey')}</div>
               <FormKeyPicker
                 value={formKey.value}
                 onUpdate:value={onFormKeyChange}

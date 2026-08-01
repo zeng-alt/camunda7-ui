@@ -260,7 +260,7 @@ export default defineComponent({
           {t('bpmnPanel.fields.calledElement')}
         </div>
         <div>
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.calledElementType')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.calledElementType')}</div>
           <NSelect
             value={currentType.value}
             onUpdateValue={onTypeChange}
@@ -270,7 +270,7 @@ export default defineComponent({
         </div>
         {currentType.value === 'bpmn' && (
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.calledElement')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.calledElement')}</div>
             <ProcessListPicker
               value={calledElement.value}
               onUpdate:value={onCalledElementChange}
@@ -281,7 +281,7 @@ export default defineComponent({
         )}
         {currentType.value === 'cmmn' && (
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.caseRef')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.caseRef')}</div>
             <NInput
               value={caseRef.value}
               onUpdateValue={onCaseRefChange}
@@ -293,7 +293,9 @@ export default defineComponent({
         {currentType.value !== 'none' && (
           <>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.calledElementBinding')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>
+                {t('bpmnPanel.fields.calledElementBinding')}
+              </div>
               <NSelect
                 value={calledElementBinding.value}
                 onUpdateValue={onBindingChange}
@@ -303,7 +305,7 @@ export default defineComponent({
             </div>
             {calledElementBinding.value === 'version' && (
               <div>
-                <div class={`mb-4px ${labelClass}`}>
+                <div class={`mb-4px ${labelClass.value}`}>
                   {t('bpmnPanel.fields.calledElementVersion')}
                 </div>
                 {versionOptions.value.length > 0 ? (
@@ -326,7 +328,7 @@ export default defineComponent({
               </div>
             )}
             <div>
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.calledElementTenantId')}
               </div>
               <NInput
@@ -350,7 +352,7 @@ export default defineComponent({
         </div>
         {businessKey.value && (
           <div>
-            <div class={`mb-4px ${labelClass}`}>
+            <div class={`mb-4px ${labelClass.value}`}>
               {t('bpmnPanel.fields.calledElementBusinessKeyExpression')}
             </div>
             <ExpressionField
@@ -364,7 +366,7 @@ export default defineComponent({
           <>
             <div class="border-t border-solid border-light_border dark:border-dark_border my-4px" />
             <div>
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.delegateVariableMapping')}
               </div>
               <NSelect
@@ -376,7 +378,7 @@ export default defineComponent({
             </div>
             {delegateMappingType.value === 'class' && (
               <div>
-                <div class={`mb-4px ${labelClass}`}>
+                <div class={`mb-4px ${labelClass.value}`}>
                   {t('bpmnPanel.fields.variableMappingClass')}
                 </div>
                 <JavaClassField
@@ -388,7 +390,7 @@ export default defineComponent({
             )}
             {delegateMappingType.value === 'delegateExpression' && (
               <div>
-                <div class={`mb-4px ${labelClass}`}>
+                <div class={`mb-4px ${labelClass.value}`}>
                   {t('bpmnPanel.fields.variableMappingDelegateExpression')}
                 </div>
                 <DelegateExpressionField

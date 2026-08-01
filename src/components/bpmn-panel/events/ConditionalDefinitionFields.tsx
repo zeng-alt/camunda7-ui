@@ -99,7 +99,7 @@ export default defineComponent({
     return () => (
       <div>
         <div class="mb-8px">
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.variableName')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.variableName')}</div>
           <NInput
             value={variableName.value}
             onUpdateValue={onVariableNameChange}
@@ -126,7 +126,7 @@ export default defineComponent({
           </div>
         )}
         <div class="mb-8px">
-          <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.conditionType')}</div>
+          <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.conditionType')}</div>
           <NSelect
             value={conditionType.value}
             onUpdateValue={onConditionTypeChange}

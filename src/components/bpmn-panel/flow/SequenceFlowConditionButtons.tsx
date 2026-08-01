@@ -100,7 +100,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.flowConfig')}</div>
+        <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.flowConfig')}</div>
         <NButtonGroup size={props.formSize}>
           {flowButtonOptions.map((option) => (
             <NButton

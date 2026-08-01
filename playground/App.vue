@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { BpmnModelerProcess, type ThemeType, type DesignerConfig } from 'camunda7-ui'
+
 import { ref } from 'vue'
 import type { ProcessLookupItem } from 'camunda7-ui'
 import request from './utils/request'
@@ -268,7 +269,7 @@ async function onSearchDelegateExpressions(name: string) {
       <BpmnModelerProcess
       :theme="theme"
       :proDesigner="proDesigner"
-  
+
       :onSearchUsers="onSearchUsers"
       :autoStash="true"
       :onSearchUserGroups="onSearchUserGroups"

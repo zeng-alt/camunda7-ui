@@ -130,7 +130,7 @@ export default defineComponent({
             </>
           )}
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.versionTag')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.versionTag')}</div>
             <NInput
               value={versionTag.value}
               onUpdateValue={onVersionTagChange}
@@ -182,7 +182,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.taskPriority')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.taskPriority')}</div>
             <NInputNumber
               value={taskPriority.value}
               onUpdateValue={onTaskPriorityChange}
@@ -192,7 +192,7 @@ export default defineComponent({
             />
           </div>
           <div>
-            <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.jobPriority')}</div>
+            <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.jobPriority')}</div>
             <NInputNumber
               value={jobPriority.value}
               onUpdateValue={onJobPriorityChange}

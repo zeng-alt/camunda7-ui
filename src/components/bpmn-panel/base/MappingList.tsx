@@ -150,7 +150,7 @@ export default defineComponent({
 
     return () => (
       <div>
-        <div class={`mb-4px ${labelClass}`}>{t(cfg.heading)}</div>
+        <div class={`mb-4px ${labelClass.value}`}>{t(cfg.heading)}</div>
         {items.value.length === 0 ? (
           <div class="flex flex-col items-center gap-12px py-16px">
             <NEmpty description={t('bpmnPanel.panel.noFields')} size="small" />
@@ -175,7 +175,7 @@ export default defineComponent({
                     {t('bpmnPanel.buttons.delete')}
                   </NButton>
                 </div>
-                <div class={labelClass}>
+                <div class={labelClass.value}>
                   {item.type === 'source' ? t(cfg.source) : t(cfg.sourceExpression)}
                 </div>
                 {item.type === 'source' ? (
@@ -195,7 +195,7 @@ export default defineComponent({
                     size={props.formSize}
                   />
                 )}
-                <div class={labelClass}>{t(cfg.target)}</div>
+                <div class={labelClass.value}>{t(cfg.target)}</div>
                 <NInput
                   value={item.target}
                   onUpdateValue={(v: string | null) => updateItem(index, 'target', v ?? '')}

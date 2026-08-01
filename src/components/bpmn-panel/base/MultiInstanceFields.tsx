@@ -221,7 +221,7 @@ export default defineComponent({
         {enabled.value && panelMode.value === 'normal' && (
           <div class="flex flex-col gap-12px mt-8px">
             <div>
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.multiInstance.normalExecutionMode')}
               </div>
               <NRadioGroup
@@ -239,7 +239,7 @@ export default defineComponent({
             </div>
 
             <div>
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.multiInstance.normalApproverList')}
               </div>
               <NRadioGroup
@@ -291,7 +291,7 @@ export default defineComponent({
             </div>
 
             <div>
-              <div class={`mb-4px ${labelClass}`}>
+              <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.multiInstance.normalCompletionRule')}
               </div>
               <NRadioGroup
@@ -332,7 +332,7 @@ export default defineComponent({
                           max={100}
                           placeholder="0"
                         />
-                        <span class={`${labelClass} flex-shrink-0`}>%</span>
+                        <span class={`${labelClass.value} flex-shrink-0`}>%</span>
                       </div>
                     )}
                   </div>
@@ -345,7 +345,7 @@ export default defineComponent({
         {enabled.value && panelMode.value === 'advanced' && (
           <div class="flex flex-col gap-8px mt-12px">
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.multiInstance.type')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.multiInstance.type')}</div>
               <NSelect
                 value={isSequential.value ? 'true' : 'false'}
                 onUpdateValue={(v: string | null) => mi.onSequentialChange(v === 'true')}
@@ -354,7 +354,9 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.loopCardinality')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>
+                {t('bpmnPanel.fields.loopCardinality')}
+              </div>
               <NInput
                 value={loopCardinality.value}
                 onUpdateValue={mi.onLoopCardinalityChange}
@@ -363,7 +365,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.collection')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.collection')}</div>
               <NInput
                 value={collection.value}
                 onUpdateValue={mi.onCollectionChange}
@@ -372,7 +374,9 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass}`}>{t('bpmnPanel.fields.elementVariable')}</div>
+              <div class={`mb-4px ${labelClass.value}`}>
+                {t('bpmnPanel.fields.elementVariable')}
+              </div>
               <NInput
                 value={elementVariable.value}
                 onUpdateValue={mi.onElementVariableChange}
@@ -381,7 +385,7 @@ export default defineComponent({
               />
             </div>
             <div>
-              <div class={`mb-4px ${labelClass} flex items-center gap-4px`}>
+              <div class={`mb-4px ${labelClass.value} flex items-center gap-4px`}>
                 <span>{t('bpmnPanel.multiInstance.completionCondition')}</span>
                 {completionExpressionDisplay.value && (
                   <code class="text-11px text-#999 bg-#f5f5f5 dark:bg-#333 px-6px py-2px rounded-4px">
@@ -431,7 +435,7 @@ export default defineComponent({
                           max={100}
                           placeholder="0"
                         />
-                        <span class={`${labelClass} flex-shrink-0`}>%</span>
+                        <span class={`${labelClass.value} flex-shrink-0`}>%</span>
                       </div>
                     )}
                   </div>
@@ -452,7 +456,7 @@ export default defineComponent({
                 </div>
               </NRadioGroup>
             </div>
-            <div class={`mb-4px mt-4px ${labelClass}`}>
+            <div class={`mb-4px mt-4px ${labelClass.value}`}>
               {t('bpmnPanel.fields.asyncContinuousExecution')}
             </div>
             <div class="flex flex-row gap-8px">
