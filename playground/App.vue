@@ -269,7 +269,7 @@ async function onSearchDelegateExpressions(name: string) {
       <BpmnModelerProcess
       :theme="theme"
       :proDesigner="proDesigner"
-
+      size="small"
       :onSearchUsers="onSearchUsers"
       :autoStash="true"
       :onSearchUserGroups="onSearchUserGroups"

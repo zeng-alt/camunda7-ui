@@ -93,6 +93,7 @@ export default defineComponent({
         >
           <NFormItem label={t('bpmnPanel.fields.id')} path="id">
             <NInput
+              size={props.formSize}
               value={id.value}
               onUpdateValue={onIdChange}
               placeholder={t('bpmnPanel.placeholders.elementId')}
@@ -101,6 +102,7 @@ export default defineComponent({
           {props.showName && (
             <NFormItem label={t('bpmnPanel.fields.name')} path="name">
               <NInput
+                size={props.formSize}
                 type="textarea"
                 autosize={{ minRows: 1, maxRows: 4 }}
                 value={name.value}
@@ -111,7 +113,7 @@ export default defineComponent({
           )}
           {props.showExecutable && (
             <NFormItem label={t('bpmnPanel.fields.executable')} path="isExecutable">
-              <NSwitch value={isExecutable.value} onUpdateValue={onExecutableChange} />
+              <NSwitch size={props.formSize} value={isExecutable.value} onUpdateValue={onExecutableChange} />
             </NFormItem>
           )}
         </NForm>
