@@ -47,6 +47,11 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left',
     },
+    // 元素的 modelerTemplate ID，由 CamundaPropertiesPanel 传入
+    modelerTemplate: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
     // 额外自定义 tab 的渲染内容函数
     extraTabContent: {
       type: Function,
@@ -121,6 +126,7 @@ export default defineComponent({
                     element: props.element,
                     businessObject: props.businessObject,
                     type: gatewayType.value,
+                    modelerTemplate: props.modelerTemplate,
                   })}
                 </div>
               </NTabPane>

@@ -51,6 +51,8 @@ export default defineComponent({
     formSize: { type: String as PropType<'small' | 'medium' | 'large'>, default: 'small' },
     // 标签位置：left（左侧）/ top（顶部）
     labelPlacement: { type: String as PropType<'left' | 'top'>, default: 'left' },
+    // 元素的 modelerTemplate ID，由 CamundaPropertiesPanel 传入
+    modelerTemplate: { type: String as PropType<string | null>, default: null },
     // 自定义 Tab 内容渲染函数
     extraTabContent: {
       type: Function,
@@ -146,6 +148,7 @@ export default defineComponent({
                   extraTabContent={props.extraTabContent}
                   extraTabLabel={props.extraTabLabel}
                   elementType={def}
+                  modelerTemplate={props.modelerTemplate}
                 />
               </NTabPane>
             ))}

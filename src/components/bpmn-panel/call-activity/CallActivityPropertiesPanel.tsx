@@ -47,6 +47,21 @@ export default defineComponent({
       type: String as PropType<'left' | 'top'>,
       default: 'left',
     },
+    // 元素的 modelerTemplate ID，由 CamundaPropertiesPanel 传入
+    modelerTemplate: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
+    // 自定义 Tab 内容渲染函数
+    extraTabContent: {
+      type: Function,
+      default: null,
+    },
+    // 自定义 Tab 标签文本
+    extraTabLabel: {
+      type: String,
+      default: '',
+    },
     // 用户解析器表达式，用于解析办理人/候选人
     userResolver: {
       type: String,
@@ -159,6 +174,18 @@ export default defineComponent({
                 />
               </div>
             </NTabPane>
+            {props.extraTabContent && (
+              <NTabPane name="custom" tab={props.extraTabLabel || t('bpmnPanel.tabs.custom')}>
+                <div class="pt-8px">
+                  {props.extraTabContent({
+                    element: props.element,
+                    businessObject: props.businessObject,
+                    type,
+                    modelerTemplate: props.modelerTemplate,
+                  })}
+                </div>
+              </NTabPane>
+            )}
           </ConfigurableTabs>
         </div>
       )

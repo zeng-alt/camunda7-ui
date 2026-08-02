@@ -1,3 +1,35 @@
+import { FORM_TASK_TEMPLATE, getModelerTemplate } from './formTask'
+
+/**
+ * Template type registry — maps modelerTemplate IDs to element type strings.
+ * Template-based types take priority over $type when resolving element type.
+ *
+ * Use `registerTemplateType()` or `CamundaConfigProvider.templateTypes` to register.
+ */
+export const templateTypeRegistry: Record<string, string> = {
+  [FORM_TASK_TEMPLATE]: 'form-task',
+}
+
+/**
+ * Register a modelerTemplate → elementType mapping.
+ * Template-based types override $type-based resolution in `getElementTypeFromBo`.
+ *
+ * @example
+ * registerTemplateType('my-connector:http-task', 'service-task')
+ */
+export function registerTemplateType(templateId: string, elementType: string): void {
+  templateTypeRegistry[templateId] = elementType
+}
+
+/**
+ * Batch-register multiple template → type mappings.
+ * @example
+ * registerTemplateTypes({ 'my:custom': 'user-task', 'my:send': 'send-task' })
+ */
+export function registerTemplateTypes(templates: Record<string, string>): void {
+  Object.assign(templateTypeRegistry, templates)
+}
+
 export const typeIconMap: Record<string, string> = {
   process: 'bpmn-icon-bpmn-io',
   'start-event': 'bpmn-icon-start-event-none',
@@ -6,6 +38,7 @@ export const typeIconMap: Record<string, string> = {
   'intermediate-catch-event': 'bpmn-icon-intermediate-event-none',
   'user-task': 'bpmn-icon-user-task',
   'service-task': 'bpmn-icon-service-task',
+  'form-task': 'form-task-icon',
   'send-task': 'bpmn-icon-send-task',
   'receive-task': 'bpmn-icon-receive-task',
   'manual-task': 'bpmn-icon-manual-task',
@@ -48,6 +81,7 @@ export const eventSubTypes = new Set([
 export const taskSubTypes = new Set([
   'user-task',
   'service-task',
+  'form-task',
   'send-task',
   'receive-task',
   'manual-task',
@@ -59,6 +93,13 @@ export const taskSubTypes = new Set([
 
 export function getElementTypeFromBo(bo: any): string {
   if (!bo) return ''
+
+  // Template-first: modelerTemplate overrides $type-based resolution
+  const template = getModelerTemplate(bo)
+  if (template && templateTypeRegistry[template]) {
+    return templateTypeRegistry[template]!
+  }
+
   const type: string = bo.$type || ''
   if (type.includes('AdHocSubProcess')) return 'ad-hoc-sub-process'
   if (type.includes('SubProcess')) return 'sub-process'

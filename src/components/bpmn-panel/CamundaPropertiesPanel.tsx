@@ -1,6 +1,12 @@
 import { defineComponent, ref, onBeforeUnmount, watch, toRaw, type PropType } from 'vue'
 import { useCamundaI18n } from '../../locales'
-import { getElementType, getTypeIcon, eventSubTypes } from '@/utils/bpmn'
+import {
+  getElementType,
+  getTypeIcon,
+  getModelerTemplate,
+  registerTemplateTypes,
+  eventSubTypes,
+} from '@/utils/bpmn'
 import ProcessPropertiesPanel from './ProcessPropertiesPanel'
 import {
   EventPropertiesPanel,
@@ -40,6 +46,7 @@ function showRootProcess(modeler: any) {
       element: root,
       businessObject: root.businessObject,
       elementType: getElementType(root),
+      modelerTemplate: getModelerTemplate(root.businessObject),
     }
   }
   return null
@@ -50,6 +57,7 @@ const eventTypes = eventSubTypes
 const taskTypes = new Set([
   'user-task',
   'service-task',
+  'form-task',
   'send-task',
   'receive-task',
   'manual-task',
@@ -85,10 +93,28 @@ export interface CamundaPropertiesPanelProps {
   formSize?: 'small' | 'medium' | 'large'
   /** 标签位置：left（左侧）/ top（顶部） */
   labelPlacement?: 'left' | 'top'
-  /** 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab */
+  /**
+   * 额外 tab 内容映射。key 可以是元素类型或 modelerTemplate ID。
+   * 查找优先级：modelerTemplate > 元素类型 > 分类 key（如 'task'/'gateway'）
+   */
   extraTabs?: Record<string, any>
-  /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
+  /**
+   * 额外 tab 的标签文本映射。key 可以是元素类型或 modelerTemplate ID。
+   * 查找优先级同 extraTabs
+   */
   extraTabLabels?: Record<string, string>
+  /**
+   * modelerTemplate → 元素类型 映射。
+   * 用于注册自定义 template 的元素类型，注册后 getElementType 会优先匹配 template。
+   * @example `{ 'my-connector:http-task': 'service-task' }`
+   */
+  templateTypes?: Record<string, string>
+  /**
+   * modelerTemplate → 自定义面板组件 映射。
+   * 当元素匹配到 template 时，会优先使用该面板组件替代默认的类型面板。
+   * 面板组件接收 common props（businessObject, element, bpmnModeler, formSize, labelPlacement, modelerTemplate）。
+   */
+  templatePanels?: Record<string, any>
   /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
   userResolver?: string
   /** 用户组解析器表达式：用于解析候选用户组的 JS 表达式 */
@@ -113,14 +139,36 @@ export default defineComponent<CamundaPropertiesPanelProps>({
       type: String as PropType<'left' | 'top'>,
       default: 'top',
     },
-    /** 额外 tab 内容映射：{ 元素类型: Vue 组件 }，用于为指定节点追加属性 tab */
+    /**
+     * 额外 tab 内容映射。key 可以是元素类型或 modelerTemplate ID。
+     * 查找优先级：modelerTemplate > 元素类型 > 分类 key
+     */
     extraTabs: {
       type: Object as PropType<Record<string, any>>,
       default: () => ({}),
     },
-    /** 额外 tab 的标签文本映射：{ 元素类型: 自定义标签 } */
+    /**
+     * 额外 tab 的标签文本映射。key 可以是元素类型或 modelerTemplate ID。
+     * 查找优先级同 extraTabs
+     */
     extraTabLabels: {
       type: Object as PropType<Record<string, string>>,
+      default: () => ({}),
+    },
+    /**
+     * modelerTemplate → 元素类型 映射。
+     * 注册后 getElementType 优先匹配 template，而非 $type。
+     */
+    templateTypes: {
+      type: Object as PropType<Record<string, string>>,
+      default: () => ({}),
+    },
+    /**
+     * modelerTemplate → 自定义面板组件 映射。
+     * 模板匹配时优先使用，否则回退到类型面板。
+     */
+    templatePanels: {
+      type: Object as PropType<Record<string, any>>,
       default: () => ({}),
     },
     /** 用户解析器表达式：用于解析办理人/候选人的 JS 表达式 */
@@ -139,24 +187,44 @@ export default defineComponent<CamundaPropertiesPanelProps>({
     const selectedElement = ref<any>(null)
     const selectedBusinessObject = ref<any>(null)
     const elementType = ref<string>('')
+    const modelerTemplate = ref<string | null>(null)
     const updateKey = ref(0)
     let modeler: any = null
     let eventBus: any = null
     let initialized = false
 
+    /** Sync templateTypes prop to the global registry so getElementType can use them */
+    watch(
+      () => props.templateTypes,
+      (types) => {
+        if (types && Object.keys(types).length > 0) {
+          registerTemplateTypes(types)
+        }
+      },
+      { immediate: true },
+    )
+
+    /** Update all selection-related state from an element */
+    function updateSelected(element: any) {
+      const bo = element.businessObject
+      selectedElement.value = element
+      selectedBusinessObject.value = bo
+      elementType.value = getElementType(element)
+      modelerTemplate.value = getModelerTemplate(bo)
+    }
+
     function handleSelectionChange(event: any) {
       const selection = event.newSelection || []
       const element = selection[0]
       if (element) {
-        selectedElement.value = element
-        selectedBusinessObject.value = element.businessObject
-        elementType.value = getElementType(element)
+        updateSelected(element)
       } else if (modeler) {
         const rootData = showRootProcess(modeler)
         if (rootData) {
           selectedElement.value = rootData.element
           selectedBusinessObject.value = rootData.businessObject
           elementType.value = rootData.elementType
+          modelerTemplate.value = rootData.modelerTemplate
         }
       }
     }
@@ -164,9 +232,7 @@ export default defineComponent<CamundaPropertiesPanelProps>({
     function handleRootAdded(event: any) {
       const element = event.element
       if (element) {
-        selectedElement.value = element
-        selectedBusinessObject.value = element.businessObject
-        elementType.value = getElementType(element)
+        updateSelected(element)
       }
     }
 
@@ -191,16 +257,14 @@ export default defineComponent<CamundaPropertiesPanelProps>({
       const selection = m.get('selection')
       const currentSelection = selection.get()
       if (currentSelection && currentSelection.length > 0) {
-        const element = currentSelection[0]
-        selectedElement.value = element
-        selectedBusinessObject.value = element.businessObject
-        elementType.value = getElementType(element)
+        updateSelected(currentSelection[0])
       } else {
         const rootData = showRootProcess(m)
         if (rootData) {
           selectedElement.value = rootData.element
           selectedBusinessObject.value = rootData.businessObject
           elementType.value = rootData.elementType
+          modelerTemplate.value = rootData.modelerTemplate
         }
       }
     }
@@ -215,8 +279,46 @@ export default defineComponent<CamundaPropertiesPanelProps>({
       }
     })
 
+    /**
+     * Resolve extra tab content with template-first lookup.
+     * Priority: modelerTemplate > elementType > categoryKey (e.g. 'task'/'gateway')
+     */
+    function resolveExtraTabContent(categoryKey?: string): any {
+      const template = modelerTemplate.value
+      const type = elementType.value
+
+      if (template && props.extraTabs?.[template] !== undefined) {
+        return props.extraTabs[template]
+      }
+      if (props.extraTabs?.[type] !== undefined) {
+        return props.extraTabs[type]
+      }
+      if (categoryKey && props.extraTabs?.[categoryKey] !== undefined) {
+        return props.extraTabs[categoryKey]
+      }
+      return null
+    }
+
+    /** Resolve extra tab label with the same template-first priority */
+    function resolveExtraTabLabel(categoryKey?: string): string {
+      const template = modelerTemplate.value
+      const type = elementType.value
+
+      if (template && props.extraTabLabels?.[template] !== undefined) {
+        return props.extraTabLabels[template]!
+      }
+      if (props.extraTabLabels?.[type] !== undefined) {
+        return props.extraTabLabels[type]!
+      }
+      if (categoryKey && props.extraTabLabels?.[categoryKey] !== undefined) {
+        return props.extraTabLabels[categoryKey]!
+      }
+      return ''
+    }
+
     return () => {
       const type = elementType.value
+      const template = modelerTemplate.value
       updateKey.value
 
       if (!type) {
@@ -260,85 +362,180 @@ export default defineComponent<CamundaPropertiesPanelProps>({
         iconClass = getTypeIcon(type)
       }
 
+      /** Common props passed to all panel components */
       const common = {
         businessObject: selectedBusinessObject.value,
         element: selectedElement.value,
         bpmnModeler: props.bpmnModeler,
         formSize: props.formSize,
         labelPlacement: props.labelPlacement,
+        modelerTemplate: template,
       }
 
       const renderPanel = (() => {
+        // ── Template panel override (highest priority) ──
+        if (template && props.templatePanels?.[template]) {
+          return () => props.templatePanels![template]!(common)
+        }
+
+        // ── Type-based panels (template type already resolved by getElementType) ──
         if (type === 'collaboration') {
-          return () => <CollaborationPropertiesPanel {...common} />
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
+          return () => (
+            <CollaborationPropertiesPanel
+              {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
+            />
+          )
         }
         if (type === 'process') {
-          return () => <ProcessPropertiesPanel {...common} />
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
+          return () => (
+            <ProcessPropertiesPanel
+              {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
+            />
+          )
         }
         if (eventTypes.has(type)) {
+          const eventExtraContent = resolveExtraTabContent()
+          const eventExtraLabel = resolveExtraTabLabel()
           return () => (
             <EventPropertiesPanel
               {...common}
-              extraTabContent={props.extraTabs?.[type]}
-              extraTabLabel={props.extraTabLabels?.[type] || ''}
+              extraTabContent={eventExtraContent}
+              extraTabLabel={eventExtraLabel}
             />
           )
         }
         if (subProcessTypes.has(type)) {
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
           return () => (
             <SubProcessPropertiesPanel
               {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
               userResolver={props.userResolver}
               groupResolver={props.groupResolver}
             />
           )
         }
         if (callActivityTypes.has(type)) {
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
           return () => (
             <CallActivityPropertiesPanel
               {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
               userResolver={props.userResolver}
               groupResolver={props.groupResolver}
             />
           )
         }
         if (taskTypes.has(type)) {
+          const taskExtraContent = resolveExtraTabContent('task')
+          const taskExtraLabel = resolveExtraTabLabel('task')
           return () => (
             <TaskPropertiesPanel
               {...common}
-              extraTabContent={props.extraTabs?.['task']}
-              extraTabLabel={props.extraTabLabels?.['task'] || ''}
+              extraTabContent={taskExtraContent}
+              extraTabLabel={taskExtraLabel}
               userResolver={props.userResolver}
               groupResolver={props.groupResolver}
             />
           )
         }
         if (flowTypes.has(type)) {
-          return () => <FlowPropertiesPanel {...common} />
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
+          return () => (
+            <FlowPropertiesPanel
+              {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
+            />
+          )
         }
         if (dataTypes.has(type)) {
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
           return type === 'data-object-reference'
-            ? () => <DataObjectReferencePropertiesPanel {...common} />
-            : () => <DataStoreReferencePropertiesPanel {...common} />
+            ? () => (
+                <DataObjectReferencePropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
+            : () => (
+                <DataStoreReferencePropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
         }
         if (artifactTypes.has(type)) {
-          if (type === 'group') return () => <GroupPropertiesPanel {...common} />
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
+          if (type === 'group')
+            return () => (
+              <GroupPropertiesPanel
+                {...common}
+                extraTabContent={extraContent}
+                extraTabLabel={extraLabel}
+              />
+            )
           if (type === 'text-annotation') {
-            return () => <TextAnnotationPropertiesPanel {...common} />
+            return () => (
+              <TextAnnotationPropertiesPanel
+                {...common}
+                extraTabContent={extraContent}
+                extraTabLabel={extraLabel}
+              />
+            )
           }
-          return () => <AssociationPropertiesPanel {...common} />
+          return () => (
+            <AssociationPropertiesPanel
+              {...common}
+              extraTabContent={extraContent}
+              extraTabLabel={extraLabel}
+            />
+          )
         }
         if (swimlaneTypes.has(type)) {
+          const extraContent = resolveExtraTabContent()
+          const extraLabel = resolveExtraTabLabel()
           return type === 'lane'
-            ? () => <LanePropertiesPanel {...common} />
-            : () => <PoolPropertiesPanel {...common} />
+            ? () => (
+                <LanePropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
+            : () => (
+                <PoolPropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
         }
         if (gatewayTypes.has(type)) {
+          const gwExtraContent = resolveExtraTabContent('gateway')
+          const gwExtraLabel = resolveExtraTabLabel('gateway')
           return () => (
             <GatewayPropertiesPanel
               {...common}
-              extraTabContent={props.extraTabs?.['gateway']}
-              extraTabLabel={props.extraTabLabels?.['gateway'] || ''}
+              extraTabContent={gwExtraContent}
+              extraTabLabel={gwExtraLabel}
             />
           )
         }

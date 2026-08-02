@@ -16,6 +16,7 @@
       "boundary-event": "边界事件",
       "user-task": "用户任务",
       "service-task": "服务任务",
+      "form-task": "表单任务",
       "send-task": "发送任务",
       "receive-task": "接收任务",
       "manual-task": "手动任务",
@@ -372,9 +373,21 @@
       "output": "输出参数",
       "implementation": "实现者",
       "fieldInjections": "字段注入",
+      "formTaskOperations": "操作表单",
       "multiInstance": "批量执行",
       "audit": "审核",
       "custom": "自定义"
+    },
+    "formTask": {
+      "title": "操作表单",
+      "fieldName": "字段名",
+      "operation": "操作类型",
+      "value": "值",
+      "opAdd": "新增",
+      "opDelete": "删除",
+      "addOperation": "添加操作",
+      "placeholderFieldName": "字段名",
+      "placeholderValue": "值或表达式，如 ${var}"
     },
     "multiInstance": {
       "enable": "批量执行",

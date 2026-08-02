@@ -113,7 +113,11 @@ export default defineComponent({
           )}
           {props.showExecutable && (
             <NFormItem label={t('bpmnPanel.fields.executable')} path="isExecutable">
-              <NSwitch size={props.formSize} value={isExecutable.value} onUpdateValue={onExecutableChange} />
+              <NSwitch
+                size={props.formSize}
+                value={isExecutable.value}
+                onUpdateValue={onExecutableChange}
+              />
             </NFormItem>
           )}
         </NForm>

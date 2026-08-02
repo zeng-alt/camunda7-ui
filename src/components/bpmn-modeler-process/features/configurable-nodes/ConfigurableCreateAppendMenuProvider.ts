@@ -1,4 +1,5 @@
 import type { ElementName } from '@/components/bpmn-panel/designerConfig'
+import { FORM_TASK_TEMPLATE, FORM_TASK_DELEGATE_EXPRESSION } from '@/utils/bpmn'
 import type { ConfigurableNodesConfig } from './createConfigurableNodesModule'
 
 const LOW_PRIORITY = 100
@@ -163,6 +164,7 @@ const CREATE_ACTION_TARGET: Record<string, CreateActionTarget> = {
   task: { type: 'bpmn:Task' },
   'user-task': { type: 'bpmn:UserTask' },
   'service-task': { type: 'bpmn:ServiceTask' },
+  'form-task': { type: 'bpmn:ServiceTask' },
   'send-task': { type: 'bpmn:SendTask' },
   'receive-task': { type: 'bpmn:ReceiveTask' },
   'manual-task': { type: 'bpmn:ManualTask' },
@@ -185,12 +187,46 @@ const CREATE_ACTION_TARGET: Record<string, CreateActionTarget> = {
 }
 
 export default class ConfigurableCreateAppendMenuProvider {
-  static $inject = ['popupMenu', 'configurableNodesConfig']
+  static $inject = [
+    'popupMenu',
+    'elementFactory',
+    'bpmnFactory',
+    'create',
+    'autoPlace',
+    'modeling',
+    'selection',
+    'mouse',
+    'configurableNodesConfig',
+  ]
 
   private configurableNodes: ConfigurableNodesConfig
+  private elementFactory: any
+  private bpmnFactory: any
+  private create: any
+  private autoPlace: any
+  private modeling: any
+  private selection: any
+  private mouse: any
 
-  constructor(popupMenu: any, configurableNodes: ConfigurableNodesConfig) {
+  constructor(
+    popupMenu: any,
+    elementFactory: any,
+    bpmnFactory: any,
+    create: any,
+    autoPlace: any,
+    modeling: any,
+    selection: any,
+    mouse: any,
+    configurableNodes: ConfigurableNodesConfig,
+  ) {
     this.configurableNodes = configurableNodes
+    this.elementFactory = elementFactory
+    this.bpmnFactory = bpmnFactory
+    this.create = create
+    this.autoPlace = autoPlace
+    this.modeling = modeling
+    this.selection = selection
+    this.mouse = mouse
 
     popupMenu.registerProvider('bpmn-create', LOW_PRIORITY, this)
     popupMenu.registerProvider('bpmn-append', LOW_PRIORITY, this)
@@ -198,6 +234,9 @@ export default class ConfigurableCreateAppendMenuProvider {
 
   getPopupMenuEntries() {
     return (entries: Record<string, any>) => {
+      // Detect menu type from existing entries before any filtering
+      const isCreateMenu = Object.keys(entries).some((k) => k.startsWith('create-'))
+
       for (const [actionName, target] of Object.entries(CREATE_ACTION_TARGET)) {
         const visible = this.configurableNodes.isElementVisible(
           target.type,
@@ -211,7 +250,70 @@ export default class ConfigurableCreateAppendMenuProvider {
         delete entries[`create-${actionName}`]
         delete entries[`append-${actionName}`]
       }
+
+      if (this.configurableNodes.isElementVisible('bpmn:ServiceTask')) {
+        if (isCreateMenu) {
+          if (!entries['create-form-task']) {
+            entries['create-form-task'] = {
+              label: 'Form task',
+              className: 'form-task-icon',
+              group: { id: 'tasks', name: 'Tasks' },
+              action: {
+                click: (event: any) => this.createFormTask(event),
+                dragstart: (event: any) => this.createFormTask(event),
+              },
+            }
+          }
+        } else {
+          if (!entries['append-form-task']) {
+            entries['append-form-task'] = {
+              label: 'Form task',
+              className: 'form-task-icon',
+              group: { id: 'tasks', name: 'Tasks' },
+              action: {
+                click: () => this.appendFormTaskAutoPlace(),
+                dragstart: (event: any) => this.appendFormTask(event),
+              },
+            }
+          }
+        }
+      }
+
       return entries
     }
+  }
+
+  private createFormTaskElement() {
+    const businessObject = this.bpmnFactory.create('bpmn:ServiceTask', {
+      modelerTemplate: FORM_TASK_TEMPLATE,
+      delegateExpression: FORM_TASK_DELEGATE_EXPRESSION,
+    })
+    return this.elementFactory.createShape({
+      type: 'bpmn:ServiceTask',
+      businessObject,
+    })
+  }
+
+  private createFormTask(event: any) {
+    if (event instanceof KeyboardEvent) {
+      event = this.mouse.getLastMoveEvent()
+    }
+    this.create.start(event, this.createFormTaskElement())
+  }
+
+  private appendFormTask(event: any) {
+    const element = this.selection.get()[0]
+    if (!element) return
+    const newElement = this.createFormTaskElement()
+    if (event instanceof KeyboardEvent) {
+      event = this.mouse.getLastMoveEvent()
+    }
+    this.create.start(event, newElement, { source: element })
+  }
+
+  private appendFormTaskAutoPlace() {
+    const element = this.selection.get()[0]
+    if (!element) return
+    this.autoPlace.append(element, this.createFormTaskElement())
   }
 }

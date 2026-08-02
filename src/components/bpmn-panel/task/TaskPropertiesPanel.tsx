@@ -14,6 +14,7 @@ import {
 } from '../base'
 import UserTaskExtraFields, { userTaskTabs } from './UserTaskExtraFields'
 import ServiceTaskExtraFields, { serviceTaskTabs } from './ServiceTaskExtraFields'
+import FormTaskExtraFields, { formTaskTabs } from './FormTaskExtraFields'
 import SendTaskExtraFields, { sendTaskTabs } from './SendTaskExtraFields'
 import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraFields'
 import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
@@ -47,6 +48,11 @@ export default defineComponent({
     labelPlacement: {
       type: String as PropType<'left' | 'top'>,
       default: 'left',
+    },
+    // 元素的 modelerTemplate ID，由 CamundaPropertiesPanel 传入
+    modelerTemplate: {
+      type: String as PropType<string | null>,
+      default: null,
     },
     // 自定义 Tab 内容渲染函数
     extraTabContent: {
@@ -141,6 +147,18 @@ export default defineComponent({
               serviceTaskTabs.map((tab) => (
                 <NTabPane name={tab.name} tab={t(tab.labelKey)}>
                   <ServiceTaskExtraFields
+                    businessObject={props.businessObject}
+                    element={props.element}
+                    bpmnModeler={props.bpmnModeler}
+                    formSize={props.formSize}
+                    tabName={tab.name}
+                  />
+                </NTabPane>
+              ))}
+            {type === 'form-task' &&
+              formTaskTabs.map((tab) => (
+                <NTabPane name={tab.name} tab={t(tab.labelKey)}>
+                  <FormTaskExtraFields
                     businessObject={props.businessObject}
                     element={props.element}
                     bpmnModeler={props.bpmnModeler}
@@ -258,6 +276,7 @@ export default defineComponent({
                     element: props.element,
                     businessObject: props.businessObject,
                     type,
+                    modelerTemplate: props.modelerTemplate,
                   })}
                 </div>
               </NTabPane>

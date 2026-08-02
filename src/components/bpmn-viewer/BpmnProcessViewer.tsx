@@ -14,6 +14,7 @@ import { type ThemeType, type LocaleType } from '../config-provider/context'
 import type { LocaleOption } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '../../locales'
 import { useCamundaLookups } from '../../composables'
+import { getElementType } from '@/utils/bpmn'
 
 function is(element: any, type: string): boolean {
   const bo = (element && element.businessObject) || element
@@ -240,7 +241,7 @@ export default defineComponent<BpmnProcessViewerProps>({
         if (bo) {
           map[el.id] = {
             name: bo.name || el.id,
-            type: bo.$type || '',
+            type: getElementType(el),
           }
         }
       })

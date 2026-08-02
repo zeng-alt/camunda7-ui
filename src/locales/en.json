@@ -16,6 +16,7 @@
       "boundary-event": "Boundary Event",
       "user-task": "User Task",
       "service-task": "Service Task",
+      "form-task": "Form Task",
       "send-task": "Send Task",
       "receive-task": "Receive Task",
       "manual-task": "Manual Task",
@@ -374,9 +375,21 @@
       "output": "Outputs",
       "implementation": "Implementation",
       "fieldInjections": "Field Injections",
+      "formTaskOperations": "Form Operations",
       "multiInstance": "Batch Execution",
       "audit": "Audit",
       "custom": "Custom"
+    },
+    "formTask": {
+      "title": "Form Operations",
+      "fieldName": "Field Name",
+      "operation": "Operation",
+      "value": "Value",
+      "opAdd": "Add",
+      "opDelete": "Delete",
+      "addOperation": "Add Operation",
+      "placeholderFieldName": "Field name",
+      "placeholderValue": "Value or expression, e.g. ${var}"
     },
     "multiInstance": {
       "enable": "Batch Execution",

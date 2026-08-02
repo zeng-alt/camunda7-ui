@@ -42,6 +42,13 @@ function findInputOutput(extensionElements: any): any {
   return extensionElements.values.find((v: any) => v.$type === 'camunda:InputOutput') || null
 }
 
+/** 表单任务操作参数命名前缀，见 FormTaskExtraFields，避免与普通输入参数互相覆盖 */
+const FORM_OPERATION_PREFIX = 'formk:'
+
+function isFormOperationParam(p: any): boolean {
+  return typeof p?.name === 'string' && p.name.startsWith(FORM_OPERATION_PREFIX)
+}
+
 function createDefaultItem(): ParamItem {
   return {
     _key: keySeq++,
@@ -164,7 +171,7 @@ export default defineComponent({
       const io = findInputOutput(extensionElements)
       const raw = io ? io.get(paramField) : []
       const list: any[] = Array.isArray(raw) ? raw : []
-      items.value = list.map(readParam)
+      items.value = list.filter((p) => !isFormOperationParam(p)).map(readParam)
     }
 
     watch(() => props.businessObject, syncFromModel, { immediate: true })
@@ -181,32 +188,35 @@ export default defineComponent({
         ee.values.push(io)
       }
 
-      io[paramField] = itemList.map((item) => {
-        const attrs: Record<string, any> = { name: item.name }
-        if (item.assignmentType === 'value') {
-          if (item.value) attrs.value = item.value
-        } else if (item.assignmentType === 'list') {
-          const items = item.listItems
-            .filter((li) => li.value)
-            .map((li) => moddle.create('camunda:Value', { value: li.value }))
-          if (items.length > 0) {
-            attrs.definition = moddle.create('camunda:List', { items })
+      io[paramField] = [
+        ...(io[paramField] || []).filter((p: any) => isFormOperationParam(p)),
+        ...itemList.map((item) => {
+          const attrs: Record<string, any> = { name: item.name }
+          if (item.assignmentType === 'value') {
+            if (item.value) attrs.value = item.value
+          } else if (item.assignmentType === 'list') {
+            const items = item.listItems
+              .filter((li) => li.value)
+              .map((li) => moddle.create('camunda:Value', { value: li.value }))
+            if (items.length > 0) {
+              attrs.definition = moddle.create('camunda:List', { items })
+            }
+          } else if (item.assignmentType === 'map') {
+            const entries = item.mapEntries
+              .filter((me) => me.key)
+              .map((me) => moddle.create('camunda:Entry', { key: me.key, value: me.value }))
+            if (entries.length > 0) {
+              attrs.definition = moddle.create('camunda:Map', { entries })
+            }
+          } else if (item.assignmentType === 'script') {
+            attrs.definition = moddle.create('camunda:Script', {
+              scriptFormat: item.scriptFormat,
+              value: item.scriptValue,
+            })
           }
-        } else if (item.assignmentType === 'map') {
-          const entries = item.mapEntries
-            .filter((me) => me.key)
-            .map((me) => moddle.create('camunda:Entry', { key: me.key, value: me.value }))
-          if (entries.length > 0) {
-            attrs.definition = moddle.create('camunda:Map', { entries })
-          }
-        } else if (item.assignmentType === 'script') {
-          attrs.definition = moddle.create('camunda:Script', {
-            scriptFormat: item.scriptFormat,
-            value: item.scriptValue,
-          })
-        }
-        return moddle.create(paramType, attrs)
-      })
+          return moddle.create(paramType, attrs)
+        }),
+      ]
 
       updateProperties({ extensionElements: ee })
     }

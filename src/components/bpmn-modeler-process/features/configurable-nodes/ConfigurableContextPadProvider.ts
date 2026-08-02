@@ -1,5 +1,6 @@
 import ContextPadProvider from 'bpmn-js/lib/features/context-pad/ContextPadProvider'
 import type { ElementName } from '@/components/bpmn-panel/designerConfig'
+import { FORM_TASK_TEMPLATE, FORM_TASK_DELEGATE_EXPRESSION } from '@/utils/bpmn'
 import type { ConfigurableNodesConfig } from './createConfigurableNodesModule'
 
 interface ContextPadTarget {
@@ -34,9 +35,15 @@ const CONTEXT_PAD_APPEND_ENTRY_TYPE: Record<string, ContextPadTarget> = {
 }
 
 export default class ConfigurableContextPadProvider extends ContextPadProvider {
-  static $inject = [...ContextPadProvider.$inject, 'configurableNodesConfig']
+  static $inject = [...ContextPadProvider.$inject, 'bpmnFactory', 'configurableNodesConfig']
 
   private _configurableNodes: ConfigurableNodesConfig
+  private _bpmnFactory: any
+  private _create: any
+  private _autoPlace: any
+  private _modeling: any
+  private _elementFactory: any
+  private _selection: any
 
   constructor(
     config: any,
@@ -52,6 +59,7 @@ export default class ConfigurableContextPadProvider extends ContextPadProvider {
     rules: any,
     translate: any,
     appendPreview: any,
+    bpmnFactory: any,
     configurableNodes: ConfigurableNodesConfig,
   ) {
     super(
@@ -70,6 +78,12 @@ export default class ConfigurableContextPadProvider extends ContextPadProvider {
       appendPreview,
     )
     this._configurableNodes = configurableNodes
+    this._bpmnFactory = bpmnFactory
+    this._create = create
+    this._autoPlace = injector.get('autoPlace', false)
+    this._modeling = modeling
+    this._elementFactory = elementFactory
+    this._selection = injector.get('selection')
   }
 
   getContextPadEntries(element: any): ReturnType<ContextPadProvider['getContextPadEntries']> {
@@ -83,6 +97,41 @@ export default class ConfigurableContextPadProvider extends ContextPadProvider {
       }
     }
 
+    // if (this._autoPlace && configurableNodes.isElementVisible('bpmn:ServiceTask')) {
+    //   entries['append.form-task'] = {
+    //     group: 'append',
+    //     className: 'form-task-icon',
+    //     title: 'Append form task',
+    //     action: {
+    //       click: () => this.appendFormTaskAutoPlace(),
+    //       dragstart: (event: any) => this.appendFormTask(event),
+    //     },
+    //   }
+    // }
+
     return entries
   }
+
+  // private createFormTaskElement() {
+  //   const businessObject = this._bpmnFactory.create('bpmn:ServiceTask', {
+  //     modelerTemplate: FORM_TASK_TEMPLATE,
+  //     delegateExpression: FORM_TASK_DELEGATE_EXPRESSION,
+  //   })
+  //   return this._elementFactory.createShape({
+  //     type: 'bpmn:ServiceTask',
+  //     businessObject,
+  //   })
+  // }
+
+  // private appendFormTask(event: any) {
+  //   const element = this._selection.get()[0]
+  //   if (!element) return
+  //   this._create.start(event, this.createFormTaskElement(), { source: element })
+  // }
+
+  // private appendFormTaskAutoPlace() {
+  //   const element = this._selection.get()[0]
+  //   if (!element) return
+  //   this._autoPlace.append(element, this.createFormTaskElement())
+  // }
 }
