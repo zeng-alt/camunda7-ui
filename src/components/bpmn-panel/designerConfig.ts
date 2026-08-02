@@ -114,6 +114,7 @@ export type TabName =
   | 'sequenceFlow'
   | 'adHocSubProcess'
   | 'callActivity'
+  | 'formTaskOperations'
 
 export const defaultElementVisibility: Record<ElementKey, boolean> = {
   // events
@@ -223,6 +224,7 @@ export const defaultTabVisibility: Record<TabName, boolean> = {
   script: true,
   receiveTask: true,
   external: true,
+  formTaskOperations: true,
   // flow & sub-process & call activity
   sequenceFlow: true,
   adHocSubProcess: true,

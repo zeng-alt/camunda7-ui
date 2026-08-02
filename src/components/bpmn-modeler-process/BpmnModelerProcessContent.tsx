@@ -11,6 +11,7 @@ import {
   type ElementKey,
 } from '../bpmn-panel/designerConfig'
 import createConfigurableNodesModule from './features/configurable-nodes/createConfigurableNodesModule'
+import { toElementKey, type ActionTarget } from '@/utils/bpmn'
 import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
 import type { LocaleOption } from '../config-provider/context'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
@@ -266,13 +267,10 @@ export default defineComponent({
     provideDesignerConfig(designerState)
 
     const nodesModule = createConfigurableNodesModule({
-      isElementVisible: (type: string, eventDefinitionType?: string) => {
+      isElementVisible: (target: ActionTarget) => {
         const elements = designerState.value.elements
-        if (elements[type as ElementKey] === false) return false
-        if (eventDefinitionType) {
-          return elements[`${type}#${eventDefinitionType}` as ElementKey] !== false
-        }
-        return elements[`${type}#none` as ElementKey] !== false
+        if (elements[target.type as ElementKey] === false) return false
+        return elements[toElementKey(target)] !== false
       },
     })
 

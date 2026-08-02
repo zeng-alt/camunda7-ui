@@ -1,4 +1,5 @@
 import type { ElementName } from '@/components/bpmn-panel/designerConfig'
+import type { ActionTarget } from '@/utils/bpmn'
 import ConfigurablePaletteProvider from './ConfigurablePaletteProvider'
 import ConfigurableContextPadProvider from './ConfigurableContextPadProvider'
 import ConfigurableCreateAppendMenuProvider from './ConfigurableCreateAppendMenuProvider'
@@ -7,7 +8,7 @@ import DefaultUserTaskFormBehavior from './DefaultUserTaskFormBehavior'
 import FormTaskRenderer from './FormTaskRenderer'
 
 export interface ConfigurableNodesConfig {
-  isElementVisible: (type: string, eventDefinitionType?: string) => boolean
+  isElementVisible: (target: ActionTarget) => boolean
 }
 
 export default function createConfigurableNodesModule(config: ConfigurableNodesConfig) {

@@ -523,6 +523,9 @@
     }
   },
   "bpmn": {
+    "Create user task": "创建用户任务",
+    "Form task": "表单任务",
+    "Tasks": "任务",
     "Activate the global connect tool": "激活全局连接工具",
     "Append {type}": "追加 {type}",
     "Append end event": "追加 结束事件 ",

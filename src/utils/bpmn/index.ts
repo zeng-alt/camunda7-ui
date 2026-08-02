@@ -1,3 +1,4 @@
+export * from './actionTargets'
 export * from './elementType'
 export { uid, getDefinitions } from './bpmn'
 export {
