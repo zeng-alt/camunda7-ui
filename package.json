@@ -86,7 +86,7 @@
     "url": "https://github.com/YOUR_USERNAME/camunda7-ui/issues"
   },
   "author": "",
-  "license": "MIT",
+  "license": "git push -u origin main",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
