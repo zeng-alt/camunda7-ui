@@ -39,3 +39,10 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Ignored directories/files
+.test/
+.trae/
+.vscode/
+test-app/
+test.ts
