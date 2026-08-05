@@ -28,7 +28,7 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.app.json',
       insertTypesEntry: true,
-      rollupTypes: true,
+      bundleTypes: true,
     }),
   ],
   server: {
