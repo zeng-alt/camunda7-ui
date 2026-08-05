@@ -300,6 +300,14 @@ export default defineComponent({
     const currentTheme = ref<ThemeType>(props.theme ?? 'light')
     const currentLocaleRef = ref<LocaleType>(props.locale ?? currentLocale.value ?? 'zh-CN')
 
+    watch(
+      () => props.theme,
+      (val) => {
+        if (val)
+          currentTheme.value = val
+      },
+    )
+
     const canvasRef = ref<HTMLElement | null>(null)
 
     const { modelerRef, init, getModeler, loadDiagram, importXml, saveXml, clearCanvas, destroy } =

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { BpmnModelerProcess, type ThemeType, type DesignerConfig } from 'camunda7-ui'
+import { BpmnModelerProcess, type ThemeType, type DesignerConfig } from '@zeng-alt/camunda7-ui'
 
 import { ref } from 'vue'
-import type { ProcessLookupItem } from 'camunda7-ui'
+import type { ProcessLookupItem } from '@zeng-alt/camunda7-ui'
 import request from './utils/request'
 
 const theme = ref<ThemeType>('dark')
