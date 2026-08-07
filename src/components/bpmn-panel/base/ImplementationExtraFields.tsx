@@ -141,12 +141,18 @@ export default defineComponent({
               <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.implementationType')}
               </div>
-              <NSelect
-                value={implType.value}
-                onUpdateValue={onImplTypeChange}
-                options={implTypeOptions}
-                size={props.formSize}
-              />
+              <LintFieldFeedback
+                businessObject={props.businessObject}
+                bpmnModeler={props.bpmnModeler}
+                fieldPath={['camunda:class', 'camunda:delegateExpression', 'camunda:expression']}
+              >
+                <NSelect
+                  value={implType.value}
+                  onUpdateValue={onImplTypeChange}
+                  options={implTypeOptions}
+                  size={props.formSize}
+                />
+              </LintFieldFeedback>
             </div>
           )}
 
