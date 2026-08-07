@@ -46,3 +46,8 @@ __screenshots__/
 .vscode/
 test-app/
 test.ts
+
+# Local src test harness (not committed)
+/src/App.vue
+/src/main.ts
+/start.html

@@ -6,6 +6,7 @@ import '../src/styles/global.css'
 import { createApp } from 'vue'
 import { setupNaiveDiscreteApi } from '../src/utils'
 import App from './App.vue'
+import '@zeng-alt/camunda7-ui/style.css'
 
 async function bootstrap() {
   console.log('hello');

@@ -318,6 +318,7 @@
       "addOutMapping": "Add Out Mapping",
       "fixedValue": "Fixed Value",
       "variable": "Variable",
+      "editScript": "Edit Script",
       "search": "Search",
       "confirm": "Confirm",
       "cancel": "Cancel"
@@ -522,6 +523,20 @@
     "designerSwitch": {
       "pro": "Pro Mode",
       "restricted": "Simple Mode"
+    },
+    "script": {
+      "title": "Script Editor",
+      "availableVariables": "Available Variables",
+      "execution": "Process Context",
+      "task": "Task Info",
+      "variables": "Process Variables",
+      "inputParameter": "Node Input",
+      "outputParameter": "Node Output",
+      "executionDesc": "DelegateExecution — process execution context",
+      "taskDesc": "DelegateTask — task listener context",
+      "variablesDesc": "Process variable read/write operations",
+      "inputParameterDesc": "Connector input parameter Map",
+      "outputParameterDesc": "Connector output parameter Map"
     }
   },
   "bpmnViewer": {

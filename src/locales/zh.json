@@ -316,6 +316,7 @@
       "addOutMapping": "添加输出映射",
       "fixedValue": "固定值",
       "variable": "变量",
+      "editScript": "编辑脚本",
       "search": "搜索",
       "confirm": "确定",
       "cancel": "取消"
@@ -520,6 +521,20 @@
     "designerSwitch": {
       "pro": "专业模式",
       "restricted": "简单模式"
+    },
+    "script": {
+      "title": "脚本编辑器",
+      "availableVariables": "可用变量",
+      "execution": "流程上下文",
+      "task": "任务信息",
+      "variables": "流程变量",
+      "inputParameter": "节点输入",
+      "outputParameter": "节点输出",
+      "executionDesc": "DelegateExecution — 流程执行上下文",
+      "taskDesc": "DelegateTask — 任务监听器上下文",
+      "variablesDesc": "流程变量读写操作",
+      "inputParameterDesc": "连接器输入参数 Map",
+      "outputParameterDesc": "连接器输出参数 Map"
     }
   },
   "bpmn": {

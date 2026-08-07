@@ -1,7 +1,12 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
-  "exclude": ["src/**/__tests__/*", "playground/**/*"],
+  "include": ["src/**/*", "src/**/*.vue"],
+  "exclude": [
+    "src/**/__tests__/*",
+    "playground/**/*",
+    "src/App.vue",
+    "src/main.ts"
+  ],
   "compilerOptions": {
     "resolveJsonModule": true,
     "declaration": true,

@@ -1,4 +1,12 @@
-import { defineComponent, type PropType, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import {
+  defineComponent,
+  type PropType,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  watch,
+  getCurrentInstance,
+} from 'vue'
 import { CamundaConfigProvider } from '../config-provider'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
@@ -104,6 +112,17 @@ export interface BpmnModelerProcessProps {
   onSearchFormRefs?: (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
   /** 搜索表单 Key 回调：用于表单 Key 选择 */
   onSearchFormKeys?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+}
+
+export interface ProcessInfo {
+  /** 流程 XML */
+  xml: string
+  /** 流程名称 */
+  name: string
+  /** 流程 ID */
+  id: string
+  /** 流程版本 */
+  version: string
 }
 
 export const bpmnModelerProcessProps = {
@@ -257,7 +276,7 @@ export default defineComponent({
   name: 'BpmnModelerProcessContent',
   props: { ...bpmnModelerProcessProps },
   emits: ['update:theme', 'update:locale', 'update:proDesigner'],
-  setup(props, { emit, slots }) {
+  setup(props, { emit, slots, expose }) {
     const message = useMessage()
     const { t, currentLocale } = useCamundaI18n()
 
@@ -303,8 +322,7 @@ export default defineComponent({
     watch(
       () => props.theme,
       (val) => {
-        if (val)
-          currentTheme.value = val
+        if (val) currentTheme.value = val
       },
     )
 
@@ -396,6 +414,54 @@ export default defineComponent({
       currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
       emit('update:theme', currentTheme.value)
     }
+
+    /** 获取流程信息：XML、流程名、流程 ID、流程版本 */
+    async function getProcessInfo() {
+      const modeler = getModeler()
+      if (!modeler) return null
+
+      const xml = await saveXml()
+
+      let name = ''
+      let id = ''
+      let version = ''
+
+      const canvas = modeler.get('canvas')
+      const rootElement = canvas.getRootElement()
+
+      if (rootElement?.businessObject) {
+        const bo = rootElement.businessObject
+
+        // BPMN Process
+        let process = null
+
+        if (bo.$type === 'bpmn:Process') {
+          process = bo
+        }
+        // BPMN Collaboration，需要从 participants 找 processRef
+        else if (bo.$type === 'bpmn:Collaboration') {
+          const participant = bo.participants?.[0]
+          process = participant?.processRef
+        }
+
+        if (process) {
+          name = process.name || ''
+          id = process.id || ''
+          version = process.versionTag || ''
+        }
+      }
+
+      return {
+        xml,
+        name,
+        id,
+        version,
+      }
+    }
+
+    expose({
+      getProcessInfo,
+    })
 
     function handleLocaleChange(value: string) {
       currentLocaleRef.value = value as LocaleType

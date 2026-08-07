@@ -14,6 +14,9 @@ export default defineConfig({
     presetIcons({
       warn: true,
       prefix: ['i-'],
+      collections: {
+        ic: () => import('@iconify-json/ic/icons.json').then((m) => m.default),
+      },
       extraProperties: {
         display: 'inline-block',
         width: '1em',

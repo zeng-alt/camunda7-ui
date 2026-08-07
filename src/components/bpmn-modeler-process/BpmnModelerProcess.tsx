@@ -1,4 +1,4 @@
-import { defineComponent } from 'vue'
+import { defineComponent, ref, getCurrentInstance } from 'vue'
 import { NMessageProvider } from 'naive-ui'
 import BpmnModelerProcessContent, {
   bpmnModelerProcessProps,
@@ -75,10 +75,21 @@ export default defineComponent<BpmnModelerProcessProps>({
   name: 'BpmnModelerProcess',
   props: { ...bpmnModelerProcessProps },
   emits: ['update:theme', 'update:locale', 'update:proDesigner'],
-  setup(props, { emit, slots }) {
+  setup(props, { emit, slots, expose }) {
+    const contentRef = ref<any | null>(null)
+
+    async function getProcessInfo() {
+      return contentRef.value?.getProcessInfo() ?? null
+    }
+
+    expose({
+      getProcessInfo,
+    })
+
     return () => (
       <NMessageProvider>
         <BpmnModelerProcessContent
+          ref={contentRef}
           {...props}
           onUpdate:theme={(value: any) => emit('update:theme', value)}
           onUpdate:locale={(value: any) => emit('update:locale', value)}

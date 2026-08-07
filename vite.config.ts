@@ -10,6 +10,21 @@ import AutoImport from 'unplugin-auto-import/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import dts from 'vite-plugin-dts'
 
+// bpmn-font ships a legacy @font-face that references EOT/SVG fonts (relative
+// URLs). Vite inlines them as data URIs during the build, which makes browsers
+// attempt to decode the unsupported EOT format and log
+// "Failed to decode downloaded font". Modern browsers only need WOFF/TTF, so we
+// drop that @font-face at the PostCSS stage (reliable for node_modules CSS,
+// unlike a plugin transform hook which rolldown may skip).
+const stripBpmnLegacyFonts = {
+  postcssPlugin: 'strip-bpmn-legacy-fonts',
+  Once(css: any) {
+    css.walkAtRules('font-face', (rule: any) => {
+      if (rule.toString().includes('embedded-opentype')) rule.remove()
+    })
+  },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -39,6 +54,11 @@ export default defineConfig({
       },
     },
   },
+  css: {
+    postcss: {
+      plugins: [stripBpmnLegacyFonts],
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -47,13 +67,26 @@ export default defineConfig({
     },
   },
   build: {
+    copyPublicDir: false,
     lib: {
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       name: 'Camunda7UI',
       fileName: (format) => `camunda7-ui.${format}.js`,
     },
     rollupOptions: {
-      external: ['vue', 'naive-ui', 'vue-i18n', '@vueuse/core'],
+      external: [
+        'vue',
+        'naive-ui',
+        'vue-i18n',
+        '@vueuse/core',
+        '@codemirror/autocomplete',
+        '@codemirror/commands',
+        '@codemirror/language',
+        '@codemirror/state',
+        '@codemirror/view',
+        '@codemirror/lang-javascript',
+        '@codemirror/theme-one-dark',
+      ],
       output: {
         exports: 'named',
         globals: {
@@ -61,6 +94,13 @@ export default defineConfig({
           'naive-ui': 'naiveUi',
           'vue-i18n': 'VueI18n',
           '@vueuse/core': 'VueUse',
+          '@codemirror/view': 'CodeMirrorView',
+          '@codemirror/state': 'CodeMirrorState',
+          '@codemirror/language': 'CodeMirrorLanguage',
+          '@codemirror/commands': 'CodeMirrorCommands',
+          '@codemirror/autocomplete': 'CodeMirrorAutocomplete',
+          '@codemirror/lang-javascript': 'CodeMirrorLangJavascript',
+          '@codemirror/theme-one-dark': 'CodeMirrorThemeOneDark',
         },
       },
     },
