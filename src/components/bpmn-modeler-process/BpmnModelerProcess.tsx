@@ -4,6 +4,7 @@ import BpmnModelerProcessContent, {
   bpmnModelerProcessProps,
   type BpmnModelerProcessProps,
 } from './BpmnModelerProcessContent'
+import type { ValidateResult, LintReport } from '@/lint'
 
 /**
  * @description 基于 camunda-bpmn-js 的 BPMN 流程设计器组件。
@@ -60,6 +61,11 @@ import BpmnModelerProcessContent, {
  * - `update:locale`：切换语言时触发
  * - `update:proDesigner`：切换专业 / 受限模式时触发
  *
+ * ## 暴露的方法（通过 ref 调用）
+ *
+ * - `getProcessInfo()`：获取流程信息（XML、流程名、流程 ID、流程版本）
+ * - `validate()`：运行 bpmnlint 校验，返回 `ValidateResult`（问题统计 + 按元素分组的问题列表）
+ *
  * ## 插槽
  *
  * 以下具名插槽会透传到内容组件：
@@ -82,8 +88,14 @@ export default defineComponent<BpmnModelerProcessProps>({
       return contentRef.value?.getProcessInfo() ?? null
     }
 
+    /** 运行 bpmnlint 校验，返回整个图的校验结果 */
+    async function validate(): Promise<ValidateResult | null> {
+      return contentRef.value?.validate() ?? null
+    }
+
     expose({
       getProcessInfo,
+      validate,
     })
 
     return () => (

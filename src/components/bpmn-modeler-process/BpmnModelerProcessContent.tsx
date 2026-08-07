@@ -8,6 +8,7 @@ import {
   getCurrentInstance,
 } from 'vue'
 import { CamundaConfigProvider } from '../config-provider'
+import type { ValidateResult, LintReport } from '@/lint'
 import { type ThemeType, type LocaleType } from '../config-provider/context'
 import { useCamundaI18n, setLocale, customTranslateModule } from '@/locales'
 import { useMessage } from 'naive-ui'
@@ -462,6 +463,48 @@ export default defineComponent({
 
     expose({
       getProcessInfo,
+    })
+
+    /** 运行 bpmnlint 校验，返回整个图的校验结果（按元素分组 + 统计） */
+    async function validate(): Promise<ValidateResult | null> {
+      const modeler = getModeler()
+      if (!modeler) return null
+      const linting = modeler.get('linting', false)
+      if (!linting || typeof linting.lint !== 'function') return null
+
+      const raw = (await linting.lint()) as Record<string, any[]>
+      const reports: LintReport[] = []
+      for (const [rule, ruleReports] of Object.entries(raw || {})) {
+        for (const r of ruleReports || []) {
+          reports.push({
+            id: r.id,
+            message: r.message,
+            category: r.category === 'error' ? 'error' : r.category === 'warn' ? 'warn' : 'info',
+            rule,
+            path: r.path,
+          })
+        }
+      }
+
+      const byElement: Record<string, LintReport[]> = {}
+      for (const report of reports) {
+        if (!byElement[report.id]) byElement[report.id] = []
+        byElement[report.id]!.push(report)
+      }
+
+      return {
+        total: reports.length,
+        errors: reports.filter((r) => r.category === 'error').length,
+        warnings: reports.filter((r) => r.category === 'warn').length,
+        infos: reports.filter((r) => r.category === 'info').length,
+        reports,
+        byElement,
+      }
+    }
+
+    expose({
+      getProcessInfo,
+      validate,
     })
 
     function handleLocaleChange(value: string) {
