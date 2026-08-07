@@ -14,8 +14,10 @@ A Vue 3 component library for building **Camunda 7 BPMN modelers** and **process
 - 👁️ **Process Viewer** — Read-only viewer with execution state highlighting & timeline
 - ⚙️ **Property Panels** — Complete Camunda 7 property editors (forms, scripts, connectors, DMN, etc.)
 - 🌓 **Theme & i18n** — Built-in light/dark themes, Chinese/English with custom locale support
-- 🔌 **Extensible** — Slot-based extension for custom property tabs, toolbar buttons, and more
+- 🧪 **BPMNLint validation** — Built-in process validation with per-field feedback and a lint panel
+- 🔍 **Camunda Form Task** — Full form task support (fields, enums, constraints, live preview)
 - 📦 **Tree-shakable** — ESM + UMD builds with TypeScript declarations
+- 🔌 **Extensible** — Slot-based extension for custom property tabs, toolbar buttons, and more
 - 🎯 **Framework agnostic core** — Peer dependencies on Vue 3, Naive UI, @vueuse/core
 
 ## Installation
@@ -31,7 +33,7 @@ pnpm add @zeng-alt/camunda7-ui naive-ui @vueuse/core vue
 yarn add @zeng-alt/camunda7-ui naive-ui @vueuse/core vue
 ```
 
-> **Peer dependencies:** `vue@>=3.5.13`, `naive-ui@>=2.44.1`, `@vueuse/core@>=13.0.0`
+> **Peer dependencies:** `vue@>=3.5.13`, `naive-ui@>=2.44.1`, `@vueuse/core@>=13.0.0`, plus `@codemirror/*` packages for the script editor
 
 ## Quick Start
 
@@ -74,7 +76,8 @@ import 'naive-ui/dist/style.css' // or use naive-ui theme provider
 | `BpmnModelerProcess` | Full-featured BPMN process designer with property panel |
 | `BpmnProcessViewer` | Read-only process viewer with execution state & timeline |
 | `CamundaPropertiesPanel` | Standalone property panel (used internally by Modeler) |
-| Base components | Reusable editors: `GeneralPanel`, `FormPanel`, `ScriptFields`, `ImplementationExtraFields`, `IOAssignmentPanel`, `ExecutionListenersPanel`, `TaskListenersPanel`, `FieldInjections`, `ConnectorFields`, `DmnFields`, `ErrorFields`, `ExternalTaskFields`, `TimerDefinitionFields`, `ConditionalDefinitionFields`, `MessageDefinitionFields`, `SignalDefinitionFields`, `ExtensionPropertiesPanel`, `MultiInstanceFields`, `AsyncCheckboxes`, `DocumentationPanel`, `HintTooltip`, and more |
+| `BpmnPreviewModal` | Modal showing a live BPMN preview |
+| Base components | Reusable editors: `GeneralPanel`, `FormPanel`, `FormFieldEditor`, `FormPreview`, `ScriptFields`, `ImplementationExtraFields`, `IOAssignmentPanel`, `ExecutionListenersPanel`, `TaskListenersPanel`, `FieldInjections`, `ConnectorFields`, `DmnFields`, `ErrorFields`, `ExternalTaskFields`, `TimerDefinitionFields`, `ConditionalDefinitionFields`, `MessageDefinitionFields`, `SignalDefinitionFields`, `EscalationDefinitionFields`, `CompensationDefinitionFields`, `LinkDefinitionFields`, `ExtensionPropertiesPanel`, `MultiInstanceFields`, `AsyncCheckboxes`, `DocumentationPanel`, `HintTooltip`, `InMappings`/`OutMappings`, `LintPanel`, and more |
 
 ---
 
@@ -207,14 +210,16 @@ All slots are forwarded to the internal `BpmnModelerProcessContent`.
 ```ts
 const modelerRef = ref<InstanceType<typeof BpmnModelerProcess>>()
 
-// Access underlying bpmn-js modeler instance
-const bpmnModeler = modelerRef.value?.$el?.modelerRef // internal
+// Get current process info (XML, name, id, version)
+const info = await modelerRef.value?.getProcessInfo()
+// info: { xml: string, name: string, id: string, version: string } | null
 
-// Or use composables directly in your component
-import { useBpmnModeler } from '@zeng-alt/camunda7-ui'
+// Run bpmnlint validation
+const result = await modelerRef.value?.validate()
+// result: ValidateResult | null
 ```
 
-> The component exposes `saveXml()`, `importXml(xml)`, `clearCanvas()`, `destroy()` via internal composable. For advanced use, access the modeler instance via `getModeler()` from `useBpmnModeler`.
+> The component exposes `getProcessInfo()` and `validate()` via `expose()`. `ValidateResult` provides `total`, `errors`, `warnings`, `infos`, `reports[]`, and `byElement` (grouped by element id). For lower-level control, use the composables (e.g. `useLint`) exported from `@zeng-alt/camunda7-ui`.
 
 ---
 
@@ -389,25 +394,63 @@ src/
 ├── components/
 │   ├── config-provider/          # CamundaConfigProvider
 │   ├── bpmn-modeler-process/     # BpmnModelerProcess (editor)
-│   │   ├── components/           # Toolbar, DesignerSwitch, Dialogs
+│   │   ├── components/           # Toolbar, DesignerSwitch, Dialogs, PreviewModal
 │   │   ├── composables/          # useBpmnModeler, useXmlStash, useDiagramActions
 │   │   └── features/configurable-nodes/  # Restricted mode palette
-│   ├── bpmn-viewer/              # BpmnProcessViewer (read-only)
+│   ├── bpmn-viewer/              # BpmnProcessViewer, NodeTooltip, Legend, TimelinePanel
 │   └── bpmn-panel/               # Property panels & base components
 │       ├── base/                 # Reusable field components (GeneralPanel, FormPanel, etc.)
 │       ├── task/                 # Task-specific extra fields
 │       ├── events/               # Event-specific extra fields
+│       ├── subprocess/           # SubProcess / AdHoc / Transaction fields
 │       ├── flow/                 # Sequence flow fields
-│       └── callactivity/         # Call activity fields
+│       ├── call-activity/        # Call activity fields
+│       ├── gateways/             # Gateway panel
+│       ├── swimlanes/            # Pool / Lane / Collaboration
+│       ├── data/                 # Data store/object references
+│       ├── group/                # Group panel
+│       ├── association/ text-annotation/
+│       └── lint/                 # LintPanel, LintFieldFeedback
 ├── composables/                  # Shared composables
 │   ├── useBpmnProperties.ts      # Property panel helpers
 │   ├── useFormSize.ts            # Form size scaling
 │   ├── useMultiInstance.ts       # Multi-instance logic
-│   └── useCamundaLookups.ts      # Scoped lookup injection
+│   ├── useCamundaLookups.ts      # Scoped lookup injection
+│   └── useLint.ts / useLintField.ts # bpmnlint integration
+├── lint/                         # bpmnlint rules + config (camunda7RuleFactories, linterConfig)
 ├── locales/                      # i18n (zh.json, en.json)
 ├── utils/bpmn/                   # BPMN helpers (elementType, uid, getDefinitions)
 └── index.ts                      # Library entry (exports virtual:uno.css + all components)
 ```
+
+---
+
+## Linting & Validation
+
+The modeler ships with built-in bpmnlint validation.
+
+### Modeler `validate()` method
+
+Call `validate()` on the modeler ref to lint the whole diagram:
+
+```ts
+const result = await modelerRef.value?.validate()
+// result: ValidateResult | null
+// { total, errors, warnings, infos, reports: LintReport[], byElement }
+```
+
+### Composables
+
+- `useLint(getModeler)` — subscribes to the modeler's `linting` service, exposing `issuesByElement`, `issuesFor(elementId)`, `lintingActive`, `refresh()`
+- `useLintField(getModeler, getBusinessObjectId, fieldPath, localeKeyPrefix?)` — maps lint issues to a specific property field, returning NaiveUI `{ status, feedback }` for inline validation
+
+```ts
+import { useLint, useLintField, type ValidateResult } from '@zeng-alt/camunda7-ui'
+```
+
+### Built-in rules
+
+Custom rule factories are exported as `camunda7RuleFactories`, bundled into `linterConfig`. Configure strictness via `LintPanel` in the properties panel. The lint config lives in `src/lint/` and can be extended in your own build.
 
 ---
 
@@ -435,7 +478,7 @@ The `playground/` directory contains a demo app (`main.ts`, `App.vue`) that impo
 
 - **Library entry**: `src/index.ts` — exports `virtual:uno.css` side-effect + all components
 - **Build**: Vite lib mode → `dist/camunda7-ui.{es,umd}.js`, `dist/camunda7-ui.css`, `dist/index.d.ts`
-- **Externals** (not bundled): `vue`, `naive-ui`, `vue-i18n`, `@vueuse/core`
+- **Externals** (peer deps, not bundled): `vue`, `naive-ui`, `@vueuse/core`, `@codemirror/*`
 - **Formatter**: `oxfmt` — enforces no-semicolon + single-quote style (see `.oxfmtrc.json`)
 
 ---

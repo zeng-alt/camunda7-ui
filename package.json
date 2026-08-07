@@ -1,6 +1,6 @@
 {
   "name": "@zeng-alt/camunda7-ui",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "type": "module",
   "main": "./dist/camunda7-ui.umd.js",

@@ -15,6 +15,8 @@
 - ⚙️ **属性面板** — 完整的 Camunda 7 属性编辑器（表单、脚本、连接器、DMN 等）
 - 🌓 **主题与国际化** — 内置浅/深色主题，中英文双语，支持自定义语言包
 - 🔌 **可扩展** — 基于插槽的扩展机制：自定义属性标签页、工具栏按钮等
+- 🧪 **BPMNLint 校验** — 内置流程校验，支持字段级反馈与校验面板
+- 🔍 **Camunda 表单任务** — 完整表单任务支持（字段、枚举、约束、实时预览）
 - 📦 **Tree-shakable** — ESM + UMD 构建，附带 TypeScript 声明
 - 🎯 **核心无框架依赖** — Peer dependencies: Vue 3、Naive UI、@vueuse/core
 
@@ -31,7 +33,7 @@ pnpm add @zeng-alt/camunda7-ui naive-ui @vueuse/core vue
 yarn add @zeng-alt/camunda7-ui naive-ui @vueuse/core vue
 ```
 
-> **Peer dependencies:** `vue@>=3.5.13`, `naive-ui@>=2.44.1`, `@vueuse/core@>=13.0.0`
+> **Peer dependencies:** `vue@>=3.5.13`, `naive-ui@>=2.44.1`, `@vueuse/core@>=13.0.0`，以及脚本编辑器所需的 `@codemirror/*` 系列包
 
 ## 快速开始
 
@@ -74,7 +76,8 @@ import 'naive-ui/dist/style.css' // 或使用 naive-ui 主题提供器
 | `BpmnModelerProcess` | 全功能 BPMN 流程设计器，含属性面板 |
 | `BpmnProcessViewer` | 只读流程查看器，支持执行状态与时间线 |
 | `CamundaPropertiesPanel` | 独立属性面板（建模器内部使用） |
-| 基础组件 | 可复用编辑器：`GeneralPanel`、`FormPanel`、`ScriptFields`、`ImplementationExtraFields`、`IOAssignmentPanel`、`ExecutionListenersPanel`、`TaskListenersPanel`、`FieldInjections`、`ConnectorFields`、`DmnFields`、`ErrorFields`、`ExternalTaskFields`、`TimerDefinitionFields`、`ConditionalDefinitionFields`、`MessageDefinitionFields`、`SignalDefinitionFields`、`ExtensionPropertiesPanel`、`MultiInstanceFields`、`AsyncCheckboxes`、`DocumentationPanel`、`HintTooltip` 等 |
+| `BpmnPreviewModal` | 实时 BPMN 预览弹窗 |
+| 基础组件 | 可复用编辑器：`GeneralPanel`、`FormPanel`、`FormFieldEditor`、`FormPreview`、`ScriptFields`、`ImplementationExtraFields`、`IOAssignmentPanel`、`ExecutionListenersPanel`、`TaskListenersPanel`、`FieldInjections`、`ConnectorFields`、`DmnFields`、`ErrorFields`、`ExternalTaskFields`、`TimerDefinitionFields`、`ConditionalDefinitionFields`、`MessageDefinitionFields`、`SignalDefinitionFields`、`EscalationDefinitionFields`、`CompensationDefinitionFields`、`LinkDefinitionFields`、`ExtensionPropertiesPanel`、`MultiInstanceFields`、`AsyncCheckboxes`、`DocumentationPanel`、`HintTooltip`、`InMappings`/`OutMappings`、`LintPanel` 等 |
 
 ---
 
@@ -207,14 +210,16 @@ import 'naive-ui/dist/style.css' // 或使用 naive-ui 主题提供器
 ```ts
 const modelerRef = ref<InstanceType<typeof BpmnModelerProcess>>()
 
-// 访问底层 bpmn-js 实例
-const bpmnModeler = modelerRef.value?.$el?.modelerRef // 内部属性
+// 获取当前流程信息（XML、名称、ID、版本）
+const info = await modelerRef.value?.getProcessInfo()
+// info: { xml: string, name: string, id: string, version: string } | null
 
-// 或在组件中直接使用 composables
-import { useBpmnModeler } from '@zeng-alt/camunda7-ui'
+// 运行 bpmnlint 校验
+const result = await modelerRef.value?.validate()
+// result: ValidateResult | null
 ```
 
-> 组件通过内部 composable 暴露 `saveXml()`、`importXml(xml)`、`clearCanvas()`、`destroy()`。高级用法可通过 `useBpmnModeler` 的 `getModeler()` 获取模型器实例。
+> 组件通过 `expose()` 暴露 `getProcessInfo()` 与 `validate()`。`ValidateResult` 提供 `total`、`errors`、`warnings`、`infos`、`reports[]` 与 `byElement`（按元素 ID 分组）。更底层的能力请使用库导出的 composables（如 `useLint`）。
 
 ---
 
@@ -384,25 +389,63 @@ src/
 ├── components/
 │   ├── config-provider/          # CamundaConfigProvider
 │   ├── bpmn-modeler-process/     # BpmnModelerProcess (编辑器)
-│   │   ├── components/           # Toolbar、DesignerSwitch、Dialogs
+│   │   ├── components/           # Toolbar、DesignerSwitch、Dialogs、PreviewModal
 │   │   ├── composables/          # useBpmnModeler、useXmlStash、useDiagramActions
 │   │   └── features/configurable-nodes/  # 受限模式调色板
-│   ├── bpmn-viewer/              # BpmnProcessViewer (只读)
+│   ├── bpmn-viewer/              # BpmnProcessViewer、NodeTooltip、Legend、TimelinePanel
 │   └── bpmn-panel/               # 属性面板与基础组件
 │       ├── base/                 # 可复用字段组件
 │       ├── task/                 # 任务专用扩展字段
 │       ├── events/               # 事件专用扩展字段
+│       ├── subprocess/           # 子流程 / AdHoc / 事务字段
 │       ├── flow/                 # 顺序流字段
-│       └── callactivity/         # 调用活动字段
+│       ├── call-activity/        # 调用活动字段
+│       ├── gateways/             # 网关面板
+│       ├── swimlanes/            # 泳道 / 泳池 / 协作
+│       ├── data/                 # 数据存储/对象引用
+│       ├── group/                # 分组面板
+│       ├── association/ text-annotation/
+│       └── lint/                 # LintPanel、LintFieldFeedback
 ├── composables/                  # 共享 composables
 │   ├── useBpmnProperties.ts      # 属性面板助手
 │   ├── useFormSize.ts            # 表单尺寸缩放
 │   ├── useMultiInstance.ts       # 多实例逻辑
-│   └── useCamundaLookups.ts      # 作用域查找注入
+│   ├── useCamundaLookups.ts      # 作用域查找注入
+│   └── useLint.ts / useLintField.ts # bpmnlint 集成
+├── lint/                         # bpmnlint 规则与配置 (camunda7RuleFactories, linterConfig)
 ├── locales/                      # i18n (zh.json, en.json)
 ├── utils/bpmn/                   # BPMN 工具 (elementType, uid, getDefinitions)
 └── index.ts                      # 库入口 (导出 virtual:uno.css + 所有组件)
 ```
+
+---
+
+## 校验与验证
+
+建模器内置 bpmnlint 校验能力。
+
+### 建模器 `validate()` 方法
+
+在 ref 上调用 `validate()` 可对整个图进行校验：
+
+```ts
+const result = await modelerRef.value?.validate()
+// result: ValidateResult | null
+// { total, errors, warnings, infos, reports: LintReport[], byElement }
+```
+
+### Composables
+
+- `useLint(getModeler)` — 订阅建模器的 `linting` 服务，暴露 `issuesByElement`、`issuesFor(elementId)`、`lintingActive`、`refresh()`
+- `useLintField(getModeler, getBusinessObjectId, fieldPath, localeKeyPrefix?)` — 将校验问题映射到具体属性字段，返回 NaiveUI `{ status, feedback }` 用于行内校验
+
+```ts
+import { useLint, useLintField, type ValidateResult } from '@zeng-alt/camunda7-ui'
+```
+
+### 内置规则
+
+自定义规则工厂以 `camunda7RuleFactories` 导出，并打包进 `linterConfig`。可在属性面板的 `LintPanel` 中调整严格程度。校验配置位于 `src/lint/`，可在你自己的构建中扩展。
 
 ---
 
@@ -430,7 +473,7 @@ pnpm format
 
 - **库入口**: `src/index.ts` — 导出 `virtual:uno.css` 副作用 + 所有组件
 - **构产**: Vite lib 模式 → `dist/camunda7-ui.{es,umd}.js`、`dist/camunda7-ui.css`、`dist/index.d.ts`
-- **外部依赖** (不打包): `vue`、`naive-ui`、`vue-i18n`、`@vueuse/core`
+- **外部依赖** (peer deps，不打包): `vue`、`naive-ui`、`@vueuse/core`、`@codemirror/*`
 - **格式化**: `oxfmt` — 强制无分号 + 单引号 (见 `.oxfmtrc.json`)
 
 ---
