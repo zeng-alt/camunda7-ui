@@ -44,6 +44,7 @@ import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css'
 import 'camunda-bpmn-js/dist/assets/diagram-js.css'
 import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
 import 'camunda-bpmn-js/dist/assets/bpmn-js.css'
+import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css'
 
 const processId = `Process_${Math.random().toString(36).slice(2, 9)}`
 

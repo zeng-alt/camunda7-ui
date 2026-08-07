@@ -20,6 +20,7 @@ import IntermediateThrowEventExtraFields, {
 import BoundaryEventExtraFields, { boundaryEventTabs } from './BoundaryEventExtraFields'
 import EndEventExtraFields, { endEventTabs } from './EndEventExtraFields'
 import { getEventDefType } from './EventDefinitionPanel'
+import { LintPanel, LintTabLabel } from '../lint'
 
 const extraFieldsMap: Record<
   string,
@@ -165,6 +166,21 @@ export default defineComponent({
             <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
               <div class="pt-8px">
                 <ExtensionPropertiesPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
+            <NTabPane
+              name="lint"
+              tab={() => (
+                <LintTabLabel businessObject={props.businessObject} bpmnModeler={props.bpmnModeler} />
+              )}
+            >
+              <div class="pt-8px">
+                <LintPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

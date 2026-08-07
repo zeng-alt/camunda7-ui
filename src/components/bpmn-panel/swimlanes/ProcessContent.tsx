@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NCheckbox, NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { useBpmnProperties, useFormSize } from '../../../composables'
+import { useBpmnProperties, useFormSize, useLintField } from '../../../composables'
 import {
   DocumentationPanel,
   GeneralPanel,
@@ -114,6 +114,12 @@ export default defineComponent({
       updateProp('jobPriority', val ?? null)
     }
 
+    const historyTimeToLiveLint = useLintField(
+      () => props.bpmnModeler,
+      () => props.processBusinessObject?.id,
+      'camunda:historyTimeToLive',
+    )
+
     function renderProcessFields() {
       return (
         <div class="flex flex-col gap-12px">
@@ -159,7 +165,19 @@ export default defineComponent({
               onUpdateValue={onHistoryTimeToLiveChange}
               placeholder={t('bpmnPanel.placeholders.historyTimeToLive')}
               size={props.formSize}
+              status={historyTimeToLiveLint.value?.status}
             />
+            {historyTimeToLiveLint.value && (
+              <div
+                class={`mt-4px text-11px ${
+                  historyTimeToLiveLint.value.status === 'error'
+                    ? 'text-#d03050'
+                    : 'text-#f0a020'
+                }`}
+              >
+                {historyTimeToLiveLint.value.feedback}
+              </div>
+            )}
           </div>
           <div>
             <GroupPicker

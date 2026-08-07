@@ -1,10 +1,14 @@
 import { ref, type Ref } from 'vue'
 import BpmnModeler from 'camunda-bpmn-js/lib/camunda-platform/Modeler'
+import lintModule from 'bpmn-js-bpmnlint'
+import { linterConfig } from '@/lint'
 
 /** useBpmnModeler 的配置选项 */
 export interface UseBpmnModelerOptions {
   /** 返回画布容器 DOM 元素的函数 */
   container: () => HTMLElement | null
+  /** 是否启用 bpmnlint（画布标记 + 属性面板 Lint Tab），默认 true */
+  linting?: boolean
 }
 
 /** useBpmnModeler 的返回值：建模器实例与生命周期方法 */
@@ -59,7 +63,13 @@ export function useBpmnModeler(options: UseBpmnModelerOptions): UseBpmnModeler {
   function init(additionalModules: any[] = []) {
     const container = options.container()
     if (!container || modeler) return
-    modeler = new BpmnModeler({ container, additionalModules })
+    const lintingEnabled = options.linting !== false
+    const modules = lintingEnabled ? [lintModule, ...additionalModules] : additionalModules
+    modeler = new BpmnModeler({
+      container,
+      linting: lintingEnabled ? { bpmnlint: linterConfig, active: true } : undefined,
+      additionalModules: modules,
+    })
     modelerRef.value = modeler
   }
 

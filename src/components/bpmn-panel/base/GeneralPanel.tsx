@@ -1,7 +1,7 @@
 import { defineComponent, ref, watch, type PropType } from 'vue'
 import { NInput, NSwitch, NFormItem, NForm } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
-import { useBpmnProperties } from '@/composables'
+import { useBpmnProperties, useLintField } from '@/composables'
 
 export default defineComponent({
   name: 'GeneralPanel',
@@ -66,6 +66,12 @@ export default defineComponent({
 
     const { updateProperty } = useBpmnProperties(props)
 
+    const nameLint = useLintField(
+      () => props.bpmnModeler,
+      () => props.businessObject?.id,
+      'name',
+    )
+
     function onNameChange(val: string | null) {
       name.value = val ?? ''
       updateProperty('name', val ?? '')
@@ -100,7 +106,12 @@ export default defineComponent({
             />
           </NFormItem>
           {props.showName && (
-            <NFormItem label={t('bpmnPanel.fields.name')} path="name">
+            <NFormItem
+              label={t('bpmnPanel.fields.name')}
+              path="name"
+              validation-status={nameLint.value?.status}
+              feedback={nameLint.value?.feedback}
+            >
               <NInput
                 size={props.formSize}
                 type="textarea"

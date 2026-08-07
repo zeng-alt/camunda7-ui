@@ -20,6 +20,7 @@ import ReceiveTaskExtraFields, { receiveTaskTabs } from './ReceiveTaskExtraField
 import BusinessRuleTaskExtraFields, { businessRuleTaskTabs } from './BusinessRuleTaskExtraFields'
 import ScriptTaskExtraFields, { scriptTaskTabs } from './ScriptTaskExtraFields'
 import MultiInstanceFields from '../base/MultiInstanceFields'
+import { LintPanel, LintTabLabel } from '../lint'
 
 export default defineComponent({
   name: 'TaskPropertiesPanel',
@@ -262,6 +263,21 @@ export default defineComponent({
             <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
               <div class="pt-8px">
                 <ExtensionPropertiesPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
+            <NTabPane
+              name="lint"
+              tab={() => (
+                <LintTabLabel businessObject={props.businessObject} bpmnModeler={props.bpmnModeler} />
+              )}
+            >
+              <div class="pt-8px">
+                <LintPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}

@@ -85,6 +85,8 @@ export type TabName =
   | 'general'
   | 'extensionProperties'
   | 'custom'
+  // lint
+  | 'lint'
   // camunda common
   | 'executionListeners'
   | 'multiInstance'
@@ -199,6 +201,8 @@ export const defaultTabVisibility: Record<TabName, boolean> = {
   general: true,
   extensionProperties: false,
   custom: true,
+  // lint
+  lint: true,
   // camunda common
   executionListeners: false,
   multiInstance: true,

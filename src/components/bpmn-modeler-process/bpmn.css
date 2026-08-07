@@ -530,3 +530,11 @@ body .djs-drag-active {
   width: 200px !important;
   height: 150px !important;
 }
+
+
+/* Move the bpmnlint summary button to the left so it does not overlap
+   the DesignerSwitch (pro/restricted) buttons centered at the bottom. */
+.bpmn-container .bjsl-button {
+  left: 24px !important;
+  transform: none !important;
+}

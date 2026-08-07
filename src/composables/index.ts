@@ -15,3 +15,7 @@ export type {
   UseMultiInstanceOptions,
   UseMultiInstanceProps,
 } from './useMultiInstance'
+export { useLint } from './useLint'
+export type { LintIssue, IssuesByElement, UseLintReturn } from './useLint'
+export { useLintField } from './useLintField'
+export type { LintFieldFeedback, UseLintFieldReturn } from './useLintField'

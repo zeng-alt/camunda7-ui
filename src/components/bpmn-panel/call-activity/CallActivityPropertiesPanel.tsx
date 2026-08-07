@@ -11,6 +11,7 @@ import {
 } from '../base'
 import CallActivityExtraFields, { callActivityTabs } from './CallActivityExtraFields'
 import MultiInstanceFields from '../base/MultiInstanceFields'
+import { LintPanel, LintTabLabel } from '../lint'
 
 function getCallActivitySubType(businessObject: any): string {
   if (!businessObject) return ''
@@ -167,6 +168,21 @@ export default defineComponent({
             <NTabPane name="extensionProperties" tab={t('bpmnPanel.tabs.extensionProperties')}>
               <div class="pt-8px">
                 <ExtensionPropertiesPanel
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  formSize={props.formSize}
+                />
+              </div>
+            </NTabPane>
+            <NTabPane
+              name="lint"
+              tab={() => (
+                <LintTabLabel businessObject={props.businessObject} bpmnModeler={props.bpmnModeler} />
+              )}
+            >
+              <div class="pt-8px">
+                <LintPanel
                   businessObject={props.businessObject}
                   element={props.element}
                   bpmnModeler={props.bpmnModeler}
