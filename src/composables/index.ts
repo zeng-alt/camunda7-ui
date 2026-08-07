@@ -18,4 +18,4 @@ export type {
 export { useLint } from './useLint'
 export type { LintIssue, IssuesByElement, UseLintReturn } from './useLint'
 export { useLintField } from './useLintField'
-export type { LintFieldFeedback, UseLintFieldReturn } from './useLintField'
+export type { LintFieldStatus, UseLintFieldReturn } from './useLintField'

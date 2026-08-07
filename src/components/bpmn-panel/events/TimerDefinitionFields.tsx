@@ -3,6 +3,7 @@ import { NInput, NInputNumber, NRadioGroup, NRadio, NSpace, NTooltip } from 'nai
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '../../../composables'
 import { HintTooltip } from '../base'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export default defineComponent({
   name: 'TimerDefinitionFields',
@@ -163,12 +164,18 @@ export default defineComponent({
           </NRadioGroup>
         </div>
         {timerActiveField.value !== 'none' && (
-          <NInput
-            value={timerValue.value}
-            onUpdateValue={onTimerValueChange}
-            placeholder={t('bpmnPanel.placeholders.' + timerActiveField.value)}
-            size={props.formSize}
-          />
+          <LintFieldFeedback
+            businessObject={props.businessObject}
+            bpmnModeler={props.bpmnModeler}
+            fieldPath="timeDuration"
+          >
+            <NInput
+              value={timerValue.value}
+              onUpdateValue={onTimerValueChange}
+              placeholder={t('bpmnPanel.placeholders.' + timerActiveField.value)}
+              size={props.formSize}
+            />
+          </LintFieldFeedback>
         )}
         <div class="mt-12px">
           <div class="text-12px font-bold text-#888">{t('bpmnPanel.fields.jobExecution')}</div>

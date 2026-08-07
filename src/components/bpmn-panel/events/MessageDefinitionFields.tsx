@@ -3,6 +3,7 @@ import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '../../../composables'
 import { uid, getDefinitions } from './eventHelpers'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export default defineComponent({
   name: 'MessageDefinitionFields',
@@ -107,13 +108,19 @@ export default defineComponent({
 
     return () => (
       <div>
-        <NSelect
-          value={selectedMsgId.value}
-          onUpdateValue={onMessageSelect}
-          options={messageOptions.value}
-          size={props.formSize}
-          placeholder={t('bpmnPanel.placeholders.messageRef')}
-        />
+        <LintFieldFeedback
+          businessObject={props.businessObject}
+          bpmnModeler={props.bpmnModeler}
+          fieldPath="messageRef"
+        >
+          <NSelect
+            value={selectedMsgId.value}
+            onUpdateValue={onMessageSelect}
+            options={messageOptions.value}
+            size={props.formSize}
+            placeholder={t('bpmnPanel.placeholders.messageRef')}
+          />
+        </LintFieldFeedback>
         {selectedMsgId.value && (
           <div class="mt-8px">
             <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.messageName')}</div>

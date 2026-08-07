@@ -6,6 +6,7 @@ import ExpressionField from '../base/ExpressionField'
 import JavaClassField from '../base/JavaClassField'
 import DelegateExpressionField from '../base/DelegateExpressionField'
 import ProcessListPicker from '../base/ProcessListPicker'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 import type { ExtraFieldTab } from '../base'
 import type { ProcessLookupItem } from '../../../composables'
 
@@ -271,12 +272,18 @@ export default defineComponent({
         {currentType.value === 'bpmn' && (
           <div>
             <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.calledElement')}</div>
-            <ProcessListPicker
-              value={calledElement.value}
-              onUpdate:value={onCalledElementChange}
-              onUpdate:item={onProcessItemChange}
-              formSize={props.formSize}
-            />
+            <LintFieldFeedback
+              businessObject={props.businessObject}
+              bpmnModeler={props.bpmnModeler}
+              fieldPath="calledElement"
+            >
+              <ProcessListPicker
+                value={calledElement.value}
+                onUpdate:value={onCalledElementChange}
+                onUpdate:item={onProcessItemChange}
+                formSize={props.formSize}
+              />
+            </LintFieldFeedback>
           </div>
         )}
         {currentType.value === 'cmmn' && (

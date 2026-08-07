@@ -29,7 +29,7 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       const httl = node.historyTimeToLive ?? node.get('camunda:historyTimeToLive')
       if (httl === undefined || httl === null || httl === '') {
         reporter.report(node.id, 'Executable process should define camunda:historyTimeToLive', [
-          'camunda:historyTimeToLive',
+          'historyTimeToLive',
         ])
       }
     },
@@ -41,7 +41,11 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       const candidateUsers = node.get('camunda:candidateUsers')
       const candidateGroups = node.get('camunda:candidateGroups')
       if (!assignee && !candidateUsers && !candidateGroups) {
-        reporter.report(node.id, 'User task should define an assignee or candidate users/groups')
+        reporter.report(node.id, 'User task should define an assignee or candidate users/groups', [
+          'camunda:assignee',
+          'camunda:candidateUsers',
+          'camunda:candidateGroups',
+        ])
       }
     },
   }),
@@ -54,7 +58,11 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
         node.get('camunda:expression') ||
         node.get('camunda:type')
       if (!hasImplementation) {
-        reporter.report(node.id, 'Service task is missing an implementation (class, expression, delegate expression or type)')
+        reporter.report(
+          node.id,
+          'Service task is missing an implementation (class, expression, delegate expression or type)',
+          ['camunda:class', 'camunda:delegateExpression', 'camunda:expression'],
+        )
       }
     },
   }),
@@ -79,7 +87,10 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       if (!node.$instanceOf('bpmn:TimerEventDefinition')) return
       const hasDefinition = node.get('timeDate') || node.get('timeDuration') || node.get('timeCycle')
       if (!hasDefinition) {
-        reporter.report(node.id, 'Timer event should define a timeDate, timeDuration or timeCycle')
+        const targetId = node.$parent?.id || node.id
+        reporter.report(targetId, 'Timer event should define a timeDate, timeDuration or timeCycle', [
+          'timeDuration',
+        ])
       }
     },
   }),
@@ -87,7 +98,8 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
     check(node, reporter) {
       if (!node.$instanceOf('bpmn:MessageEventDefinition')) return
       if (!node.get('messageRef')) {
-        reporter.report(node.id, 'Message event should reference a message', ['messageRef'])
+        const targetId = node.$parent?.id || node.id
+        reporter.report(targetId, 'Message event should reference a message', ['messageRef'])
       }
     },
   }),
@@ -96,7 +108,9 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       if (!node.$instanceOf('bpmn:ScriptTask')) return
       const hasScript = node.get('scriptFormat') || node.get('camunda:resource')
       if (!hasScript) {
-        reporter.report(node.id, 'Script task is missing a script format or resource')
+        reporter.report(node.id, 'Script task is missing a script format or resource', [
+          'scriptFormat',
+        ])
       }
     },
   }),

@@ -12,6 +12,7 @@ import {
   ErrorFields,
   DmnFields,
 } from '.'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export const implementationTabs: ExtraFieldTab[] = [
   { name: 'implementation', labelKey: 'bpmnPanel.tabs.implementation' },
@@ -152,27 +153,39 @@ export default defineComponent({
           {implType.value === 'class' && (
             <div class="mb-8px">
               <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.listenerClass')}</div>
-              <JavaClassField
+              <LintFieldFeedback
                 businessObject={props.businessObject}
-                element={props.element}
                 bpmnModeler={props.bpmnModeler}
-                propertyKey="class"
-                formSize={props.formSize}
-              />
+                fieldPath={['camunda:class', 'camunda:delegateExpression', 'camunda:expression']}
+              >
+                <JavaClassField
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  propertyKey="class"
+                  formSize={props.formSize}
+                />
+              </LintFieldFeedback>
             </div>
           )}
 
           {implType.value === 'expression' && (
             <div class="mb-8px">
-              <ExpressionField
+              <LintFieldFeedback
                 businessObject={props.businessObject}
-                element={props.element}
                 bpmnModeler={props.bpmnModeler}
-                propertyKey="expression"
-                showResultVariable={true}
-                resultVariablePropertyKey="resultVariable"
-                formSize={props.formSize}
-              />
+                fieldPath={['camunda:class', 'camunda:delegateExpression', 'camunda:expression']}
+              >
+                <ExpressionField
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  propertyKey="expression"
+                  showResultVariable={true}
+                  resultVariablePropertyKey="resultVariable"
+                  formSize={props.formSize}
+                />
+              </LintFieldFeedback>
             </div>
           )}
 
@@ -181,13 +194,19 @@ export default defineComponent({
               <div class={`mb-4px ${labelClass.value}`}>
                 {t('bpmnPanel.fields.listenerDelegateExpression')}
               </div>
-              <DelegateExpressionField
+              <LintFieldFeedback
                 businessObject={props.businessObject}
-                element={props.element}
                 bpmnModeler={props.bpmnModeler}
-                propertyKey="delegateExpression"
-                formSize={props.formSize}
-              />
+                fieldPath={['camunda:class', 'camunda:delegateExpression', 'camunda:expression']}
+              >
+                <DelegateExpressionField
+                  businessObject={props.businessObject}
+                  element={props.element}
+                  bpmnModeler={props.bpmnModeler}
+                  propertyKey="delegateExpression"
+                  formSize={props.formSize}
+                />
+              </LintFieldFeedback>
             </div>
           )}
 

@@ -2,6 +2,7 @@ import { defineComponent, ref, watch, nextTick, type PropType } from 'vue'
 import { NInput, NSelect, NButton, NModal, NSpace, NTag } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '../../../composables'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 import {
   EditorView,
   lineNumbers,
@@ -404,12 +405,18 @@ export default defineComponent({
           ) : (
             <div>
               <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.scriptFormat')}</div>
-              <NSelect
-                value={displayFormat()}
-                onUpdateValue={(v: string | null) => onFormatChange(v ?? 'js')}
-                options={scriptFormatOptions}
-                size={props.formSize}
-              />
+              <LintFieldFeedback
+                businessObject={props.businessObject}
+                bpmnModeler={props.bpmnModeler}
+                fieldPath="scriptFormat"
+              >
+                <NSelect
+                  value={displayFormat()}
+                  onUpdateValue={(v: string | null) => onFormatChange(v ?? 'js')}
+                  options={scriptFormatOptions}
+                  size={props.formSize}
+                />
+              </LintFieldFeedback>
             </div>
           )}
 

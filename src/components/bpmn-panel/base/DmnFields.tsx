@@ -3,6 +3,7 @@ import { NInput, NSelect } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '../../../composables'
 import DecisionRefPicker from './DecisionRefPicker'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 import type { ProcessLookupItem } from '../../../composables'
 
 const bindingOptions = [
@@ -101,12 +102,18 @@ export default defineComponent({
       <div>
         <div class="mb-8px">
           <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.decisionRef')}</div>
-          <DecisionRefPicker
-            value={decisionRef.value}
-            onUpdate:value={onDecisionRefChange}
-            onUpdate:item={onDecisionItemChange}
-            formSize={props.formSize}
-          />
+          <LintFieldFeedback
+            businessObject={props.businessObject}
+            bpmnModeler={props.bpmnModeler}
+            fieldPath="camunda:decisionRef"
+          >
+            <DecisionRefPicker
+              value={decisionRef.value}
+              onUpdate:value={onDecisionRefChange}
+              onUpdate:item={onDecisionItemChange}
+              formSize={props.formSize}
+            />
+          </LintFieldFeedback>
         </div>
         <div class="mb-8px">
           <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.decisionRefBinding')}</div>

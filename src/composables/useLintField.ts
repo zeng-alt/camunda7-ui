@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { useLint, type LintIssue } from './useLint'
 import { useCamundaI18n } from '@/locales'
 
-export interface LintFieldFeedback {
+export interface LintFieldStatus {
   status: 'error' | 'warning'
   feedback: string
   issue: LintIssue
@@ -16,24 +16,25 @@ export interface LintFieldFeedback {
  *
  * @param getModeler 返回当前 bpmnModeler 实例的 getter
  * @param getBusinessObjectId 返回当前元素 businessObject id 的 getter
- * @param fieldPath 字段名（与 lint report 的 path 项一致）
+ * @param fieldPath 字段名（与 lint report 的 path 项一致），可传多个
  * @param localeKeyPrefix 翻译前缀，默认 `bpmnPanel.lint.rules`（按规则名翻译）
  */
 export function useLintField(
   getModeler: () => any | null,
   getBusinessObjectId: () => string | undefined,
-  fieldPath: string,
+  fieldPath: string | string[],
   localeKeyPrefix = 'bpmnPanel.lint.rules',
 ) {
   const { t } = useCamundaI18n()
   const { issuesFor } = useLint(getModeler)
 
-  return computed<LintFieldFeedback | null>(() => {
+  return computed<LintFieldStatus | null>(() => {
     const boId = getBusinessObjectId()
     if (!boId) return null
     const issues = issuesFor(boId)
+    const paths = Array.isArray(fieldPath) ? fieldPath : [fieldPath]
     const matched = issues.find(
-      (issue) => Array.isArray(issue.path) && issue.path.includes(fieldPath),
+      (issue) => Array.isArray(issue.path) && issue.path.some((p) => paths.includes(p)),
     )
     if (!matched) return null
 

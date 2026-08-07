@@ -3,6 +3,7 @@ import { NInputNumber } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '@/composables'
 import ExternalTopicPicker from './ExternalTopicPicker'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export default defineComponent({
   name: 'ExternalTaskFields',
@@ -55,11 +56,17 @@ export default defineComponent({
       <>
         <div class="mb-8px">
           <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.topic')}</div>
-          <ExternalTopicPicker
-            value={topic.value}
-            onUpdate:value={onTopicChange}
-            formSize={props.formSize}
-          />
+          <LintFieldFeedback
+            businessObject={props.businessObject}
+            bpmnModeler={props.bpmnModeler}
+            fieldPath="camunda:topic"
+          >
+            <ExternalTopicPicker
+              value={topic.value}
+              onUpdate:value={onTopicChange}
+              formSize={props.formSize}
+            />
+          </LintFieldFeedback>
         </div>
         <div class="mb-8px">
           <div class={`mb-4px ${labelClass.value}`}>

@@ -14,6 +14,7 @@ import { useCamundaI18n } from '../../../locales'
 import { useMultiInstance, useBpmnProperties, useFormSize } from '@/composables'
 import type { ExtraFieldTab } from '../base'
 import { UserPicker, GroupPicker, FormPanel, TaskListenersPanel } from '../base'
+import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export const userTaskTabs: ExtraFieldTab[] = [
   { name: 'userTask', labelKey: 'bpmnPanel.tabs.userTask' },
@@ -445,14 +446,20 @@ export default defineComponent({
 
           {!enabled.value && panelMode.value === 'normal' && (
             <div class="flex flex-col gap-12px">
-              <UserPicker
-                value={candidateUsers.value}
-                onUpdate:value={onCandidateUsersChange}
-                multiple
-                formSize={props.formSize}
-                label={t('bpmnPanel.fields.candidateUsers')}
-                placeholder={t('bpmnPanel.placeholders.candidateUsers')}
-              />
+              <LintFieldFeedback
+                businessObject={props.businessObject}
+                bpmnModeler={props.bpmnModeler}
+                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+              >
+                <UserPicker
+                  value={candidateUsers.value}
+                  onUpdate:value={onCandidateUsersChange}
+                  multiple
+                  formSize={props.formSize}
+                  label={t('bpmnPanel.fields.candidateUsers')}
+                  placeholder={t('bpmnPanel.placeholders.candidateUsers')}
+                />
+              </LintFieldFeedback>
               <GroupPicker
                 value={candidateGroups.value}
                 onUpdate:value={onCandidateGroupsChange}
@@ -468,22 +475,20 @@ export default defineComponent({
 
           {!enabled.value && panelMode.value === 'advanced' && (
             <div class="flex flex-col gap-12px">
-              <UserPicker
-                value={assignee.value}
-                onUpdate:value={onAssigneeChange}
-                multiple={false}
-                formSize={props.formSize}
-                label={t('bpmnPanel.fields.assignee')}
-                placeholder={t('bpmnPanel.placeholders.assignee')}
-              />
-              <UserPicker
-                value={candidateUsers.value}
-                onUpdate:value={onCandidateUsersChange}
-                multiple
-                formSize={props.formSize}
-                label={t('bpmnPanel.fields.candidateUsers')}
-                placeholder={t('bpmnPanel.placeholders.candidateUsers')}
-              />
+              <LintFieldFeedback
+                businessObject={props.businessObject}
+                bpmnModeler={props.bpmnModeler}
+                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+              >
+                <UserPicker
+                  value={assignee.value}
+                  onUpdate:value={onAssigneeChange}
+                  multiple={false}
+                  formSize={props.formSize}
+                  label={t('bpmnPanel.fields.assignee')}
+                  placeholder={t('bpmnPanel.placeholders.assignee')}
+                />
+              </LintFieldFeedback>
               <GroupPicker
                 value={candidateGroups.value}
                 onUpdate:value={onCandidateGroupsChange}
@@ -705,22 +710,20 @@ export default defineComponent({
 
           {enabled.value && panelMode.value === 'advanced' && (
             <div class="flex flex-col gap-12px">
-              <UserPicker
-                value={assignee.value}
-                onUpdate:value={onAssigneeChange}
-                multiple={false}
-                formSize={props.formSize}
-                label={t('bpmnPanel.fields.assignee')}
-                placeholder={t('bpmnPanel.placeholders.assignee')}
-              />
-              <UserPicker
-                value={candidateUsers.value}
-                onUpdate:value={onCandidateUsersChange}
-                multiple
-                formSize={props.formSize}
-                label={t('bpmnPanel.fields.candidateUsers')}
-                placeholder={t('bpmnPanel.placeholders.candidateUsers')}
-              />
+              <LintFieldFeedback
+                businessObject={props.businessObject}
+                bpmnModeler={props.bpmnModeler}
+                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+              >
+                <UserPicker
+                  value={assignee.value}
+                  onUpdate:value={onAssigneeChange}
+                  multiple={false}
+                  formSize={props.formSize}
+                  label={t('bpmnPanel.fields.assignee')}
+                  placeholder={t('bpmnPanel.placeholders.assignee')}
+                />
+              </LintFieldFeedback>
               <GroupPicker
                 value={candidateGroups.value}
                 onUpdate:value={onCandidateGroupsChange}
