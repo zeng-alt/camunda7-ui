@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { BpmnModelerProcess, type ThemeType, type DesignerConfig } from '@zeng-alt/camunda7-ui'
+import {
+  BpmnModelerProcess,
+  BpmnPreviewModal,
+  type ThemeType,
+  type LocaleType,
+  type DesignerConfig,
+} from '@zeng-alt/camunda7-ui'
 
 import { ref } from 'vue'
 import type { ProcessLookupItem } from '@zeng-alt/camunda7-ui'
 import request from './utils/request'
 
 const theme = ref<ThemeType>('dark')
+const locale = ref<LocaleType>('zh-CN')
 const proDesigner = ref(true)
+const previewModalRef = ref<InstanceType<typeof BpmnPreviewModal> | null>(null)
 // const designerConfig = ref<DesignerConfig>({
 //   elements: {
 //     'bpmn:SubProcess': false,
@@ -174,6 +182,11 @@ async function handlePublish(modeler: any) {
   }
 }
 
+async function handlePreview(modeler: any) {
+  const { xml } = await modeler.saveXML({ format: true })
+  previewModalRef.value?.open(xml)
+}
+
 function delay(ms = 300) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -267,7 +280,8 @@ async function onSearchDelegateExpressions(name: string) {
 <template>
     <div class="h-screen relative w-full">
       <BpmnModelerProcess
-      :theme="theme"
+      v-model:theme="theme"
+      v-model:locale="locale"
       :proDesigner="proDesigner"
       size="small"
       :onSearchUsers="onSearchUsers"
@@ -287,6 +301,11 @@ async function onSearchDelegateExpressions(name: string) {
         <NButton ghost type="primary" @click="handlePublish(modeler)">
           <NIcon>
             <span class="i-ic-baseline-upload" />
+          </NIcon>
+        </NButton>
+        <NButton ghost @click="handlePreview(modeler)">
+          <NIcon>
+            <span class="i-ic-baseline-remove-red-eye" />
           </NIcon>
         </NButton>
       </template>
@@ -323,5 +342,7 @@ async function onSearchDelegateExpressions(name: string) {
         </div>
       </template> -->
     </BpmnModelerProcess>
+
+    <BpmnPreviewModal ref="previewModalRef" :theme="theme" :locale="locale" />
   </div>
 </template>

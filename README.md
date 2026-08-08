@@ -298,6 +298,66 @@ viewerRef.value?.fitViewport()
 
 ---
 
+## BpmnPreviewModal
+
+A live BPMN preview modal built on `NavigatedViewer`. It auto-sizes the dialog to the diagram content (with a 640×480 minimum, capped at 95vw/95vh), so small diagrams open small and large ones fit the viewport. The diagram uses the default `fit-viewport` scaling (never zoomed in past 100%).
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `xml` | `string` | `''` | BPMN XML to preview |
+| `title` | `string` | `''` | Modal title (defaults to the built-in "Preview" label) |
+| `theme` | `'light' \| 'dark'` | `undefined` | Theme (falls back to provider) |
+| `locale` | `string` | `undefined` | Locale (falls back to provider) |
+| `width` | `string \| number` | `800` | Fallback width when the content size is not known yet |
+| `height` | `string \| number` | `600` | Fallback height when the content size is not known yet |
+
+### Methods (via template ref)
+
+| Method | Description |
+|--------|-------------|
+| `open(xml?)` | Open the modal and (re)load the given XML, falling back to the `xml` prop |
+| `close()` | Close the modal |
+
+### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `close` | — | Fired when the modal is closed (X / ESC / mask click) |
+
+### Usage
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { BpmnPreviewModal, type ThemeType } from '@zeng-alt/camunda7-ui'
+
+const theme = ref<ThemeType>('dark')
+const previewRef = ref<InstanceType<typeof BpmnPreviewModal> | null>(null)
+
+function handlePreview(xml: string) {
+  previewRef.value?.open(xml)
+}
+</script>
+
+<template>
+  <n-button @click="handlePreview(currentXml)">Preview</n-button>
+  <BpmnPreviewModal ref="previewRef" :theme="theme" />
+</template>
+```
+
+To preview the current modeler state, grab the XML first:
+
+```ts
+async function handlePreview(modeler: any) {
+  const { xml } = await modeler.saveXML({ format: true })
+  previewRef.value?.open(xml)
+}
+```
+
+---
+
 ## Internationalization (i18n)
 
 All UI text uses the built-in lightweight i18n system (no `vue-i18n` required).

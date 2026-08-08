@@ -298,6 +298,66 @@ viewerRef.value?.fitViewport()
 
 ---
 
+## BpmnPreviewModal
+
+基于 `NavigatedViewer` 的实时 BPMN 预览弹窗。弹窗尺寸会自动跟随画布内容（最小 640×480，最大 95vw/95vh），小图弹窗小、大图撑满视口；图形缩放使用默认的 `fit-viewport` 行为（不会放大超过 100%）。
+
+### Props
+
+| Prop | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `xml` | `string` | `''` | 要预览的 BPMN XML |
+| `title` | `string` | `''` | 弹窗标题（默认使用内置的「预览」文案） |
+| `theme` | `'light' \| 'dark'` | `undefined` | 主题（未传时继承全局） |
+| `locale` | `string` | `undefined` | 语言（未传时继承全局） |
+| `width` | `string \| number` | `800` | 内容尺寸未知时的兜底宽度 |
+| `height` | `string \| number` | `600` | 内容尺寸未知时的兜底高度 |
+
+### 方法（通过 template ref）
+
+| 方法 | 说明 |
+|------|------|
+| `open(xml?)` | 打开弹窗并（重新）加载给定 XML，缺省时回退到 `xml` prop |
+| `close()` | 关闭弹窗 |
+
+### 事件
+
+| 事件 | 载荷 | 说明 |
+|------|------|------|
+| `close` | — | 弹窗关闭时触发（X / ESC / 点击遮罩） |
+
+### 使用示例
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { BpmnPreviewModal, type ThemeType } from '@zeng-alt/camunda7-ui'
+
+const theme = ref<ThemeType>('dark')
+const previewRef = ref<InstanceType<typeof BpmnPreviewModal> | null>(null)
+
+function handlePreview(xml: string) {
+  previewRef.value?.open(xml)
+}
+</script>
+
+<template>
+  <n-button @click="handlePreview(currentXml)">预览</n-button>
+  <BpmnPreviewModal ref="previewRef" :theme="theme" />
+</template>
+```
+
+预览设计器当前内容时，先取出 XML：
+
+```ts
+async function handlePreview(modeler: any) {
+  const { xml } = await modeler.saveXML({ format: true })
+  previewRef.value?.open(xml)
+}
+```
+
+---
+
 ## 国际化 (i18n)
 
 所有 UI 文案使用内置轻量级 i18n 系统（无需 `vue-i18n`）。
