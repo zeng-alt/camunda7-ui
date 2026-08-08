@@ -530,6 +530,30 @@ pnpm build
 pnpm format
 ```
 
+### Testing
+
+Tests are run with **Vitest** + **@vue/test-utils** (jsdom). Co-located spec files live in `__tests__/` folders next to the code under test and are excluded from the library type-check/build.
+
+```bash
+# Run all tests once
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+# Run tests with coverage report (v8)
+pnpm test:coverage
+```
+
+Current coverage focuses on pure logic and a few representative components:
+
+- `src/utils/bpmn` — element type/icon resolution, template registry, `uid`/`getDefinitions`
+- `src/lint/rules.ts` — the custom `camunda7/*` validation rules
+- `src/composables/useBpmnProperties` — modeler property read/write helpers
+- `src/components/bpmn-panel/base/DocumentationPanel` — example component test with mocked modeler
+
+Browser APIs used by components (e.g. `matchMedia`, `ResizeObserver`) are stubbed in `src/test/setup.ts`.
+
 ### Playground
 
 The `playground/` directory contains a demo app (`main.ts`, `App.vue`) that imports the library via the `camunda7-ui` alias (resolves to `src/index.ts`). Use it for manual testing.

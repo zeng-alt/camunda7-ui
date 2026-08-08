@@ -525,6 +525,30 @@ pnpm build
 pnpm format
 ```
 
+### 测试
+
+使用 **Vitest** + **@vue/test-utils**（jsdom）运行测试。测试文件与被测代码同目录，放在 `__tests__/` 文件夹下，且已排除在库的类型检查/构建之外。
+
+```bash
+# 运行全部测试一次
+pnpm test
+
+# 监听模式
+pnpm test:watch
+
+# 带覆盖率报告运行（v8）
+pnpm test:coverage
+```
+
+当前覆盖重点是纯逻辑与几个代表性组件：
+
+- `src/utils/bpmn` — 元素类型/图标解析、模板注册表、`uid`/`getDefinitions`
+- `src/lint/rules.ts` — 自定义 `camunda7/*` 校验规则
+- `src/composables/useBpmnProperties` — 建模器属性读写工具
+- `src/components/bpmn-panel/base/DocumentationPanel` — 组件测试示例（mock 建模器）
+
+组件用到的浏览器 API（如 `matchMedia`、`ResizeObserver`）在 `src/test/setup.ts` 中做了 stub。
+
 ### Playground
 
 `playground/` 目录包含演示应用（`main.ts`、`App.vue`），通过 `camunda7-ui` 别名引用库（解析到 `src/index.ts`），用于手动测试。
