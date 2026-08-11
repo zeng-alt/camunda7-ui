@@ -61,8 +61,8 @@ export default defineComponent({
 
     const issues = computed(() => issuesFor(props.businessObject?.id))
     const errors = computed(() => issues.value.filter((i) => i.category === 'error').length)
-    const warnings = computed(() =>
-      issues.value.filter((i) => i.category === 'warn' || i.category === 'warning').length,
+    const warnings = computed(
+      () => issues.value.filter((i) => i.category === 'warn' || i.category === 'warning').length,
     )
 
     /** 按规则名翻译问题消息；无翻译时回退为原始英文消息 */
@@ -107,14 +107,17 @@ export default defineComponent({
               </div>
               <div class="flex flex-col gap-8px">
                 {list.map((issue, index) => {
-                  const sev = severityMap[issue.category as keyof typeof severityMap] || severityMap.info
+                  const sev =
+                    severityMap[issue.category as keyof typeof severityMap] || severityMap.info
                   return (
                     <div
                       key={`${issue.rule}-${index}`}
                       class="card-border rounded-6px p-8px flex flex-col gap-4px"
                     >
                       <div class="flex items-center gap-8px">
-                        <i class={`${sev.icon} text-14px ${sev.type === 'error' ? 'text-#d03050' : sev.type === 'warning' ? 'text-#f0a020' : 'text-#2080f0'}`} />
+                        <i
+                          class={`${sev.icon} text-14px ${sev.type === 'error' ? 'text-#d03050' : sev.type === 'warning' ? 'text-#f0a020' : 'text-#2080f0'}`}
+                        />
                         <span class={`flex-1 ${labelClass.value}`}>{ruleMessage(issue)}</span>
                       </div>
                       <div class="text-11px text-#888 pl-22px">{issue.rule}</div>

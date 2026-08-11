@@ -2,4 +2,12 @@ export { useBpmnModeler } from './useBpmnModeler'
 export type { UseBpmnModeler, UseBpmnModelerOptions } from './useBpmnModeler'
 export { useXmlStash } from './useXmlStash'
 export type { UseXmlStash, UseXmlStashOptions } from './useXmlStash'
-export { zoomIn, zoomOut, centerView, undo, redo, toggleMinimap } from './useDiagramActions'
+export {
+  zoomIn,
+  zoomOut,
+  centerView,
+  undo,
+  redo,
+  toggleMinimap,
+  toggleTokenSimulation,
+} from './useDiagramActions'

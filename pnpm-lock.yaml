@@ -23,6 +23,9 @@ importers:
       bpmn-js-bpmnlint:
         specifier: ^0.24.0
         version: 0.24.0(bpmn-js@18.14.0)(bpmnlint@11.12.1)(diagram-js@15.11.0)
+      bpmn-js-token-simulation:
+        specifier: ^0.40.0
+        version: 0.40.0(diagram-js@15.11.0)
       bpmn-moddle:
         specifier: ^10.0.0
         version: 10.0.0
@@ -324,6 +327,15 @@ packages:
 
   '@bpmn-io/cm-theme@0.1.0-alpha.2':
     resolution: {integrity: sha512-ZILgiYzxk3KMvxplUXmdRFQo45/JehDPg5k9tWfehmzUOSE13ssyLPil8uCloMQnb3yyzyOWTjb/wzKXTHlFQw==}
+
+  '@bpmn-io/diagram-js-canvas-lock@0.1.0':
+    resolution: {integrity: sha512-97sF+juqMeet4XdbU9lWUM8jWXLm7pNLBsDIcWz7+sGPqoZwAB8bQusOIMQiAPU9YGgliwj3b0o0kLP5h2jk1g==}
+    peerDependencies:
+      diagram-js: '>= 15.16.0'
+      diagram-js-direct-editing: '>= 3.4.0'
+    peerDependenciesMeta:
+      diagram-js-direct-editing:
+        optional: true
 
   '@bpmn-io/diagram-js-ui@0.2.3':
     resolution: {integrity: sha512-OGyjZKvGK8tHSZ0l7RfeKhilGoOGtFDcoqSGYkX0uhFlo99OVZ9Jn1K7TJGzcE9BdKwvA5Y5kGqHEhdTxHvFfw==}
@@ -1543,6 +1555,10 @@ packages:
       camunda-bpmn-js-behaviors: '>= 0.4'
       diagram-js: '>= 11.9'
 
+  bpmn-js-token-simulation@0.40.0:
+    resolution: {integrity: sha512-FmewE0KfI4sm1j5BTY9kZumAT2lji7zlAMCt+wf4LoKjgviqvJV4j5xjHCrXDBJJ/znPbek+hhUeOnNp0xIVIA==}
+    engines: {node: '>= 16'}
+
   bpmn-js@18.14.0:
     resolution: {integrity: sha512-z4CjyvK2wtP+IIunQJpZK1g5Xkfa089rueB2MCY2+NeZFz2RaHn17qJcXOvOhXvLHbUo+ldiXnkFuiGqslxIbQ==}
 
@@ -2645,6 +2661,9 @@ packages:
   quansync@1.0.0:
     resolution: {integrity: sha512-5xZacEEufv3HSTPQuchrvV6soaiACMFnq1H8wkVioctoH3TRha9Sz66lOxRwPK/qZj7HPiSveih9yAyh98gvqA==}
 
+  randomcolor@0.6.2:
+    resolution: {integrity: sha512-Mn6TbyYpFgwFuQ8KJKqf3bqqY9O1y37/0jgSK/61PUxV4QfIMv0+K2ioq8DfOjkBslcjwSzRfIDEXfzA9aCx7A==}
+
   read-package-json-fast@4.0.0:
     resolution: {integrity: sha512-qpt8EwugBWDw2cgE2W+/3oxC+KTez2uSVR8JU9Q36TXPAGCaozfQUs59v4j4GFpWTaw0i6hAZSvOmu1J0uOEUg==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -3479,6 +3498,10 @@ snapshots:
       '@codemirror/language': 6.12.3
       '@codemirror/view': 6.41.0
       '@lezer/highlight': 1.2.3
+
+  '@bpmn-io/diagram-js-canvas-lock@0.1.0(diagram-js@15.11.0)':
+    dependencies:
+      diagram-js: 15.11.0
 
   '@bpmn-io/diagram-js-ui@0.2.3':
     dependencies:
@@ -4870,6 +4893,18 @@ snapshots:
       min-dash: 5.0.0
       min-dom: 5.3.0
 
+  bpmn-js-token-simulation@0.40.0(diagram-js@15.11.0):
+    dependencies:
+      '@bpmn-io/diagram-js-canvas-lock': 0.1.0(diagram-js@15.11.0)
+      ids: 3.0.2
+      inherits-browser: 0.1.0
+      min-dash: 5.0.0
+      min-dom: 5.3.0
+      randomcolor: 0.6.2
+    transitivePeerDependencies:
+      - diagram-js
+      - diagram-js-direct-editing
+
   bpmn-js@18.14.0:
     dependencies:
       bpmn-moddle: 10.0.0
@@ -6079,6 +6114,8 @@ snapshots:
   quansync@0.2.11: {}
 
   quansync@1.0.0: {}
+
+  randomcolor@0.6.2: {}
 
   read-package-json-fast@4.0.0:
     dependencies:

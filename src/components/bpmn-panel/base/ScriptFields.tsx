@@ -33,10 +33,7 @@ import {
 } from '@codemirror/autocomplete'
 import { javascript, javascriptLanguage } from '@codemirror/lang-javascript'
 import { oneDark } from '@codemirror/theme-one-dark'
-import {
-  combinedCompletionSource,
-  allHoverTooltips,
-} from '@/utils/camunda7/execution-completions'
+import { combinedCompletionSource, allHoverTooltips } from '@/utils/camunda7/execution-completions'
 
 const scriptFormatOptions = [
   { label: 'JavaScript (js)', value: 'js' },
@@ -103,11 +100,27 @@ const cmBaseTheme = EditorView.baseTheme({
 })
 
 const variableContexts = [
-  { prefix: 'execution', i18nKey: 'bpmnPanel.script.execution', descKey: 'bpmnPanel.script.executionDesc' },
+  {
+    prefix: 'execution',
+    i18nKey: 'bpmnPanel.script.execution',
+    descKey: 'bpmnPanel.script.executionDesc',
+  },
   { prefix: 'task', i18nKey: 'bpmnPanel.script.task', descKey: 'bpmnPanel.script.taskDesc' },
-  { prefix: 'variable', i18nKey: 'bpmnPanel.script.variables', descKey: 'bpmnPanel.script.variablesDesc' },
-  { prefix: 'inputParameter', i18nKey: 'bpmnPanel.script.inputParameter', descKey: 'bpmnPanel.script.inputParameterDesc' },
-  { prefix: 'outputParameter', i18nKey: 'bpmnPanel.script.outputParameter', descKey: 'bpmnPanel.script.outputParameterDesc' },
+  {
+    prefix: 'variable',
+    i18nKey: 'bpmnPanel.script.variables',
+    descKey: 'bpmnPanel.script.variablesDesc',
+  },
+  {
+    prefix: 'inputParameter',
+    i18nKey: 'bpmnPanel.script.inputParameter',
+    descKey: 'bpmnPanel.script.inputParameterDesc',
+  },
+  {
+    prefix: 'outputParameter',
+    i18nKey: 'bpmnPanel.script.outputParameter',
+    descKey: 'bpmnPanel.script.outputParameterDesc',
+  },
 ]
 
 export default defineComponent({
@@ -331,9 +344,7 @@ export default defineComponent({
       return (
         <div class="flex flex-col gap-14px" style={{ minHeight: '320px' }}>
           <div class="flex flex-col gap-6px">
-            <div class={labelClass.value}>
-              {t('bpmnPanel.script.availableVariables')}
-            </div>
+            <div class={labelClass.value}>{t('bpmnPanel.script.availableVariables')}</div>
             <div class="flex flex-wrap gap-6px">
               {variableContexts.map((ctx) => (
                 <NTag key={ctx.prefix} size="small" round bordered>
@@ -425,7 +436,9 @@ export default defineComponent({
               <NInput
                 value={displayValue()}
                 onUpdateValue={(v: string) => onValueChange(v)}
-                placeholder={isJs ? 'execution.getVariable("")' : t('bpmnPanel.placeholders.listenerScript')}
+                placeholder={
+                  isJs ? 'execution.getVariable("")' : t('bpmnPanel.placeholders.listenerScript')
+                }
                 size="tiny"
                 class="flex-1"
                 type="textarea"
@@ -443,14 +456,22 @@ export default defineComponent({
                 <NInput
                   value={displayValue()}
                   onUpdateValue={(v: string) => onValueChange(v)}
-                  placeholder={isJs ? 'execution.getVariable("")' : t('bpmnPanel.placeholders.listenerScript')}
+                  placeholder={
+                    isJs ? 'execution.getVariable("")' : t('bpmnPanel.placeholders.listenerScript')
+                  }
                   size={props.formSize}
                   class="flex-1"
                   style="font-family: Menlo,Consolas,monospace"
                   type="textarea"
                   autosize
                 />
-                <NButton text type="primary" size={btnSize} onClick={openEditor} style={{ flexShrink: 0 }}>
+                <NButton
+                  text
+                  type="primary"
+                  size={btnSize}
+                  onClick={openEditor}
+                  style={{ flexShrink: 0 }}
+                >
                   {t('bpmnPanel.buttons.editScript')}
                 </NButton>
               </div>

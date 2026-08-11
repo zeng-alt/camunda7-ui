@@ -531,10 +531,170 @@ body .djs-drag-active {
   height: 150px !important;
 }
 
-
 /* Move the bpmnlint summary button to the left so it does not overlap
    the DesignerSwitch (pro/restricted) buttons centered at the bottom. */
 .bpmn-container .bjsl-button {
   left: 24px !important;
   transform: none !important;
+}
+
+/* ============================================================
+   Token Simulation (bpmn-js-token-simulation)
+   ============================================================ */
+
+/* 隐藏自带左上角开关，改用工具栏按钮 */
+.bpmn-container .bts-toggle-mode {
+  display: none !important;
+}
+
+/* 仿真激活时画布高亮背景 */
+.dark .bpmn-container .djs-container.highlight {
+  background-color: var(--bpmn-bg) !important;
+}
+
+/* 仿真日志面板 */
+.dark .bpmn-container .bts-log {
+  background-color: var(--bpmn-surface) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+  box-shadow: var(--bpmn-shadow) !important;
+}
+
+.dark .bpmn-container .bts-log .bts-header {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+}
+
+.dark .bpmn-container .bts-log .bts-entry {
+  background: var(--bpmn-bg) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .bts-log .bts-entry.success {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-green) !important;
+}
+
+.dark .bpmn-container .bts-log .bts-entry.warning {
+  background-color: var(--bpmn-red) !important;
+  color: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-red) !important;
+}
+
+.dark .bpmn-container .bts-log .bts-scope {
+  color: var(--bpmn-text-muted) !important;
+}
+
+/* 仿真 palette 条目 */
+.dark .bpmn-container .bts-palette .bts-entry {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .bts-palette .bts-entry.active,
+.dark .bpmn-container .bts-palette .bts-entry:not(.disabled):hover {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-green) !important;
+}
+
+.dark .bpmn-container .bts-palette .bts-entry.disabled {
+  color: var(--bpmn-text-muted) !important;
+  opacity: 0.45;
+}
+
+/* 动画速度条：上移避免与底部居中的 DesignerSwitch 重叠 */
+.bpmn-container .bts-set-animation-speed {
+  bottom: 64px !important;
+}
+
+.dark .bpmn-container .bts-set-animation-speed {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+  box-shadow: var(--bpmn-shadow-sm) !important;
+}
+
+.dark .bpmn-container .bts-set-animation-speed .bts-animation-speed-button {
+  color: var(--bpmn-text) !important;
+}
+
+.dark .bpmn-container .bts-set-animation-speed .bts-animation-speed-button.active,
+.dark .bpmn-container .bts-set-animation-speed .bts-animation-speed-button:hover {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+}
+
+/* 通知条 */
+.dark .bpmn-container .bts-notifications .bts-notification {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .bts-notifications .bts-notification.success {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+}
+
+.dark .bpmn-container .bts-notifications .bts-notification.warning {
+  background-color: var(--bpmn-red) !important;
+  color: var(--bpmn-bg) !important;
+}
+
+/* 作用域切换按钮 */
+.dark .bpmn-container .bts-scopes .bts-scope {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+/* Token 计数 */
+.dark .bpmn-container .bts-token-count {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .bts-token-count.waiting {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-green) !important;
+}
+
+/* 元素上下文按钮 */
+.dark .bpmn-container .bts-context-pad {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+  border: 1px solid var(--bpmn-border-muted) !important;
+}
+
+.dark .bpmn-container .bts-context-pad:not(.disabled):hover,
+.dark .bpmn-container .bts-context-pad:not(.disabled):focus-visible {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+  border-color: var(--bpmn-green) !important;
+}
+
+.dark .bpmn-container .bts-context-pad.disabled {
+  background-color: var(--bpmn-surface-alt) !important;
+  color: var(--bpmn-text-muted) !important;
+}
+
+/* 元素通知 */
+.dark .bpmn-container .bts-element-notification {
+  background-color: var(--bpmn-surface) !important;
+  color: var(--bpmn-text) !important;
+}
+
+.dark .bpmn-container .bts-element-notification.success {
+  background-color: var(--bpmn-green) !important;
+  color: var(--bpmn-bg) !important;
+}
+
+.dark .bpmn-container .bts-element-notification.warning {
+  background-color: var(--bpmn-red) !important;
+  color: var(--bpmn-bg) !important;
 }

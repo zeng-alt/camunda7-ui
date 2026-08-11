@@ -10,7 +10,9 @@ export type LintNode = {
   [key: string]: any
 }
 
-export type LintRuleFactory = (config?: any) => { check: (node: LintNode, reporter: LintReporter) => void }
+export type LintRuleFactory = (config?: any) => {
+  check: (node: LintNode, reporter: LintReporter) => void
+}
 
 const camunda7RuleFactories: Record<string, LintRuleFactory> = {
   'process-name-required': () => ({
@@ -85,12 +87,15 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
   'timer-event-no-definition': () => ({
     check(node, reporter) {
       if (!node.$instanceOf('bpmn:TimerEventDefinition')) return
-      const hasDefinition = node.get('timeDate') || node.get('timeDuration') || node.get('timeCycle')
+      const hasDefinition =
+        node.get('timeDate') || node.get('timeDuration') || node.get('timeCycle')
       if (!hasDefinition) {
         const targetId = node.$parent?.id || node.id
-        reporter.report(targetId, 'Timer event should define a timeDate, timeDuration or timeCycle', [
-          'timeDuration',
-        ])
+        reporter.report(
+          targetId,
+          'Timer event should define a timeDate, timeDuration or timeCycle',
+          ['timeDuration'],
+        )
       }
     },
   }),

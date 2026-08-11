@@ -64,6 +64,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '~': fileURLToPath(new URL('./', import.meta.url)),
       'camunda7-ui': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+      // 让 playground 直接使用源码（否则会经 package.json exports 解析到 dist，改动需重新 build 才能生效）。
+      // 注意：带子路径的别名需放在不带子路径之前，否则会被前缀匹配吞掉。
+      '@zeng-alt/camunda7-ui/style.css': fileURLToPath(new URL('./src/styles/global.css', import.meta.url)),
+      '@zeng-alt/camunda7-ui': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
     },
   },
   build: {

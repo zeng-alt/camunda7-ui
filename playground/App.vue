@@ -15,6 +15,7 @@ const theme = ref<ThemeType>('dark')
 const locale = ref<LocaleType>('zh-CN')
 const proDesigner = ref(true)
 const previewModalRef = ref<InstanceType<typeof BpmnPreviewModal> | null>(null)
+const modelerProcessRef = ref<InstanceType<typeof BpmnModelerProcess> | null>(null)
 // const designerConfig = ref<DesignerConfig>({
 //   elements: {
 //     'bpmn:SubProcess': false,
@@ -187,6 +188,11 @@ async function handlePreview(modeler: any) {
   previewModalRef.value?.open(xml)
 }
 
+/** 切换 Token 仿真（演示通过 ref 暴露的编程式 API） */
+function toggleSimulation() {
+  modelerProcessRef.value?.toggleTokenSimulation()
+}
+
 function delay(ms = 300) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -280,6 +286,7 @@ async function onSearchDelegateExpressions(name: string) {
 <template>
     <div class="h-screen relative w-full">
       <BpmnModelerProcess
+      ref="modelerProcessRef"
       v-model:theme="theme"
       v-model:locale="locale"
       :proDesigner="proDesigner"
@@ -306,6 +313,11 @@ async function onSearchDelegateExpressions(name: string) {
         <NButton ghost @click="handlePreview(modeler)">
           <NIcon>
             <span class="i-ic-baseline-remove-red-eye" />
+          </NIcon>
+        </NButton>
+        <NButton ghost @click="toggleSimulation">
+          <NIcon>
+            <span class="i-ic-baseline-directions-run" />
           </NIcon>
         </NButton>
       </template>

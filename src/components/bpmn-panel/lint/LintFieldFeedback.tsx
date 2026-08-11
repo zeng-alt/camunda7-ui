@@ -31,9 +31,7 @@ export default defineComponent({
           {slots.default?.()}
           {fb && (
             <div
-              class={`mt-4px text-11px ${
-                fb.status === 'error' ? 'text-#d03050' : 'text-#f0a020'
-              }`}
+              class={`mt-4px text-11px ${fb.status === 'error' ? 'text-#d03050' : 'text-#f0a020'}`}
             >
               {fb.feedback}
             </div>

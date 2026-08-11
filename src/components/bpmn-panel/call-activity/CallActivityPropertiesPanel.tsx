@@ -178,7 +178,10 @@ export default defineComponent({
             <NTabPane
               name="lint"
               tab={() => (
-                <LintTabLabel businessObject={props.businessObject} bpmnModeler={props.bpmnModeler} />
+                <LintTabLabel
+                  businessObject={props.businessObject}
+                  bpmnModeler={props.bpmnModeler}
+                />
               )}
             >
               <div class="pt-8px">

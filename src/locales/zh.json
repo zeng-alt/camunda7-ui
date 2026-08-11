@@ -562,6 +562,14 @@
       "pro": "专业模式",
       "restricted": "简单模式"
     },
+    "tokenSimulation": {
+      "animationSpeedTitle": "设置动画速度",
+      "speed": {
+        "slow": "慢速",
+        "normal": "正常",
+        "fast": "快速"
+      }
+    },
     "script": {
       "title": "脚本编辑器",
       "availableVariables": "可用变量",

@@ -33,7 +33,10 @@ import {
   undo,
   redo,
   toggleMinimap,
+  toggleTokenSimulation,
 } from './composables'
+import TokenSimulationModule from 'bpmn-js-token-simulation'
+import SimulationSupportModule from 'bpmn-js-token-simulation/lib/simulation-support'
 import {
   ModelerToolbar,
   DesignerSwitch,
@@ -46,6 +49,7 @@ import 'camunda-bpmn-js/dist/assets/diagram-js.css'
 import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
 import 'camunda-bpmn-js/dist/assets/bpmn-js.css'
 import 'bpmn-js-bpmnlint/dist/assets/css/bpmn-js-bpmnlint.css'
+import 'bpmn-js-token-simulation/assets/css/bpmn-js-token-simulation.css'
 
 const processId = `Process_${Math.random().toString(36).slice(2, 9)}`
 
@@ -74,6 +78,8 @@ export interface BpmnModelerProcessProps {
   xml?: string
   /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner?: boolean
+  /** 是否启用 Token 仿真（bpmn-js-token-simulation），默认 true */
+  enableTokenSimulation?: boolean
   /** 是否显示模式切换按钮，默认值为 true */
   showDesignerSwitch?: boolean
   /** 设计器配置：限制模式下隐藏的节点（大类 + 事件定义变体）与属性 tab */
@@ -163,6 +169,11 @@ export const bpmnModelerProcessProps = {
   },
   /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner: {
+    type: Boolean,
+    default: true,
+  },
+  /** 是否启用 Token 仿真（bpmn-js-token-simulation），默认 true */
+  enableTokenSimulation: {
     type: Boolean,
     default: true,
   },
@@ -330,6 +341,9 @@ export default defineComponent({
 
     const canvasRef = ref<HTMLElement | null>(null)
 
+    /** 当前是否处于 Token 仿真模式 */
+    const simulationActive = ref(false)
+
     const { modelerRef, init, getModeler, loadDiagram, importXml, saveXml, clearCanvas, destroy } =
       useBpmnModeler({ container: () => canvasRef.value })
 
@@ -348,11 +362,24 @@ export default defineComponent({
       loadDiagram,
     })
 
-    onMounted(() => {
-      init([customTranslateModule, nodesModule])
+    onMounted(async () => {
+      init([
+        customTranslateModule,
+        nodesModule,
+        ...(props.enableTokenSimulation ? [TokenSimulationModule, SimulationSupportModule] : []),
+      ])
+
+      const modeler = getModeler()
+      if (props.enableTokenSimulation && modeler) {
+        modeler.on('tokenSimulation.toggleMode', (event: any) => {
+          simulationActive.value = !!event.active
+        })
+      }
 
       const initialXml = props.xml || defaultDiagram
-      loadDiagram(initialXml)
+      await loadDiagram(initialXml)
+
+      applySimulationSpeedTitles()
 
       checkStash()
 
@@ -415,6 +442,32 @@ export default defineComponent({
     function toggleTheme() {
       currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
       emit('update:theme', currentTheme.value)
+    }
+
+    /** 切换 Token 仿真模式（需要 enableTokenSimulation 开启） */
+    function handleToggleSimulation() {
+      if (!props.enableTokenSimulation) return
+      toggleTokenSimulation(getModeler())
+    }
+
+    const SIMULATION_SPEED_KEYS = ['slow', 'normal', 'fast'] as const
+
+    /** 动画速度按钮的 tooltip 在库内硬编码为英文，这里按索引替换为国际化文案 */
+    function applySimulationSpeedTitles() {
+      const container = canvasRef.value
+      if (!container) return
+      const buttons = container.querySelectorAll<HTMLElement>('.bts-animation-speed-button')
+      if (!buttons.length) return
+      const prefix = t('bpmnPanel.tokenSimulation.animationSpeedTitle')
+      buttons.forEach((btn, idx) => {
+        const key = SIMULATION_SPEED_KEYS[idx]
+        if (key) btn.title = `${prefix} = ${t(`bpmnPanel.tokenSimulation.speed.${key}`)}`
+      })
+    }
+
+    /** 当前是否处于 Token 仿真模式 */
+    function isTokenSimulationActive() {
+      return simulationActive.value
     }
 
     /** 获取流程信息：XML、流程名、流程 ID、流程版本 */
@@ -505,6 +558,8 @@ export default defineComponent({
     expose({
       getProcessInfo,
       validate,
+      toggleTokenSimulation: handleToggleSimulation,
+      isTokenSimulationActive,
     })
 
     function handleLocaleChange(value: string) {
@@ -512,6 +567,7 @@ export default defineComponent({
       setLocale(value as LocaleType)
       emit('update:locale', value)
       getModeler()?.get('eventBus')?.fire('i18n.changed')
+      applySimulationSpeedTitles()
     }
 
     const extraTabs: Record<string, any> = {
@@ -570,6 +626,9 @@ export default defineComponent({
                   onUndo={() => undo(modelerRef.value)}
                   onRedo={() => redo(modelerRef.value)}
                   onToggleMinimap={() => toggleMinimap(modelerRef.value)}
+                  simulationActive={simulationActive.value}
+                  showTokenSimulation={props.enableTokenSimulation}
+                  onToggleSimulation={handleToggleSimulation}
                   onOpenImportExport={openImportExportDialog}
                   onClear={() => clearCanvas(defaultDiagram)}
                   v-slots={{ buttons: slots.buttons }}

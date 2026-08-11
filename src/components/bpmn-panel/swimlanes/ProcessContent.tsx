@@ -170,9 +170,7 @@ export default defineComponent({
             {historyTimeToLiveLint.value && (
               <div
                 class={`mt-4px text-11px ${
-                  historyTimeToLiveLint.value.status === 'error'
-                    ? 'text-#d03050'
-                    : 'text-#f0a020'
+                  historyTimeToLiveLint.value.status === 'error' ? 'text-#d03050' : 'text-#f0a020'
                 }`}
               >
                 {historyTimeToLiveLint.value.feedback}

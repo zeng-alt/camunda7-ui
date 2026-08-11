@@ -564,6 +564,14 @@
       "pro": "Pro Mode",
       "restricted": "Simple Mode"
     },
+    "tokenSimulation": {
+      "animationSpeedTitle": "Set animation speed",
+      "speed": {
+        "slow": "Slow",
+        "normal": "Normal",
+        "fast": "Fast"
+      }
+    },
     "script": {
       "title": "Script Editor",
       "availableVariables": "Available Variables",

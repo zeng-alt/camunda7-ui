@@ -36,6 +36,7 @@ import type { ValidateResult, LintReport } from '@/lint'
  * - `proDesigner`：专业模式（显示全部节点与属性），默认 `true`
  * - `showDesignerSwitch`：是否显示模式切换按钮，默认 `true`
  * - `designerConfig`：受限模式下隐藏的节点与属性 tab 配置
+ * - `enableTokenSimulation`：是否启用 Token 仿真，默认 `true`
  *
  * ### 暂存与表单
  * - `autoStash`：自动暂存 XML 到 localStorage，默认 `true`
@@ -65,6 +66,8 @@ import type { ValidateResult, LintReport } from '@/lint'
  *
  * - `getProcessInfo()`：获取流程信息（XML、流程名、流程 ID、流程版本）
  * - `validate()`：运行 bpmnlint 校验，返回 `ValidateResult`（问题统计 + 按元素分组的问题列表）
+ * - `toggleTokenSimulation()`：切换 Token 仿真模式
+ * - `isTokenSimulationActive()`：当前是否处于 Token 仿真模式
  *
  * ## 插槽
  *
@@ -93,9 +96,21 @@ export default defineComponent<BpmnModelerProcessProps>({
       return contentRef.value?.validate() ?? null
     }
 
+    /** 切换 Token 仿真模式（需 enableTokenSimulation 开启） */
+    function toggleTokenSimulation() {
+      return contentRef.value?.toggleTokenSimulation()
+    }
+
+    /** 当前是否处于 Token 仿真模式 */
+    function isTokenSimulationActive() {
+      return contentRef.value?.isTokenSimulationActive() ?? false
+    }
+
     expose({
       getProcessInfo,
       validate,
+      toggleTokenSimulation,
+      isTokenSimulationActive,
     })
 
     return () => (

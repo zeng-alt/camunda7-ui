@@ -38,3 +38,15 @@ export function toggleMinimap(modeler: any) {
   const minimap = modeler.get('minimap')
   if (minimap) minimap.toggle()
 }
+
+/**
+ * 切换 Token 仿真模式（bpmn-js-token-simulation）。
+ * 依赖仿真模块（TokenSimulationModule + SimulationSupportModule）已注入。
+ * 不传 active 时在内部自动取反。
+ */
+export function toggleTokenSimulation(modeler: any, active?: boolean) {
+  if (!modeler) return
+  const simulationSupport = modeler.get('simulationSupport', false)
+  if (!simulationSupport) return
+  simulationSupport.toggleSimulation(active)
+}

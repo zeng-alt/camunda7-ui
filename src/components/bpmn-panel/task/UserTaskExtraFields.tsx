@@ -449,7 +449,11 @@ export default defineComponent({
               <LintFieldFeedback
                 businessObject={props.businessObject}
                 bpmnModeler={props.bpmnModeler}
-                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+                fieldPath={[
+                  'camunda:assignee',
+                  'camunda:candidateUsers',
+                  'camunda:candidateGroups',
+                ]}
               >
                 <UserPicker
                   value={candidateUsers.value}
@@ -478,7 +482,11 @@ export default defineComponent({
               <LintFieldFeedback
                 businessObject={props.businessObject}
                 bpmnModeler={props.bpmnModeler}
-                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+                fieldPath={[
+                  'camunda:assignee',
+                  'camunda:candidateUsers',
+                  'camunda:candidateGroups',
+                ]}
               >
                 <UserPicker
                   value={assignee.value}
@@ -713,7 +721,11 @@ export default defineComponent({
               <LintFieldFeedback
                 businessObject={props.businessObject}
                 bpmnModeler={props.bpmnModeler}
-                fieldPath={['camunda:assignee', 'camunda:candidateUsers', 'camunda:candidateGroups']}
+                fieldPath={[
+                  'camunda:assignee',
+                  'camunda:candidateUsers',
+                  'camunda:candidateGroups',
+                ]}
               >
                 <UserPicker
                   value={assignee.value}

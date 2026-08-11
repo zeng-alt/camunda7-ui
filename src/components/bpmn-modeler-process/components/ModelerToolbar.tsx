@@ -35,6 +35,12 @@ export default defineComponent({
     onRedo: { type: Function as PropType<() => void>, default: null },
     // 小地图开关回调
     onToggleMinimap: { type: Function as PropType<() => void>, default: null },
+    // 是否启用 Token 仿真（显示开关按钮）
+    showTokenSimulation: { type: Boolean, default: true },
+    // 当前是否处于 Token 仿真模式
+    simulationActive: { type: Boolean, default: false },
+    // Token 仿真开关回调
+    onToggleSimulation: { type: Function as PropType<() => void>, default: null },
     // 打开导入导出弹窗回调
     onOpenImportExport: { type: Function as PropType<() => void>, default: null },
     // 清空画布回调
@@ -79,6 +85,19 @@ export default defineComponent({
               <span class="i-ic-baseline-layers text-[#13c2c2]" />
             </NIcon>
           </NButton>
+          {props.showTokenSimulation && (
+            <NButton ghost onClick={props.onToggleSimulation}>
+              <NIcon>
+                <span
+                  class={
+                    props.simulationActive
+                      ? 'i-ic-baseline-directions-run text-[#10d070]'
+                      : 'i-ic-baseline-directions-run text-[#909399]'
+                  }
+                />
+              </NIcon>
+            </NButton>
+          )}
           <NButton ghost onClick={props.onOpenImportExport}>
             <NIcon>
               <span class="i-ic-baseline-import-export text-[#e6a23c]" />
