@@ -78,8 +78,6 @@ export interface BpmnModelerProcessProps {
   xml?: string
   /** 是否专业模式：true 显示全部节点与属性，false 为受限模式（按 designerConfig 隐藏） */
   proDesigner?: boolean
-  /** 新建 / 修改为开始事件时自动填充的发起人默认值，默认 ${initiator} */
-  startEventInitiator?: string
   /** 是否启用 Token 仿真（bpmn-js-token-simulation），默认 true */
   enableTokenSimulation?: boolean
   /** 是否显示模式切换按钮，默认值为 true */
@@ -173,11 +171,6 @@ export const bpmnModelerProcessProps = {
   proDesigner: {
     type: Boolean,
     default: true,
-  },
-  /** 新建 / 修改为开始事件时自动填充的发起人默认值，默认 ${initiator} */
-  startEventInitiator: {
-    type: String,
-    default: '${initiator}',
   },
   /** 是否启用 Token 仿真（bpmn-js-token-simulation），默认 true */
   enableTokenSimulation: {
@@ -311,7 +304,6 @@ export default defineComponent({
         if (elements[target.type as ElementKey] === false) return false
         return elements[toElementKey(target)] !== false
       },
-      startEventInitiator: props.startEventInitiator,
       getDefaultElementName: (bo: any) => {
         const typeKey = getElementTypeFromBo(bo)
         if (!typeKey || typeKey === 'unknown') return ''

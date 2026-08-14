@@ -1,12 +1,9 @@
-import { defineComponent, computed, ref, watch, type PropType } from 'vue'
-import { NInput } from 'naive-ui'
+import { defineComponent, type PropType } from 'vue'
 import { useCamundaI18n } from '../../../locales'
-import { useBpmnProperties, useFormSize } from '../../../composables'
-import { useDesignerConfig } from '../designerConfig'
+import { useFormSize } from '../../../composables'
 import type { ExtraFieldTab } from '../base'
 import FormPanel from '../base/FormPanel'
 import EventDefinitionPanel from './EventDefinitionPanel'
-import LintFieldFeedback from '../lint/LintFieldFeedback'
 
 export const startEventTabs: ExtraFieldTab[] = [
   { name: 'startEvent', labelKey: 'bpmnPanel.tabs.startEvent' },
@@ -36,24 +33,6 @@ export default defineComponent({
   setup(props) {
     const { t } = useCamundaI18n()
     const { labelClass } = useFormSize(() => props.formSize)
-    const { updateProperty } = useBpmnProperties(props)
-    const designerState = useDesignerConfig()
-    const initiator = ref('')
-    const showInitiator = computed(() => designerState.value.proDesigner)
-
-    function syncFromModel() {
-      const bo = props.businessObject
-      if (!bo) return
-      initiator.value = bo.initiator || ''
-    }
-
-    watch(() => props.businessObject, syncFromModel, { immediate: true })
-    watch(() => props.element, syncFromModel, { immediate: true })
-
-    function onInitiatorChange(val: string | null) {
-      initiator.value = val ?? ''
-      updateProperty('initiator', val ?? '')
-    }
 
     return () => {
       if (props.tabName === 'forms') {
@@ -83,23 +62,6 @@ export default defineComponent({
 
       return (
         <div class="pt-8px">
-          {showInitiator.value && (
-            <div class="mt-12px">
-              <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.initiator')}</div>
-              <LintFieldFeedback
-                businessObject={props.businessObject}
-                bpmnModeler={props.bpmnModeler}
-                fieldPath="camunda:initiator"
-              >
-                <NInput
-                  value={initiator.value}
-                  onUpdateValue={onInitiatorChange}
-                  placeholder={t('bpmnPanel.placeholders.initiator')}
-                  size={props.formSize}
-                />
-              </LintFieldFeedback>
-            </div>
-          )}
           <div class="mt-16px">
             <div class={`mb-8px ${labelClass.value}`}>{t('bpmnPanel.fields.eventDefinition')}</div>
             <EventDefinitionPanel

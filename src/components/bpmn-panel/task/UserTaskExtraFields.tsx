@@ -497,6 +497,14 @@ export default defineComponent({
                   placeholder={t('bpmnPanel.placeholders.assignee')}
                 />
               </LintFieldFeedback>
+              <UserPicker
+                value={candidateUsers.value}
+                onUpdate:value={onCandidateUsersChange}
+                multiple
+                formSize={props.formSize}
+                label={t('bpmnPanel.fields.candidateUsers')}
+                placeholder={t('bpmnPanel.placeholders.candidateUsers')}
+              />
               <GroupPicker
                 value={candidateGroups.value}
                 onUpdate:value={onCandidateGroupsChange}
