@@ -46,6 +46,7 @@ describe('lint rules', () => {
       'message-event-no-message',
       'script-task-no-script',
       'dmn-task-no-decision',
+      'expression-syntax',
     ]
     for (const name of expected) {
       expect(camunda7RuleFactories[name]).toBeTypeOf('function')
@@ -314,6 +315,40 @@ describe('lint rules', () => {
         createNode({ $type: 'bpmn:BusinessRuleTask', attributes: { 'camunda:type': 'java' } }),
       )
       expect(reports).toHaveLength(0)
+    })
+  })
+
+  describe('expression-syntax', () => {
+    const rule = 'expression-syntax'
+
+    function flowWithBody(body: string) {
+      return createNode({
+        $type: 'bpmn:SequenceFlow',
+        attributes: { conditionExpression: { body } },
+      })
+    }
+
+    it('reports an unclosed interpolation', () => {
+      const reports = runRule(rule, flowWithBody('${order.total > 100'))
+      expect(reports).toHaveLength(1)
+      expect(reports[0]).toMatchObject({ path: ['conditionExpression'] })
+    })
+
+    it('reports an empty interpolation', () => {
+      const reports = runRule(rule, flowWithBody('${}'))
+      expect(reports).toHaveLength(1)
+    })
+
+    it('does not report a balanced expression', () => {
+      expect(runRule(rule, flowWithBody('${order.total > 100}'))).toHaveLength(0)
+    })
+
+    it('ignores flows without an expression', () => {
+      expect(runRule(rule, createNode({ $type: 'bpmn:SequenceFlow' }))).toHaveLength(0)
+    })
+
+    it('ignores non-sequence-flow nodes', () => {
+      expect(runRule(rule, createNode({ $type: 'bpmn:Task' }))).toHaveLength(0)
     })
   })
 })

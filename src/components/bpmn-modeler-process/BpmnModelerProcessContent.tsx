@@ -42,6 +42,7 @@ import {
   DesignerSwitch,
   ImportExportDialog,
   RestoreStashDialog,
+  ElementSearchPanel,
 } from './components'
 import './bpmn.css'
 import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css'
@@ -394,6 +395,8 @@ export default defineComponent({
         modeler?.on('element.changed', debounceStash)
         modeler?.on('commandStack.changed', debounceStash)
       }
+
+      window.addEventListener('keydown', onGlobalKeydown)
     })
 
     watch(
@@ -408,10 +411,36 @@ export default defineComponent({
     onBeforeUnmount(() => {
       flushStash()
       destroy()
+      window.removeEventListener('keydown', onGlobalKeydown)
     })
 
     const showExportDialog = ref(false)
     const exportXml = ref('')
+    const showSearch = ref(false)
+
+    /** Ctrl/Cmd+S 保存到 onSaveXml；Ctrl/Cmd+F 打开元素搜索 */
+    function onGlobalKeydown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null
+      const tag = target?.tagName
+      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || !!target?.isContentEditable
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        if (!props.onSaveXml) return
+        e.preventDefault()
+        saveXml()
+          .then((xml) => props.onSaveXml?.(xml))
+          .catch((err: any) => {
+            message.error(t('bpmnPanel.importExport.exportError') + '\n' + (err.message || err))
+          })
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        if (inInput) return
+        e.preventDefault()
+        showSearch.value = !showSearch.value
+      }
+    }
+
+    function toggleSearch() {
+      showSearch.value = !showSearch.value
+    }
 
     async function openImportExportDialog() {
       if (!getModeler()) return
@@ -611,6 +640,14 @@ export default defineComponent({
                 content-style="height: 100%; display: flex; flex-direction: column;"
               >
                 <div ref={canvasRef} class="bpmn-container" style="flex: 1; min-height: 0;" />
+                <ElementSearchPanel
+                  modeler={modelerRef.value}
+                  size={props.size}
+                  show={showSearch.value}
+                  onUpdateShow={(v: boolean) => {
+                    showSearch.value = v
+                  }}
+                />
                 <DesignerSwitch
                   size={props.size}
                   proDesigner={proDesigner.value}
@@ -626,6 +663,7 @@ export default defineComponent({
                   currentTheme={currentTheme.value}
                   onLocaleChange={handleLocaleChange}
                   onToggleTheme={toggleTheme}
+                  onSearch={toggleSearch}
                   onZoomIn={() => zoomIn(modelerRef.value)}
                   onZoomOut={() => zoomOut(modelerRef.value)}
                   onCenter={() => centerView(modelerRef.value)}

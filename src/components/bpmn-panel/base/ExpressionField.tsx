@@ -1,7 +1,11 @@
-import { defineComponent, type PropType } from 'vue'
+import { defineComponent, computed, type PropType } from 'vue'
 import { NInput } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useAutoField } from '../../../composables/useAutoField'
+import {
+  validateCamundaExpression,
+  type ExpressionValidationResult,
+} from '@/utils/camunda7/expression-validator'
 
 import { useFormSize } from '../../../composables'
 
@@ -34,6 +38,11 @@ export default defineComponent({
     onUpdateResultVariable: { type: Function as PropType<(val: string) => void>, default: null },
     // 结果变量属性名（业务对象属性名）
     resultVariablePropertyKey: { type: String, default: '' },
+    // 自定义表达式校验函数；默认使用 validateCamundaExpression
+    validate: {
+      type: Function as PropType<(value: string) => ExpressionValidationResult>,
+      default: null,
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -49,6 +58,23 @@ export default defineComponent({
       nested: props.nested,
     })
 
+    const expressionError = computed(() => {
+      const value = field.displayValue.value
+      if (!value.trim()) return null
+      const validator = props.validate || validateCamundaExpression
+      const result = validator(value)
+      return result.valid ? null : (result.code ?? null)
+    })
+
+    function renderError() {
+      if (!expressionError.value) return null
+      return (
+        <div class="mt-2px text-12px text-#f56c6c">
+          {t(`bpmnPanel.errors.${expressionError.value}`)}
+        </div>
+      )
+    }
+
     return () => {
       const input = props.textarea ? (
         <NInput
@@ -58,6 +84,7 @@ export default defineComponent({
           onUpdateValue={(v: string | null) => field.onChange(v ?? '')}
           placeholder={t('bpmnPanel.placeholders.conditionExpression')}
           size={props.formSize}
+          status={expressionError.value ? 'error' : undefined}
         />
       ) : (
         <NInput
@@ -65,10 +92,17 @@ export default defineComponent({
           onUpdateValue={(v: string | null) => field.onChange(v ?? '')}
           placeholder={t('bpmnPanel.placeholders.listenerExpression')}
           size={props.formSize}
+          status={expressionError.value ? 'error' : undefined}
         />
       )
 
-      if (!props.showResultVariable) return input
+      if (!props.showResultVariable)
+        return (
+          <div>
+            {input}
+            {renderError()}
+          </div>
+        )
 
       return (
         <div class="flex flex-col gap-8px">
@@ -77,6 +111,7 @@ export default defineComponent({
               {t('bpmnPanel.fields.listenerExpression')}
             </div>
             {input}
+            {renderError()}
           </div>
           <div>
             <div class={`mb-4px ${labelClass.value}`}>{t('bpmnPanel.fields.resultVariable')}</div>

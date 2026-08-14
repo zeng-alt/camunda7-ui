@@ -23,6 +23,8 @@ export default defineComponent({
     onLocaleChange: { type: Function as PropType<(value: string) => void>, default: null },
     // 主题切换回调
     onToggleTheme: { type: Function as PropType<() => void>, default: null },
+    // 打开元素搜索面板回调
+    onSearch: { type: Function as PropType<() => void>, default: null },
     // 放大回调
     onZoomIn: { type: Function as PropType<() => void>, default: null },
     // 缩小回调
@@ -55,6 +57,11 @@ export default defineComponent({
         style="position: absolute; top: 24px; right: 8px; z-index: 10;"
       >
         <NButtonGroup size={props.size}>
+          <NButton ghost onClick={props.onSearch}>
+            <NIcon>
+              <span class="i-ic-baseline-search text-[#409eff]" />
+            </NIcon>
+          </NButton>
           <NButton ghost onClick={props.onZoomIn}>
             <NIcon>
               <span class="i-ic-baseline-add text-[#409eff]" />

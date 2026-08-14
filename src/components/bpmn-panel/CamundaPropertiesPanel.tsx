@@ -18,7 +18,7 @@ import {
 import { TaskPropertiesPanel } from './task'
 import { GatewayPropertiesPanel } from './gateways'
 import { CallActivityPropertiesPanel } from './call-activity'
-import { FlowPropertiesPanel } from './flow'
+import { FlowPropertiesPanel, MessageFlowPropertiesPanel } from './flow'
 import { SubProcessPropertiesPanel } from './subprocess'
 import { GroupPropertiesPanel } from './group'
 import { TextAnnotationPropertiesPanel } from './text-annotation'
@@ -80,7 +80,7 @@ const gatewayTypes = new Set([
   'gateway',
 ])
 
-const flowTypes = new Set(['sequence-flow'])
+const flowTypes = new Set(['sequence-flow', 'message-flow'])
 
 const artifactTypes = new Set(['text-annotation', 'group', 'association'])
 
@@ -454,13 +454,21 @@ export default defineComponent<CamundaPropertiesPanelProps>({
         if (flowTypes.has(type)) {
           const extraContent = resolveExtraTabContent()
           const extraLabel = resolveExtraTabLabel()
-          return () => (
-            <FlowPropertiesPanel
-              {...common}
-              extraTabContent={extraContent}
-              extraTabLabel={extraLabel}
-            />
-          )
+          return type === 'message-flow'
+            ? () => (
+                <MessageFlowPropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
+            : () => (
+                <FlowPropertiesPanel
+                  {...common}
+                  extraTabContent={extraContent}
+                  extraTabLabel={extraLabel}
+                />
+              )
         }
         if (dataTypes.has(type)) {
           const extraContent = resolveExtraTabContent()

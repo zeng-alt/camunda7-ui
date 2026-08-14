@@ -34,6 +34,7 @@
       "complex-gateway": "Complex Gateway",
       "gateway": "Complex Gateway",
       "sequence-flow": "Sequence Flow",
+      "message-flow": "Message Flow",
       "default-flow": "Default Flow",
       "conditional-flow": "Conditional Flow",
       "participant": "Participant",
@@ -61,6 +62,8 @@
       "eventDefinition": "Event Definition",
       "cancelActivity": "Cancel Activity",
       "triggeredByEvent": "Triggered by Event",
+      "transactionMethod": "Transaction Method",
+      "transactionProtocol": "Protocol",
       "ordering": "Ordering",
       "cancelRemainingInstances": "Cancel Remaining Instances",
       "loopCardinality": "Loop Cardinality",
@@ -226,6 +229,7 @@
       "errorRef": "Error Reference ID",
       "signalRef": "Signal Reference ID",
       "escalationRef": "Escalation Reference ID",
+      "transactionProtocol": "e.g. https://www.omg.org/spec/BPMN/20100524/MODEL",
       "escalationName": "Escalation Name",
       "escalationCode": "Escalation Code",
       "activityRef": "e.g. Activity_1",
@@ -359,6 +363,7 @@
       "extensionProperties": "Extension Properties",
       "userTask": "User Task",
       "sequenceFlow": "Condition",
+      "message": "Message",
       "taskListeners": "Task Listeners",
       "exclusiveGateway": "Exclusive Gateway",
       "callActivity": "Call Activity",
@@ -415,6 +420,7 @@
         "camunda7/message-event-no-message": "Message event should reference a message",
         "camunda7/script-task-no-script": "Script task is missing a script format or resource",
         "camunda7/dmn-task-no-decision": "DMN task should reference a decision",
+        "camunda7/expression-syntax": "Expression has invalid syntax (unbalanced brackets or invalid interpolation)",
         "camunda7/process-name-required": "Process should have a name",
         "camunda7/process-history-time-to-live-required": "Executable process should define camunda:historyTimeToLive"
       }
@@ -497,7 +503,8 @@
       "dateFormatYm": "Month",
       "dateFormatY": "Year",
       "propagateAllVariables": "Propagate all variables",
-      "propagateNone": "No propagation"
+      "propagateNone": "No propagation",
+      "transactionMethodNone": "None (default)"
     },
     "panel": {
       "noSelection": "Select an element to edit its properties",
@@ -540,10 +547,25 @@
       "variableEvents": "Specify more than one variable change event as a comma separated list.<br/><br/>Variable change events are:<br/><br/>create<br/>update<br/>delete<br/><br/>Documentation: <a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>",
       "toggleMode": "Toggle fixed value / expression mode",
       "selectUser": "Select user",
-      "selectGroup": "Select group"
+      "selectGroup": "Select group",
+      "triggeredByEvent": "When enabled the sub-process is triggered by an event (event sub-process); its inner start event must be a message, timer, error or signal, not 'None'."
     },
     "userTask": {
       "multiApproval": "Multi-person Approval"
+    },
+    "search": {
+      "placeholder": "Search elements by name / ID / type…",
+      "noResults": "No matching elements found",
+      "emptyHint": "Type a keyword to search"
+    },
+    "errors": {
+      "EXPR_UNCLOSED_STRING": "Unterminated string literal",
+      "EXPR_UNCLOSED_BRACKET": "Unclosed bracket",
+      "EXPR_STRAY_CLOSE": "Unexpected closing symbol",
+      "EXPR_UNBALANCED": "Unbalanced brackets or interpolation",
+      "EXPR_EMPTY_INTERP": "Interpolation must not be empty",
+      "EXPR_UNCLOSED_INTERP": "Unclosed ${} or #{} interpolation",
+      "TIMER_INVALID": "Invalid timer format (must be ISO 8601 or cron)"
     },
     "autoStash": {
       "restore": "An unsaved draft was found. Do you want to restore it?"

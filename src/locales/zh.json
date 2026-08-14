@@ -34,6 +34,7 @@
       "complex-gateway": "复杂网关",
       "gateway": "复杂网关",
       "sequence-flow": "顺序流",
+      "message-flow": "消息流",
       "default-flow": "默认流",
       "conditional-flow": "条件流",
       "participant": "参与者",
@@ -61,6 +62,8 @@
       "eventDefinition": "事件定义",
       "cancelActivity": "取消活动",
       "triggeredByEvent": "由事件触发",
+      "transactionMethod": "事务方法",
+      "transactionProtocol": "协议",
       "ordering": "排序",
       "cancelRemainingInstances": "取消剩余实例",
       "loopCardinality": "实例数量",
@@ -226,6 +229,7 @@
       "errorRef": "错误引用 ID",
       "signalRef": "信号引用 ID",
       "escalationRef": "升级引用 ID",
+      "transactionProtocol": "例如 https://www.omg.org/spec/BPMN/20100524/MODEL",
       "escalationName": "升级名称",
       "escalationCode": "升级代码",
       "activityRef": "例如 Activity_1",
@@ -357,6 +361,7 @@
       "extensionProperties": "扩展属性",
       "userTask": "用户任务",
       "sequenceFlow": "条件",
+      "message": "消息",
       "taskListeners": "任务监听器",
       "exclusiveGateway": "排他网关",
       "callActivity": "调用活动",
@@ -413,6 +418,7 @@
         "camunda7/message-event-no-message": "消息事件应引用一条消息",
         "camunda7/script-task-no-script": "脚本任务缺少脚本格式或资源",
         "camunda7/dmn-task-no-decision": "DMN 任务应引用一个决策",
+        "camunda7/expression-syntax": "表达式存在语法错误（括号未闭合或插值不合法）",
         "camunda7/process-name-required": "流程应填写名称",
         "camunda7/process-history-time-to-live-required": "可执行流程应填写历史清理（天）"
       }
@@ -495,7 +501,8 @@
       "dateFormatYm": "月份",
       "dateFormatY": "年",
       "propagateAllVariables": "传播所有变量",
-      "propagateNone": "不传播"
+      "propagateNone": "不传播",
+      "transactionMethodNone": "无（默认）"
     },
     "panel": {
       "noSelection": "选择一个元素以编辑属性",
@@ -538,10 +545,25 @@
       "variableEvents": "指定多个变量变更事件，以逗号分隔。<br/><br/>变量变更事件包括：<br/><br/>create<br/>update<br/>delete<br/><br/>文档：<a href=\"https://docs.camunda.org/manual/latest/reference/bpmn20/custom-extensions/extension-attributes/#variableevents\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: #1890ff; text-decoration: underline;\">Variable events</a>",
       "toggleMode": "切换固定值/表达式模式",
       "selectUser": "选择用户",
-      "selectGroup": "选择组"
+      "selectGroup": "选择组",
+      "triggeredByEvent": "开启后子流程由事件触发执行（事件子流程），其内部开始事件必须为消息、定时器、错误、信号等非 None 类型。"
     },
     "userTask": {
       "multiApproval": "多人审批"
+    },
+    "search": {
+      "placeholder": "搜索元素名称 / ID / 类型…",
+      "noResults": "未找到匹配的元素",
+      "emptyHint": "输入关键字开始搜索"
+    },
+    "errors": {
+      "EXPR_UNCLOSED_STRING": "字符串未闭合",
+      "EXPR_UNCLOSED_BRACKET": "括号未闭合",
+      "EXPR_STRAY_CLOSE": "存在多余的闭合符号",
+      "EXPR_UNBALANCED": "括号或插值不匹配",
+      "EXPR_EMPTY_INTERP": "插值内容不能为空",
+      "EXPR_UNCLOSED_INTERP": "${} 或 #{} 插值未闭合",
+      "TIMER_INVALID": "定时器格式不正确（需符合 ISO 8601 或 cron 格式）"
     },
     "autoStash": {
       "restore": "发现未保存的草稿，是否恢复？"
@@ -870,6 +892,7 @@
     "Message event should reference a message": "消息事件应引用一条消息",
     "Script task is missing a script format or resource": "脚本任务缺少脚本格式或资源",
     "DMN task should reference a decision": "DMN 任务应引用一个决策",
+    "Expression contains unbalanced or invalid syntax": "表达式存在语法错误（括号未闭合或插值不合法）",
     "Process should have a name": "流程应填写名称",
     "Executable process should define camunda:historyTimeToLive": "可执行流程应填写历史清理（天）",
     "Issues for child elements": "子元素问题",

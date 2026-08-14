@@ -90,6 +90,7 @@ export const linterConfig = {
       'camunda7/message-event-no-message': 'warn',
       'camunda7/script-task-no-script': 'warn',
       'camunda7/dmn-task-no-decision': 'warn',
+      'camunda7/expression-syntax': 'warn',
       'camunda7/process-name-required': 'error',
       'camunda7/process-history-time-to-live-required': 'error',
     },

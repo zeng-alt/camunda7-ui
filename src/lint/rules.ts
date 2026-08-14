@@ -1,3 +1,5 @@
+import { validateCamundaExpression } from '@/utils/camunda7/expression-validator'
+
 export type LintReporter = {
   report: (id: string, message: string, path?: string[]) => void
 }
@@ -124,6 +126,18 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       if (!node.$instanceOf('bpmn:BusinessRuleTask')) return
       if (node.get('camunda:type') === 'dmn' && !node.get('camunda:decisionRef')) {
         reporter.report(node.id, 'DMN task should reference a decision', ['camunda:decisionRef'])
+      }
+    },
+  }),
+  'expression-syntax': () => ({
+    check(node, reporter) {
+      if (!node.$instanceOf('bpmn:SequenceFlow')) return
+      const expr = node.get('conditionExpression')
+      const body = expr?.body
+      if (body && !validateCamundaExpression(body).valid) {
+        reporter.report(node.id, 'Expression contains unbalanced or invalid syntax', [
+          'conditionExpression',
+        ])
       }
     },
   }),

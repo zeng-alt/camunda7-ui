@@ -55,6 +55,7 @@ export const typeIconMap: Record<string, string> = {
   'event-based-gateway': 'bpmn-icon-gateway-eventbased',
   gateway: 'bpmn-icon-gateway-complex',
   'sequence-flow': 'bpmn-icon-connection',
+  'message-flow': 'bpmn-icon-message-flow',
   collaboration: 'bpmn-icon-participant',
   participant: 'bpmn-icon-participant',
   lane: 'bpmn-icon-lane',
@@ -126,6 +127,7 @@ export function getElementTypeFromBo(bo: any): string {
   if (type.includes('EventBasedGateway')) return 'event-based-gateway'
   if (type.includes('Gateway')) return 'gateway'
   if (type.includes('SequenceFlow')) return 'sequence-flow'
+  if (type.includes('MessageFlow')) return 'message-flow'
   if (type.includes('Participant')) return 'participant'
   if (type.includes('Lane')) return 'lane'
   if (type.includes('TextAnnotation')) return 'text-annotation'

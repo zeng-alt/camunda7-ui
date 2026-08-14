@@ -1,7 +1,8 @@
-import { defineComponent, ref, watch, type PropType } from 'vue'
+import { defineComponent, ref, watch, computed, type PropType } from 'vue'
 import { NInput, NInputNumber, NRadioGroup, NRadio, NSpace, NTooltip } from 'naive-ui'
 import { useCamundaI18n } from '../../../locales'
 import { useBpmnProperties, useFormSize } from '../../../composables'
+import { validateTimerValue, type TimerFieldType } from '@/utils/camunda7/expression-validator'
 import { HintTooltip } from '../base'
 import LintFieldFeedback from '../lint/LintFieldFeedback'
 
@@ -133,6 +134,11 @@ export default defineComponent({
       updateProperty('jobPriority', val ?? null)
     }
 
+    const timerError = computed(() => {
+      if (timerActiveField.value === 'none' || !timerValue.value.trim()) return null
+      return validateTimerValue(timerActiveField.value as TimerFieldType, timerValue.value)
+    })
+
     return () => (
       <div>
         <div class="mb-8px">
@@ -174,8 +180,14 @@ export default defineComponent({
               onUpdateValue={onTimerValueChange}
               placeholder={t('bpmnPanel.placeholders.' + timerActiveField.value)}
               size={props.formSize}
+              status={timerError.value ? 'error' : undefined}
             />
           </LintFieldFeedback>
+        )}
+        {timerError.value && (
+          <div class="mt-2px text-12px text-#f56c6c">
+            {t(`bpmnPanel.errors.${timerError.value}`)}
+          </div>
         )}
         <div class="mt-12px">
           <div class="text-12px font-bold text-#888">{t('bpmnPanel.fields.jobExecution')}</div>

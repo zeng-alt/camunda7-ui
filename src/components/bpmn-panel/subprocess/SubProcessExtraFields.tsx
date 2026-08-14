@@ -1,7 +1,13 @@
-import { defineComponent, type PropType } from 'vue'
-import { type ExtraFieldTab } from '../base'
+import { defineComponent, ref, watch, type PropType } from 'vue'
+import { NCheckbox } from 'naive-ui'
+import { useCamundaI18n } from '../../../locales'
+import { useBpmnProperties } from '../../../composables'
+import type { ExtraFieldTab } from '../base'
+import { HintTooltip } from '../base'
 
-export const subProcessTabs: ExtraFieldTab[] = []
+export const subProcessTabs: ExtraFieldTab[] = [
+  { name: 'subProcess', labelKey: 'bpmnPanel.tabs.subProcess' },
+]
 
 export default defineComponent({
   name: 'SubProcessExtraFields',
@@ -18,8 +24,40 @@ export default defineComponent({
     tabName: { type: String, default: 'subProcess' },
   },
   setup(props) {
-    return () => {
-      return null
+    const { t } = useCamundaI18n()
+    const { updateProperty } = useBpmnProperties(props)
+    const triggeredByEvent = ref(false)
+
+    function syncFromModel() {
+      const bo = props.businessObject
+      if (!bo) return
+      triggeredByEvent.value = !!bo.triggeredByEvent
     }
+
+    watch(() => props.businessObject, syncFromModel, { immediate: true })
+    watch(() => props.element, syncFromModel, { immediate: true })
+
+    function onTriggeredByEventChange(val: boolean) {
+      triggeredByEvent.value = val
+      updateProperty('triggeredByEvent', val)
+    }
+
+    return () => (
+      <div class="pt-8px flex flex-col gap-12px">
+        <div class="flex items-center gap-4px">
+          <NCheckbox
+            checked={triggeredByEvent.value}
+            onUpdateChecked={onTriggeredByEventChange}
+            size={props.formSize === 'small' ? 'small' : 'medium'}
+          >
+            {t('bpmnPanel.fields.triggeredByEvent')}
+          </NCheckbox>
+          <HintTooltip
+            label={t('bpmnPanel.fields.triggeredByEvent')}
+            hint={t('bpmnPanel.tooltips.triggeredByEvent')}
+          />
+        </div>
+      </div>
+    )
   },
 })
