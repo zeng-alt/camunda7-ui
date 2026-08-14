@@ -418,7 +418,8 @@
         "camunda7/script-task-no-script": "Script task is missing a script format or resource",
         "camunda7/dmn-task-no-decision": "DMN task should reference a decision",
         "camunda7/process-name-required": "Process should have a name",
-        "camunda7/process-history-time-to-live-required": "Executable process should define camunda:historyTimeToLive"
+        "camunda7/process-history-time-to-live-required": "Executable process should define camunda:historyTimeToLive",
+        "camunda7/start-event-no-initiator": "Start event should define a camunda:initiator"
       }
     },
     "formTask": {

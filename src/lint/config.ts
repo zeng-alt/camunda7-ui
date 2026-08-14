@@ -92,6 +92,7 @@ export const linterConfig = {
       'camunda7/dmn-task-no-decision': 'warn',
       'camunda7/process-name-required': 'error',
       'camunda7/process-history-time-to-live-required': 'error',
+      'camunda7/start-event-no-initiator': 'error',
     },
   },
   resolver,

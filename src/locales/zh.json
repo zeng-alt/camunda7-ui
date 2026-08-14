@@ -416,7 +416,8 @@
         "camunda7/script-task-no-script": "脚本任务缺少脚本格式或资源",
         "camunda7/dmn-task-no-decision": "DMN 任务应引用一个决策",
         "camunda7/process-name-required": "流程应填写名称",
-        "camunda7/process-history-time-to-live-required": "可执行流程应填写历史清理（天）"
+        "camunda7/process-history-time-to-live-required": "可执行流程应填写历史清理（天）",
+        "camunda7/start-event-no-initiator": "开始事件应填写发起人"
       }
     },
     "formTask": {
@@ -874,6 +875,7 @@
     "DMN task should reference a decision": "DMN 任务应引用一个决策",
     "Process should have a name": "流程应填写名称",
     "Executable process should define camunda:historyTimeToLive": "可执行流程应填写历史清理（天）",
+    "Start event should define a camunda:initiator": "开始事件应填写发起人",
     "Issues for child elements": "子元素问题",
     "No Issues": "没有问题",
     "Toggle linting overlays": "切换 Lint 标记",
