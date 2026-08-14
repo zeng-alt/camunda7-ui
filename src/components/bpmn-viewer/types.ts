@@ -9,15 +9,9 @@ export interface NodeExecutionState {
   candidateGroups?: string[]
 }
 
-export interface FlowExecutionState {
-  status: ExecutionStatus
-  visitCount: number
-}
-
 export interface ProcessExecutionState {
   processInstanceId: string
   elements: Record<string, NodeExecutionState>
-  sequenceFlows: Record<string, FlowExecutionState>
   executionOrder?: string[]
   timestamps?: string[]
   results?: string[]

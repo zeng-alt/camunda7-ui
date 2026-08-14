@@ -187,17 +187,6 @@ const executionState: ProcessExecutionState = {
     },
     EndEvent_1: { status: 'pending', visitCount: 0, rejectCount: 0 },
   },
-  sequenceFlows: {
-    Flow_Start: { status: 'completed', visitCount: 1 },
-    Flow_SubmitToCheck: { status: 'completed', visitCount: 2 },
-    Flow_CheckToManager: { status: 'completed', visitCount: 2 },
-    Flow_CheckToSubmit: { status: 'rejected', visitCount: 1 },
-    Flow_ManagerToSubmit: { status: 'rejected', visitCount: 1 },
-    Flow_ManagerToExecute: { status: 'completed', visitCount: 1 },
-    Flow_ExecuteToWait: { status: 'completed', visitCount: 1 },
-    Flow_WaitToConfirm: { status: 'active', visitCount: 1 },
-    Flow_ConfirmToEnd: { status: 'pending', visitCount: 0 },
-  },
   executionOrder: [
     'StartEvent_1',
     'Activity_Submit',

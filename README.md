@@ -279,11 +279,10 @@ interface ProcessExecutionState {
     candidateUsers?: string[]
     candidateGroups?: string[]
   }>
-  sequenceFlows: Record<string, {
-    status: 'pending' | 'active' | 'completed' | 'rejected'
-  }>
 }
 ```
+
+Sequence flow (connection) states are **derived automatically** from element states and diagram topology — you don't need to provide them. Rules: target `active` → flow `active`; source `rejected` → flow `rejected`; source `completed` → flow `completed`; otherwise `pending`.
 
 ### Methods (via template ref)
 

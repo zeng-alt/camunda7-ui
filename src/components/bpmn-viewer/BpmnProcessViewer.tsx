@@ -23,11 +23,8 @@ function is(element: any, type: string): boolean {
 import Legend from './Legend'
 import NodeTooltip from './NodeTooltip'
 import TimelinePanel from './TimelinePanel'
-import type { ProcessExecutionState, TooltipData } from './types'
+import type { ProcessExecutionState, ExecutionStatus, TooltipData } from './types'
 import './viewer.css'
-
-import 'camunda-bpmn-js/dist/assets/diagram-js.css'
-import 'camunda-bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css'
 
 export interface BpmnProcessViewerProps {
   /** 主题：light（浅色）/ dark（深色） */
@@ -136,7 +133,9 @@ export default defineComponent<BpmnProcessViewerProps>({
 
       const state = props.executionState
 
-      for (const [id, ns] of Object.entries(state.elements)) {
+      for (const [id, ns] of Object.entries(state.elements || {})) {
+        // 图中不存在的元素跳过（执行状态可能在 XML 导入完成前到达，或引用已不存在的节点）
+        if (!elementRegistry.get(id)) continue
         if (ns.status !== 'pending') {
           canvas.addMarker(id, `execution-${ns.status}`)
         }
@@ -154,23 +153,40 @@ export default defineComponent<BpmnProcessViewerProps>({
         }
       }
 
-      for (const [id, fs] of Object.entries(state.sequenceFlows)) {
-        if (fs.status !== 'pending') {
-          canvas.addMarker(id, `execution-${fs.status}`)
+      // 用户无法提供连接线状态，此处根据节点状态 + 图结构自行推断每条 sequence flow 的状态：
+      // - 目标节点 active      → active（令牌正流向当前执行中的节点）
+      // - 源节点 rejected      → rejected（驳回回退路径）
+      // - 源节点 completed     → completed（令牌已通过该连接）
+      // - 其余                 → pending
+      elementRegistry.forEach((el: any) => {
+        if (!is(el, 'bpmn:SequenceFlow')) return
+        const sourceState = state.elements?.[el.source?.id]
+        const targetState = state.elements?.[el.target?.id]
+        if (!sourceState && !targetState) return
+
+        const status: ExecutionStatus =
+          targetState?.status === 'active'
+            ? 'active'
+            : sourceState?.status === 'rejected'
+              ? 'rejected'
+              : sourceState?.status === 'completed'
+                ? 'completed'
+                : 'pending'
+
+        if (status !== 'pending') {
+          canvas.addMarker(el.id, `execution-${status}`)
         }
-        if (fs.status === 'rejected') {
-          const el = elementRegistry.get(id)
-          if (el) {
-            overlays.add(id, 'reject-x', {
-              position: {
-                left: (el.width || 50) / 2 - 8,
-                top: (el.height || 20) / 2 - 8,
-              },
-              html: '<div class="reject-x-mark">✕</div>',
-            })
-          }
+        if (status === 'rejected') {
+          const wp = el.waypoints?.[Math.floor((el.waypoints.length || 1) / 2)]
+          overlays.add(el.id, 'reject-x', {
+            position: {
+              left: (wp?.x ?? (el.width || 50) / 2) - 8,
+              top: (wp?.y ?? (el.height || 20) / 2) - 8,
+            },
+            html: '<div class="reject-x-mark">✕</div>',
+          })
         }
-      }
+      })
     }
 
     function setupTooltipHandlers() {

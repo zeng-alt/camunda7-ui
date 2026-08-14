@@ -279,11 +279,10 @@ interface ProcessExecutionState {
     candidateUsers?: string[]
     candidateGroups?: string[]
   }>
-  sequenceFlows: Record<string, {
-    status: 'pending' | 'active' | 'completed' | 'rejected'
-  }>
 }
 ```
+
+连接线（sequence flow）状态由节点状态 + 图结构**自动推断**，无需单独提供。规则：目标节点 `active` → 连接线 `active`；源节点 `rejected` → 连接线 `rejected`；源节点 `completed` → 连接线 `completed`；其余为 `pending`。
 
 ### 方法（通过 template ref）
 
