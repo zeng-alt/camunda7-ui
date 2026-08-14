@@ -25,7 +25,7 @@ export interface UseBpmnModeler {
   importXml: (xml: string) => Promise<void>
   /** 导出格式化后的 XML 字符串 */
   saveXml: () => Promise<string>
-  /** 用空图清空画布并自适应视口 */
+  /** 用空图清空画布并自适应视口（保留当前流程的 id 与名称） */
   clearCanvas: (emptyDiagram: string) => Promise<void>
   /** 销毁建模器实例 */
   destroy: () => void
@@ -58,6 +58,22 @@ export function useBpmnModeler(options: UseBpmnModelerOptions): UseBpmnModeler {
 
   function getModeler() {
     return modeler
+  }
+
+  /** 获取当前 bpmn:Process 元素 */
+  function getCurrentProcess(target: any): any {
+    const definitions = target.getDefinitions()
+    if (!definitions) return null
+    return (definitions.rootElements || []).find((el: any) => el.$type === 'bpmn:Process') || null
+  }
+
+  /** 转义 XML 属性值中的特殊字符 */
+  function escapeXmlAttr(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
   }
 
   function init(additionalModules: any[] = []) {
@@ -135,11 +151,23 @@ export function useBpmnModeler(options: UseBpmnModelerOptions): UseBpmnModeler {
     return xml
   }
 
-  /** 用空图清空画布并自适应视口 */
+  /** 用空图清空画布并自适应视口（保留当前流程的 id 与名称） */
   async function clearCanvas(emptyDiagram: string) {
     if (!modeler) return
     try {
-      await modeler.importXML(emptyDiagram)
+      const process = getCurrentProcess(modeler)
+      const id = process?.id || `Process_${Math.random().toString(36).slice(2, 9)}`
+      const name = process?.name || ''
+      const diagram = emptyDiagram
+        .replace(/<bpmn:process[^>]*>/, (tag) => {
+          let next = tag.replace(/id="[^"]*"/, `id="${id}"`)
+          if (name) {
+            next = next.replace(/\s*>$/, (end) => ` name="${escapeXmlAttr(name)}"${end}`)
+          }
+          return next
+        })
+        .replace(/bpmnElement="[^"]*"/, `bpmnElement="${id}"`)
+      await modeler.importXML(diagram)
       modeler.get('canvas').zoom('fit-viewport')
     } catch (err) {
       console.error('Error clearing canvas', err)
