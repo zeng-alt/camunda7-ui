@@ -47,10 +47,41 @@ describe('lint rules', () => {
       'script-task-no-script',
       'dmn-task-no-decision',
       'expression-syntax',
+      'start-event-no-initiator',
     ]
     for (const name of expected) {
       expect(camunda7RuleFactories[name]).toBeTypeOf('function')
     }
+  })
+
+  describe('start-event-no-initiator', () => {
+    const rule = 'start-event-no-initiator'
+
+    it('reports when the initiator is missing', () => {
+      const reports = runRule(rule, createNode({ $type: 'bpmn:StartEvent' }))
+      expect(reports).toHaveLength(1)
+      expect(reports[0]).toMatchObject({ id: 'n1', path: ['camunda:initiator'] })
+    })
+
+    it('reports when the initiator is only whitespace', () => {
+      const reports = runRule(
+        rule,
+        createNode({ $type: 'bpmn:StartEvent', attributes: { 'camunda:initiator': '   ' } }),
+      )
+      expect(reports).toHaveLength(1)
+    })
+
+    it('does not report when the initiator is set', () => {
+      const reports = runRule(
+        rule,
+        createNode({ $type: 'bpmn:StartEvent', attributes: { 'camunda:initiator': 'initiator' } }),
+      )
+      expect(reports).toHaveLength(0)
+    })
+
+    it('ignores non-start-event nodes', () => {
+      expect(runRule(rule, createNode({ $type: 'bpmn:Task' }))).toHaveLength(0)
+    })
   })
 
   describe('process-name-required', () => {

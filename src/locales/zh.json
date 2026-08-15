@@ -59,6 +59,7 @@
       "taskPriority": "外部任务优先级",
       "jobPriority": "作业执行优先级",
       "formKey": "表单 Key",
+      "initiator": "发起人",
       "eventDefinition": "事件定义",
       "cancelActivity": "取消活动",
       "triggeredByEvent": "由事件触发",
@@ -221,6 +222,7 @@
       "taskPriority": "例如 50",
       "jobPriority": "例如 10",
       "formKey": "例如 camunda-forms:deployment:form1",
+      "initiator": "例如 initiator",
       "timeDate": "例如 2024-01-01T00:00:00",
       "timeDuration": "例如 PT1H",
       "timeCycle": "例如 R5/PT10S",
@@ -420,7 +422,8 @@
         "camunda7/dmn-task-no-decision": "DMN 任务应引用一个决策",
         "camunda7/expression-syntax": "表达式存在语法错误（括号未闭合或插值不合法）",
         "camunda7/process-name-required": "流程应填写名称",
-        "camunda7/process-history-time-to-live-required": "可执行流程应填写历史清理（天）"
+        "camunda7/process-history-time-to-live-required": "可执行流程应填写历史清理（天）",
+        "camunda7/start-event-no-initiator": "开始事件应填写发起人"
       }
     },
     "formTask": {
@@ -909,6 +912,7 @@
     "Expression contains unbalanced or invalid syntax": "表达式存在语法错误（括号未闭合或插值不合法）",
     "Process should have a name": "流程应填写名称",
     "Executable process should define camunda:historyTimeToLive": "可执行流程应填写历史清理（天）",
+    "Start event should define a camunda:initiator": "开始事件应填写发起人",
     "Issues for child elements": "子元素问题",
     "No Issues": "没有问题",
     "Toggle linting overlays": "切换 Lint 标记",

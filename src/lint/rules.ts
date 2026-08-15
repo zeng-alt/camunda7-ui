@@ -141,6 +141,17 @@ const camunda7RuleFactories: Record<string, LintRuleFactory> = {
       }
     },
   }),
+  'start-event-no-initiator': () => ({
+    check(node, reporter) {
+      if (!node.$instanceOf('bpmn:StartEvent')) return
+      const initiator = node.get('camunda:initiator')
+      if (!initiator || !String(initiator).trim()) {
+        reporter.report(node.id, 'Start event should define a camunda:initiator', [
+          'camunda:initiator',
+        ])
+      }
+    },
+  }),
 }
 
 export default camunda7RuleFactories

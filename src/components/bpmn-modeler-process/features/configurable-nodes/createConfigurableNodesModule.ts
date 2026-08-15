@@ -7,11 +7,14 @@ import ConfigurableReplaceMenuProvider from './ConfigurableReplaceMenuProvider'
 import DefaultUserTaskFormBehavior from './DefaultUserTaskFormBehavior'
 import FormTaskRenderer from './FormTaskRenderer'
 import DefaultElementNameBehavior from './DefaultElementNameBehavior'
+import StartEventInitiatorBehavior from './StartEventInitiatorBehavior'
 
 export interface ConfigurableNodesConfig {
   isElementVisible: (target: ActionTarget) => boolean
   /** 返回元素类型的本地化默认名称；返回空字符串表示不设置名称 */
   getDefaultElementName?: (businessObject: any) => string
+  /** 新建 / 修改为开始事件时自动填充的发起人默认值，默认 initiator */
+  startEventInitiator?: string
 }
 
 export default function createConfigurableNodesModule(config: ConfigurableNodesConfig) {
@@ -21,6 +24,7 @@ export default function createConfigurableNodesModule(config: ConfigurableNodesC
       'defaultUserTaskFormBehavior',
       'formTaskRenderer',
       'defaultElementNameBehavior',
+      'startEventInitiatorBehavior',
     ],
     createAppendMenuProvider: ['type', ConfigurableCreateAppendMenuProvider],
     defaultUserTaskFormBehavior: ['type', DefaultUserTaskFormBehavior],
@@ -30,6 +34,7 @@ export default function createConfigurableNodesModule(config: ConfigurableNodesC
     replaceMenuProvider: ['type', ConfigurableReplaceMenuProvider],
     formTaskRenderer: ['type', FormTaskRenderer],
     defaultElementNameBehavior: ['type', DefaultElementNameBehavior],
+    startEventInitiatorBehavior: ['type', StartEventInitiatorBehavior],
   }
 }
 

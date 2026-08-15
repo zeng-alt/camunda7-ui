@@ -59,6 +59,7 @@
       "taskPriority": "External Task Priority",
       "jobPriority": "Job Execution Priority",
       "formKey": "Form Key",
+      "initiator": "Initiator",
       "eventDefinition": "Event Definition",
       "cancelActivity": "Cancel Activity",
       "triggeredByEvent": "Triggered by Event",
@@ -221,6 +222,7 @@
       "taskPriority": "e.g. 50",
       "jobPriority": "e.g. 10",
       "formKey": "e.g. camunda-forms:deployment:form1",
+      "initiator": "e.g. initiator",
       "timeDate": "e.g. 2024-01-01T00:00:00",
       "timeDuration": "e.g. PT1H",
       "timeCycle": "e.g. R5/PT10S",
@@ -422,7 +424,8 @@
         "camunda7/dmn-task-no-decision": "DMN task should reference a decision",
         "camunda7/expression-syntax": "Expression has invalid syntax (unbalanced brackets or invalid interpolation)",
         "camunda7/process-name-required": "Process should have a name",
-        "camunda7/process-history-time-to-live-required": "Executable process should define camunda:historyTimeToLive"
+        "camunda7/process-history-time-to-live-required": "Executable process should define camunda:historyTimeToLive",
+        "camunda7/start-event-no-initiator": "Start event should define a camunda:initiator"
       }
     },
     "formTask": {
