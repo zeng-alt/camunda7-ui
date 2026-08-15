@@ -558,6 +558,20 @@
       "noResults": "No matching elements found",
       "emptyHint": "Type a keyword to search"
     },
+    "ai": {
+      "title": "AI Assistant",
+      "placeholder": "Describe the changes you want to make to the process, e.g. add a user task with an assignee…",
+      "send": "Send",
+      "sending": "AI is processing, please wait…",
+      "emptyHint": "Describe your BPMN modification request in natural language. The AI returns the modified XML that you can apply to the canvas.",
+      "generatedXml": "Modified XML generated.",
+      "xmlReady": "Contains modified BPMN XML",
+      "pendingXml": "AI generated a modified XML, ready to apply",
+      "apply": "Apply to canvas",
+      "applied": "AI changes applied to the canvas.",
+      "error": "AI request failed: ",
+      "applyError": "Failed to apply XML: "
+    },
     "errors": {
       "EXPR_UNCLOSED_STRING": "Unterminated string literal",
       "EXPR_UNCLOSED_BRACKET": "Unclosed bracket",

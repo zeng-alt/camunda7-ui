@@ -556,6 +556,20 @@
       "noResults": "未找到匹配的元素",
       "emptyHint": "输入关键字开始搜索"
     },
+    "ai": {
+      "title": "AI 助手",
+      "placeholder": "描述你想对流程做的修改，例如：增加一个用户任务节点并设置办理人…",
+      "send": "发送",
+      "sending": "AI 正在处理，请稍候…",
+      "emptyHint": "通过自然语言描述对 BPMN 流程的修改需求，AI 会返回修改后的 XML 供你应用到画布。",
+      "generatedXml": "已生成修改后的 XML。",
+      "xmlReady": "包含修改后的 BPMN XML",
+      "pendingXml": "AI 已生成修改后的 XML，可应用到画布",
+      "apply": "应用到画布",
+      "applied": "已应用 AI 修改到画布。",
+      "error": "AI 请求失败：",
+      "applyError": "应用 XML 失败："
+    },
     "errors": {
       "EXPR_UNCLOSED_STRING": "字符串未闭合",
       "EXPR_UNCLOSED_BRACKET": "括号未闭合",

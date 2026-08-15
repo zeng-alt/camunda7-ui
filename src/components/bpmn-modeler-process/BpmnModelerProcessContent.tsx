@@ -43,7 +43,9 @@ import {
   ImportExportDialog,
   RestoreStashDialog,
   ElementSearchPanel,
+  AiChatDialog,
 } from './components'
+import type { AiChatHandler } from '@/ai'
 import './bpmn.css'
 import 'camunda-bpmn-js/dist/assets/camunda-platform-modeler.css'
 import 'camunda-bpmn-js/dist/assets/diagram-js.css'
@@ -121,6 +123,8 @@ export interface BpmnModelerProcessProps {
   onSearchFormRefs?: (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
   /** 搜索表单 Key 回调：用于表单 Key 选择 */
   onSearchFormKeys?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** AI 助手回调：接收对话历史与当前 XML，返回 AI 回复（可含修改后的 XML）。传入后工具栏显示 AI 助手入口 */
+  aiChat?: AiChatHandler
 }
 
 export interface ProcessInfo {
@@ -284,6 +288,11 @@ export const bpmnModelerProcessProps = {
     >,
     default: null,
   },
+  /** AI 助手回调：接收对话历史与当前 XML，返回 AI 回复 */
+  aiChat: {
+    type: Function as PropType<AiChatHandler>,
+    default: null,
+  },
 }
 
 export default defineComponent({
@@ -417,6 +426,12 @@ export default defineComponent({
     const showExportDialog = ref(false)
     const exportXml = ref('')
     const showSearch = ref(false)
+    const showAiDialog = ref(false)
+
+    function openAiDialog() {
+      if (!props.aiChat) return
+      showAiDialog.value = true
+    }
 
     /** Ctrl/Cmd+S 保存到 onSaveXml；Ctrl/Cmd+F 打开元素搜索 */
     function onGlobalKeydown(e: KeyboardEvent) {
@@ -664,6 +679,7 @@ export default defineComponent({
                   onLocaleChange={handleLocaleChange}
                   onToggleTheme={toggleTheme}
                   onSearch={toggleSearch}
+                  onOpenAi={openAiDialog}
                   onZoomIn={() => zoomIn(modelerRef.value)}
                   onZoomOut={() => zoomOut(modelerRef.value)}
                   onCenter={() => centerView(modelerRef.value)}
@@ -699,6 +715,18 @@ export default defineComponent({
                     showRestoreDialog.value = val
                   }}
                 />
+                {props.aiChat && (
+                  <AiChatDialog
+                    show={showAiDialog.value}
+                    size={props.size}
+                    aiChat={props.aiChat}
+                    getXml={() => saveXml()}
+                    onApplyXml={(xml: string) => loadDiagram(xml)}
+                    onUpdateShow={(val: boolean) => {
+                      showAiDialog.value = val
+                    }}
+                  />
+                )}
               </NLayoutContent>
               <NLayoutSider
                 class="h-full"

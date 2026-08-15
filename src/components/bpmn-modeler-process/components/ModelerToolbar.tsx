@@ -25,6 +25,8 @@ export default defineComponent({
     onToggleTheme: { type: Function as PropType<() => void>, default: null },
     // 打开元素搜索面板回调
     onSearch: { type: Function as PropType<() => void>, default: null },
+    // 打开 AI 助手对话框回调
+    onOpenAi: { type: Function as PropType<() => void>, default: null },
     // 放大回调
     onZoomIn: { type: Function as PropType<() => void>, default: null },
     // 缩小回调
@@ -62,6 +64,13 @@ export default defineComponent({
               <span class="i-ic-baseline-search text-[#409eff]" />
             </NIcon>
           </NButton>
+          {props.onOpenAi && (
+            <NButton ghost onClick={props.onOpenAi}>
+              <NIcon>
+                <span class="i-ic-baseline-smart-toy text-[#13c2c2]" />
+              </NIcon>
+            </NButton>
+          )}
           <NButton ghost onClick={props.onZoomIn}>
             <NIcon>
               <span class="i-ic-baseline-add text-[#409eff]" />

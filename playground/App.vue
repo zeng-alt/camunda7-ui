@@ -2,6 +2,7 @@
 import {
   BpmnModelerProcess,
   BpmnPreviewModal,
+  createOpenAiAdapter,
   type ThemeType,
   type LocaleType,
   type DesignerConfig,
@@ -281,6 +282,14 @@ async function onSearchDelegateExpressions(name: string) {
       d.label.includes(name) || d.value.toLowerCase().includes(name.toLowerCase()),
   )
 }
+
+// 演示 AI 助手：接入 DeepSeek（OpenAI 兼容接口）。
+// 请通过 VITE_DEEPSEEK_API_KEY 环境变量提供 Key；生产环境建议在服务端代理转发，避免在前端暴露 Key。
+const aiChat = createOpenAiAdapter({
+  apiKey: 'xxxx',
+  baseUrl: 'https://api.deepseek.com',
+  model: 'deepseek-v4-flash',
+})
 </script>
 
 <template>
@@ -303,6 +312,7 @@ async function onSearchDelegateExpressions(name: string) {
       :onSearchFormKeys="onSearchFormKeys"
       :localeMessages="localeMessages"
       :availableLocales="availableLocales"
+      :aiChat="aiChat"
     >
       <template #buttons="{ modeler }">
         <NButton ghost type="primary" @click="handlePublish(modeler)">
