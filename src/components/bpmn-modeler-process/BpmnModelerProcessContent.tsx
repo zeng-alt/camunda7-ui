@@ -27,6 +27,7 @@ import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
 import {
   useBpmnModeler,
   useXmlStash,
+  useTokenSimulationI18n,
   zoomIn,
   zoomOut,
   centerView,
@@ -363,6 +364,8 @@ export default defineComponent({
     const { modelerRef, init, getModeler, loadDiagram, importXml, saveXml, clearCanvas, destroy } =
       useBpmnModeler({ container: () => canvasRef.value })
 
+    let simulationI18n: ReturnType<typeof useTokenSimulationI18n> | null = null
+
     const {
       showRestoreDialog,
       debounceStash,
@@ -392,10 +395,17 @@ export default defineComponent({
         })
       }
 
+      if (props.enableTokenSimulation) {
+        simulationI18n = useTokenSimulationI18n({
+          container: () => canvasRef.value,
+          t,
+        })
+      }
+
       const initialXml = props.xml || defaultDiagram
       await loadDiagram(initialXml)
 
-      applySimulationSpeedTitles()
+      simulationI18n?.reapply()
 
       checkStash()
 
@@ -419,6 +429,8 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       flushStash()
+      simulationI18n?.dispose()
+      simulationI18n = null
       destroy()
       window.removeEventListener('keydown', onGlobalKeydown, { capture: true })
     })
@@ -497,21 +509,6 @@ export default defineComponent({
     function handleToggleSimulation() {
       if (!props.enableTokenSimulation) return
       toggleTokenSimulation(getModeler())
-    }
-
-    const SIMULATION_SPEED_KEYS = ['slow', 'normal', 'fast'] as const
-
-    /** 动画速度按钮的 tooltip 在库内硬编码为英文，这里按索引替换为国际化文案 */
-    function applySimulationSpeedTitles() {
-      const container = canvasRef.value
-      if (!container) return
-      const buttons = container.querySelectorAll<HTMLElement>('.bts-animation-speed-button')
-      if (!buttons.length) return
-      const prefix = t('bpmnPanel.tokenSimulation.animationSpeedTitle')
-      buttons.forEach((btn, idx) => {
-        const key = SIMULATION_SPEED_KEYS[idx]
-        if (key) btn.title = `${prefix} = ${t(`bpmnPanel.tokenSimulation.speed.${key}`)}`
-      })
     }
 
     /** 当前是否处于 Token 仿真模式 */
@@ -612,7 +609,7 @@ export default defineComponent({
       setLocale(value as LocaleType)
       emit('update:locale', value)
       getModeler()?.get('eventBus')?.fire('i18n.changed')
-      applySimulationSpeedTitles()
+      simulationI18n?.reapply()
     }
 
     const extraTabs: Record<string, any> = {
