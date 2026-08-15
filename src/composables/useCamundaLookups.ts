@@ -3,6 +3,8 @@ import {
   useCamundaLookupsContext,
   type CamundaLookupsContext,
 } from '../components/config-provider/context'
+import type { FormSchema } from './useFormSchema'
+import type { GlobalFormData } from '../components/bpmn-panel/base/globalForm'
 
 /** 下拉选项的基础数据结构 */
 export interface CamundaLookupItem {
@@ -28,6 +30,16 @@ export interface PageResult {
 export interface ProcessLookupItem extends CamundaLookupItem {
   /** 流程可用版本列表 */
   version: string[]
+}
+
+/** 字典项：动态枚举查询结果 */
+export interface CamundaDictItem {
+  /** 展示文本 */
+  label: string
+  /** 选项值 */
+  value: string
+  /** 是否禁用 */
+  disabled?: boolean
 }
 
 /**
@@ -60,6 +72,10 @@ export interface CamundaLookups {
   searchFormRefs: ((name: string) => Promise<ProcessLookupItem[]> | ProcessLookupItem[]) | null
   /** 搜索表单 Key */
   searchFormKeys: ((name: string) => Promise<CamundaLookupItem[]> | CamundaLookupItem[]) | null
+  /** 加载全局表单字段结构：接收全局表单信息，返回字段树（可含对象/数组嵌套） */
+  loadFormSchema: ((globalForm: GlobalFormData) => Promise<FormSchema> | FormSchema) | null
+  /** 按字典编码查询字典项：用于枚举字段的动态 options */
+  searchDictItems: ((code: string) => Promise<CamundaDictItem[]> | CamundaDictItem[]) | null
 }
 
 const state = reactive<CamundaLookups>({
@@ -72,6 +88,8 @@ const state = reactive<CamundaLookups>({
   searchDecisionRefs: null,
   searchFormRefs: null,
   searchFormKeys: null,
+  loadFormSchema: null,
+  searchDictItems: null,
 })
 
 /**

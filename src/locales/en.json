@@ -437,7 +437,19 @@
       "opDelete": "Delete",
       "addOperation": "Add Operation",
       "placeholderFieldName": "Field name",
-      "placeholderValue": "Value or expression, e.g. ${var}"
+      "placeholderValue": "Value or expression, e.g. ${var}",
+      "whole": "Whole",
+      "schemaHint": "Form schema loaded. Pick fields from the dropdown.",
+      "fieldType": "Field type",
+      "jsonPlaceholder": "Object/array value (JSON)",
+      "jsonInvalid": "Invalid JSON",
+      "fieldNameRequired": "Field name is required",
+      "controlMode": "Control",
+      "textMode": "Text",
+      "noDictSource": "No dictionary source configured",
+      "typeDouble": "Number (Double)",
+      "typeObject": "Object",
+      "typeArray": "Array"
     },
     "multiInstance": {
       "enable": "Batch Execution",
@@ -520,7 +532,8 @@
     "globalForm": {
       "hint": "The global form is configured at the process level and shared by all user tasks. It is stored in the process extension properties.",
       "noGlobalForm": "No global form configured on the process",
-      "editHint": "Edit the global form on the process's 'Forms' tab"
+      "editHint": "Edit the global form on the process's 'Forms' tab",
+      "loadSchema": "Load"
     },
     "formPreview": {
       "noFields": "No form fields configured",

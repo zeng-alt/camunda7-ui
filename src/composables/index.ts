@@ -4,7 +4,19 @@ export type {
   PageResult,
   ProcessLookupItem,
   CamundaLookups,
+  CamundaDictItem,
 } from './useCamundaLookups'
+export { useFormSchema } from './useFormSchema'
+export type {
+  FormSchemaType,
+  FormSchemaEnumValue,
+  FormSchemaEnumOption,
+  FormSchemaDynamicOptions,
+  FormSchemaEnumOptions,
+  FormSchemaField,
+  FormSchema,
+  FormSchemaLoader,
+} from './useFormSchema'
 export { useBpmnProperties } from './useBpmnProperties'
 export type { BpmnPropertyProps } from './useBpmnProperties'
 export { useFormSize } from './useFormSize'

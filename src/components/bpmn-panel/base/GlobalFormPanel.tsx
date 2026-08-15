@@ -11,6 +11,7 @@ import {
   useBpmnProperties,
   useCamundaLookups,
   useFormSize,
+  useFormSchema,
   type ProcessLookupItem,
 } from '@/composables'
 import {
@@ -43,6 +44,7 @@ export default defineComponent({
     const { t } = useCamundaI18n()
     const { labelClass } = useFormSize(() => props.formSize)
     const { lookups } = useCamundaLookups()
+    const { setSchema } = useFormSchema()
     const { getModdle } = useBpmnProperties(props)
 
     const formType = ref<GlobalFormType>('none')
@@ -53,6 +55,7 @@ export default defineComponent({
     const selectedFormRef = ref<ProcessLookupItem | null>(null)
     const items = ref<FormFieldItem[]>([])
     const showPreview = ref(false)
+    const loadingSchema = ref(false)
 
     const bindingOptions = computed<SelectOption[]>(() => [
       { label: t('bpmnPanel.options.bindingDeployment'), value: 'deployment' },
@@ -202,6 +205,21 @@ export default defineComponent({
       persist()
     }
 
+    /** 点击“加载”：把当前全局表单信息交给 loader，返回的字段结构写入作用域 schema，供操作表单选择 */
+    async function onLoadSchema() {
+      if (!lookups.loadFormSchema) return
+      loadingSchema.value = true
+      try {
+        const schema = await lookups.loadFormSchema(readGlobalForm(props.businessObject))
+        setSchema(schema || [])
+      } catch (err: any) {
+        setSchema([])
+        console.error('Failed to load form schema', err)
+      } finally {
+        loadingSchema.value = false
+      }
+    }
+
     return () => {
       if (!props.businessObject) return null
 
@@ -209,7 +227,22 @@ export default defineComponent({
 
       return (
         <div>
-          <div class="mb-8px text-12px text-#888">{t('bpmnPanel.globalForm.hint')}</div>
+          <div class="flex items-center justify-between gap-8px">
+            <div class="mb-8px text-12px text-#888">{t('bpmnPanel.globalForm.hint')}</div>
+            {lookups.loadFormSchema && (type === 'camunda' || type === 'external') && (
+              <div class="mb-8px">
+                <NButton
+                  size={props.formSize}
+                  type="primary"
+                  ghost
+                  loading={loadingSchema.value}
+                  onClick={onLoadSchema}
+                >
+                  {t('bpmnPanel.globalForm.loadSchema')}
+                </NButton>
+              </div>
+            )}
+          </div>
           <div class="flex items-center gap-8px">
             <div style="flex:1">
               <div class="text-12px font-bold mb-8px">{t('bpmnPanel.fields.formType')}</div>

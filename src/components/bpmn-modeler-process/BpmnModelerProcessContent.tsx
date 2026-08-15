@@ -21,7 +21,13 @@ import {
 } from '../bpmn-panel/designerConfig'
 import createConfigurableNodesModule from './features/configurable-nodes/createConfigurableNodesModule'
 import { toElementKey, getElementTypeFromBo, type ActionTarget } from '@/utils/bpmn'
-import type { PageResult, CamundaLookupItem, ProcessLookupItem } from '@/composables'
+import type {
+  PageResult,
+  CamundaLookupItem,
+  ProcessLookupItem,
+  CamundaDictItem,
+} from '@/composables'
+import type { FormSchemaLoader } from '@/composables'
 import type { LocaleOption } from '../config-provider/context'
 import CamundaPropertiesPanel from '../bpmn-panel/CamundaPropertiesPanel'
 import {
@@ -124,6 +130,10 @@ export interface BpmnModelerProcessProps {
   onSearchFormRefs?: (name: string) => ProcessLookupItem[] | Promise<ProcessLookupItem[]>
   /** 搜索表单 Key 回调：用于表单 Key 选择 */
   onSearchFormKeys?: (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
+  /** 加载全局表单字段结构回调：接收当前全局表单信息，返回字段树（可含对象/数组嵌套）。传入后全局表单面板显示“加载”按钮 */
+  onLoadFormSchema?: FormSchemaLoader
+  /** 按字典编码查询字典项回调：用于枚举字段的动态 options（options: {dynamic, code}） */
+  onSearchDictItems?: (code: string) => CamundaDictItem[] | Promise<CamundaDictItem[]>
   /** AI 助手回调：接收对话历史与当前 XML，返回 AI 回复（可含修改后的 XML）。传入后工具栏显示 AI 助手入口 */
   aiChat?: AiChatHandler
 }
@@ -287,6 +297,16 @@ export const bpmnModelerProcessProps = {
     type: Function as PropType<
       (name: string) => CamundaLookupItem[] | Promise<CamundaLookupItem[]>
     >,
+    default: null,
+  },
+  /** 加载全局表单字段结构回调：接收当前全局表单信息，返回字段树。传入后全局表单面板显示“加载”按钮 */
+  onLoadFormSchema: {
+    type: Function as PropType<FormSchemaLoader>,
+    default: null,
+  },
+  /** 按字典编码查询字典项回调：用于枚举字段的动态 options */
+  onSearchDictItems: {
+    type: Function as PropType<(code: string) => CamundaDictItem[] | Promise<CamundaDictItem[]>>,
     default: null,
   },
   /** AI 助手回调：接收对话历史与当前 XML，返回 AI 回复 */
@@ -637,6 +657,8 @@ export default defineComponent({
           searchDecisionRefs: props.onSearchDecisionRefs,
           searchFormRefs: props.onSearchFormRefs,
           searchFormKeys: props.onSearchFormKeys,
+          loadFormSchema: props.onLoadFormSchema,
+          searchDictItems: props.onSearchDictItems,
         }}
       >
         {{

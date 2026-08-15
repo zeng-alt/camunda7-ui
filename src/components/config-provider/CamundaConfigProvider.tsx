@@ -2,6 +2,7 @@ import {
   defineComponent,
   computed,
   reactive,
+  ref,
   provide,
   inject,
   watchEffect,
@@ -19,10 +20,12 @@ import {
 import {
   configProviderInjectionKey,
   lookupsInjectionKey,
+  formSchemaInjectionKey,
   type LocaleType,
   type ThemeType,
 } from './context'
 import type { CamundaLookups } from '../../composables'
+import type { FormSchema } from '../../composables/useFormSchema'
 import {
   setLocale,
   setLocaleMessages,
@@ -157,9 +160,13 @@ export default defineComponent<CamundaConfigProviderProps>({
       searchDecisionRefs: null,
       searchFormRefs: null,
       searchFormKeys: null,
+      loadFormSchema: null,
+      searchDictItems: null,
       ...(parentLookups?.lookups ?? {}),
       ...props.lookups,
     })
+
+    const scopedFormSchema = ref<FormSchema>([])
 
     provide(configProviderInjectionKey, {
       themeRef,
@@ -173,6 +180,13 @@ export default defineComponent<CamundaConfigProviderProps>({
     provide(lookupsInjectionKey, {
       lookups: scopedLookups,
       registerLookups: (lookups) => Object.assign(scopedLookups, lookups),
+    })
+
+    provide(formSchemaInjectionKey, {
+      schema: scopedFormSchema,
+      setSchema: (schema) => {
+        scopedFormSchema.value = schema
+      },
     })
 
     return () => (

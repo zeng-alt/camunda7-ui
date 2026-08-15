@@ -54,6 +54,8 @@ import type { ValidateResult, LintReport } from '@/lint'
  * - `onSearchExternalTopics(name)`：搜索外部任务主题
  * - `onSearchDecisionRefs(name)`：搜索 DMN 决策
  * - `onSearchFormRefs(name)` / `onSearchFormKeys(name)`：搜索表单引用 / 表单 Key
+ * - `onLoadFormSchema(globalForm)`：加载全局表单字段结构（含对象/数组嵌套），传入后全局表单面板显示“加载”按钮
+ * - `onSearchDictItems(code)`：按字典编码查询字典项，用于枚举字段的动态 options
  * - `userResolver` / `groupResolver`：办理人 / 用户组解析器表达式
  *
  * ## Emits

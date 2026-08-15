@@ -435,7 +435,19 @@
       "opDelete": "删除",
       "addOperation": "添加操作",
       "placeholderFieldName": "字段名",
-      "placeholderValue": "值或表达式，如 ${var}"
+      "placeholderValue": "值或表达式，如 ${var}",
+      "whole": "整体",
+      "schemaHint": "已加载表单结构，字段可从下拉中选择",
+      "fieldType": "字段类型",
+      "jsonPlaceholder": "对象/数组值（JSON）",
+      "jsonInvalid": "JSON 格式不正确",
+      "fieldNameRequired": "字段名必填",
+      "controlMode": "控件",
+      "textMode": "文本",
+      "noDictSource": "未配置字典查询",
+      "typeDouble": "数字（Double）",
+      "typeObject": "对象",
+      "typeArray": "数组"
     },
     "multiInstance": {
       "enable": "批量执行",
@@ -518,7 +530,8 @@
     "globalForm": {
       "hint": "全局表单在流程级别配置，所有用户任务共享，存储于流程扩展属性中。",
       "noGlobalForm": "流程尚未配置全局表单",
-      "editHint": "编辑全局表单请到流程的「表单」页签"
+      "editHint": "编辑全局表单请到流程的「表单」页签",
+      "loadSchema": "加载"
     },
     "formPreview": {
       "noFields": "未配置表单字段",

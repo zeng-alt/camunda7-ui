@@ -1,7 +1,7 @@
 export const FORM_TASK_TEMPLATE = 'camunda7-ui:form-task'
 
 /** 新创建的表单任务默认委托表达式 */
-export const FORM_TASK_DELEGATE_EXPRESSION = '${formkService}'
+export const FORM_TASK_DELEGATE_EXPRESSION = '${formService}'
 
 /**
  * Extracts the modelerTemplate value from a BPMN business object.

@@ -1,5 +1,6 @@
 import { type InjectionKey, type Ref, inject } from 'vue'
 import type { CamundaLookups } from '../../composables'
+import type { FormSchema } from '../../composables/useFormSchema'
 
 export type ThemeType = 'light' | 'dark' | null
 export type LocaleType = 'zh-CN' | 'en-US' | (string & {})
@@ -44,4 +45,15 @@ export const lookupsInjectionKey: InjectionKey<CamundaLookupsContext> = Symbol('
 
 export function useCamundaLookupsContext(): CamundaLookupsContext | null {
   return inject(lookupsInjectionKey, null)
+}
+
+export interface FormSchemaContext {
+  schema: Ref<FormSchema>
+  setSchema: (schema: FormSchema) => void
+}
+
+export const formSchemaInjectionKey: InjectionKey<FormSchemaContext> = Symbol('FormSchema')
+
+export function useFormSchemaContext(): FormSchemaContext | null {
+  return inject(formSchemaInjectionKey, null)
 }
