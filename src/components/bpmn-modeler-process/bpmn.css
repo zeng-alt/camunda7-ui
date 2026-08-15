@@ -30,6 +30,11 @@
   overflow: hidden;
 }
 
+/* 禁用 bpmn-js 原生搜索面板：使用自写 ElementSearchPanel，避免它出现在画布上 */
+.bpmn-container .djs-search-container {
+  display: none !important;
+}
+
 .dark .bpmn-container .properties-container {
   background-color: var(--bpmn-bg);
 }
@@ -618,6 +623,7 @@ body .djs-drag-active {
 }
 
 .dark .bpmn-container .bts-set-animation-speed .bts-animation-speed-button {
+  background-color: var(--bpmn-surface-alt) !important;
   color: var(--bpmn-text) !important;
 }
 

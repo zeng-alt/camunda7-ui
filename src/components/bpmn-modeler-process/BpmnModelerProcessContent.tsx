@@ -405,7 +405,7 @@ export default defineComponent({
         modeler?.on('commandStack.changed', debounceStash)
       }
 
-      window.addEventListener('keydown', onGlobalKeydown)
+      window.addEventListener('keydown', onGlobalKeydown, { capture: true })
     })
 
     watch(
@@ -420,7 +420,7 @@ export default defineComponent({
     onBeforeUnmount(() => {
       flushStash()
       destroy()
-      window.removeEventListener('keydown', onGlobalKeydown)
+      window.removeEventListener('keydown', onGlobalKeydown, { capture: true })
     })
 
     const showExportDialog = ref(false)
@@ -433,12 +433,10 @@ export default defineComponent({
       showAiDialog.value = true
     }
 
-    /** Ctrl/Cmd+S 保存到 onSaveXml；Ctrl/Cmd+F 打开元素搜索 */
+    /** Ctrl/Cmd+S 保存到 onSaveXml；Ctrl/Cmd+F 切换元素搜索；Escape 关闭搜索 */
     function onGlobalKeydown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement | null
-      const tag = target?.tagName
-      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || !!target?.isContentEditable
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+      const key = e.key.toLowerCase()
+      if ((e.ctrlKey || e.metaKey) && key === 's') {
         if (!props.onSaveXml) return
         e.preventDefault()
         saveXml()
@@ -446,10 +444,11 @@ export default defineComponent({
           .catch((err: any) => {
             message.error(t('bpmnPanel.importExport.exportError') + '\n' + (err.message || err))
           })
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-        if (inInput) return
+      } else if ((e.ctrlKey || e.metaKey) && key === 'f') {
         e.preventDefault()
         showSearch.value = !showSearch.value
+      } else if (key === 'escape') {
+        showSearch.value = false
       }
     }
 
@@ -563,10 +562,6 @@ export default defineComponent({
         version,
       }
     }
-
-    expose({
-      getProcessInfo,
-    })
 
     /** 运行 bpmnlint 校验，返回整个图的校验结果（按元素分组 + 统计） */
     async function validate(): Promise<ValidateResult | null> {

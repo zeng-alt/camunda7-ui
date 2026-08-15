@@ -34,6 +34,7 @@ export default defineComponent({
       const registry = modeler.get('elementRegistry')
       const items: SearchItem[] = []
       registry.getAll().forEach((el: any) => {
+        if (el.labelTarget) return
         const bo = el.businessObject
         if (!bo) return
         const type: string = bo.$type || ''
@@ -131,7 +132,7 @@ export default defineComponent({
           />
           <div class="mt-4px max-h-280px overflow-auto">
             {results.value.length === 0 ? (
-              <div class="py-16px text-center text-12px text-#999">
+              <div class="py-16px text-center text-12px text-#999 dark:text-#777">
                 {keyword.value.trim()
                   ? t('bpmnPanel.search.noResults')
                   : t('bpmnPanel.search.emptyHint')}
@@ -146,10 +147,10 @@ export default defineComponent({
                     index === activeIndex.value ? 'auto-bg-highlight' : ''
                   }`}
                 >
-                  <span class="text-12px text-#888 flex-1 min-w-0 truncate">
+                  <span class="text-12px text-#888 dark:text-#999 flex-1 min-w-0 truncate">
                     {item.name || item.id}
                   </span>
-                  <span class="text-11px text-#aaa flex-shrink-0">{item.id}</span>
+                  <span class="text-11px text-#aaa dark:text-#666 flex-shrink-0">{item.id}</span>
                 </div>
               ))
             )}
