@@ -1,7 +1,7 @@
 import { defineComponent, ref, computed, onMounted, onBeforeUnmount, type PropType } from 'vue'
 import { NTimeline, NTimelineItem } from 'naive-ui'
 import { useCamundaI18n } from '../../locales'
-import type { ProcessExecutionState, ExecutionStatus } from './types'
+import type { ProcessExecutionState, ExecutionStatus, ViewerUserInfo } from './types'
 
 const statusColor: Record<ExecutionStatus, string> = {
   active: '#2563eb',
@@ -101,6 +101,20 @@ export interface TimelinePanelProps {
   elementInfoMap?: Record<string, { name: string; type: string }>
 }
 
+export interface TimelineItemData {
+  id: string
+  status: ExecutionStatus
+  name: string
+  type: string
+  assignee?: string
+  candidateUsers?: string[]
+  candidateGroups?: string[]
+  visitCount: number
+  rejectCount: number
+  timestamp?: string
+  result?: string
+}
+
 export default defineComponent<TimelinePanelProps>({
   name: 'TimelinePanel',
   props: {
@@ -112,7 +126,7 @@ export default defineComponent<TimelinePanelProps>({
       default: () => ({}),
     },
   },
-  setup(props) {
+  setup(props, { slots }) {
     const { t } = useCamundaI18n()
 
     const collapsed = ref(false)
@@ -131,17 +145,20 @@ export default defineComponent<TimelinePanelProps>({
         const rawStatus = node?.status || 'pending'
         const status: ExecutionStatus =
           result && (result.includes('驳回') || result.includes('reject')) ? 'rejected' : rawStatus
-        return {
+        const item: TimelineItemData = {
           id,
           status,
           name: info?.name || id,
           type: info?.type || '',
           assignee: node?.assignee,
+          candidateUsers: node?.candidateUsers,
+          candidateGroups: node?.candidateGroups,
           visitCount: node?.visitCount || 1,
           rejectCount: node?.rejectCount || 0,
           timestamp: state.timestamps?.[i],
           result: state.results?.[i],
         }
+        return item
       })
     })
 
@@ -250,19 +267,31 @@ export default defineComponent<TimelinePanelProps>({
                                 {item.result}
                               </span>
                             )}
-                            <span class="text-11px text-#666 dark:text-#999">
-                              {[
-                                item.type
-                                  ? t(`bpmnPanel.types.${typeLabelKey[item.type] || 'unknown'}`) ||
-                                    item.type.replace('bpmn:', '')
-                                  : '',
-                                item.assignee
-                                  ? `${t('bpmnViewer.tooltip.assignee')}: ${item.assignee}`
-                                  : '',
-                              ]
-                                .filter(Boolean)
-                                .join(' | ')}
-                            </span>
+                            {slots.userInfo ? (
+                              slots.userInfo({
+                                item,
+                                userInfo: {
+                                  assignee: item.assignee,
+                                  candidateUsers: item.candidateUsers,
+                                  candidateGroups: item.candidateGroups,
+                                } satisfies ViewerUserInfo,
+                              })
+                            ) : (
+                              <span class="text-11px text-#666 dark:text-#999">
+                                {[
+                                  item.type
+                                    ? t(
+                                        `bpmnPanel.types.${typeLabelKey[item.type] || 'unknown'}`,
+                                      ) || item.type.replace('bpmn:', '')
+                                    : '',
+                                  item.assignee
+                                    ? `${t('bpmnViewer.tooltip.assignee')}: ${item.assignee}`
+                                    : '',
+                                ]
+                                  .filter(Boolean)
+                                  .join(' | ')}
+                              </span>
+                            )}
                           </div>
                         ),
 

@@ -83,7 +83,7 @@ export default defineComponent<BpmnProcessViewerProps>({
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
   },
   emits: ['update:theme', 'update:locale'],
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const { t } = useCamundaI18n()
     const { lookups } = useCamundaLookups()
 
@@ -345,6 +345,23 @@ export default defineComponent<BpmnProcessViewerProps>({
       { deep: false },
     )
 
+    watch(
+      () => props.theme,
+      (val) => {
+        if (val) currentTheme.value = val
+      },
+    )
+
+    watch(
+      () => props.locale,
+      (val) => {
+        if (val) {
+          currentLocaleRef.value = val
+          setLocale(val)
+        }
+      },
+    )
+
     return () => (
       <CamundaConfigProvider
         theme={currentTheme.value}
@@ -354,7 +371,12 @@ export default defineComponent<BpmnProcessViewerProps>({
       >
         {{
           default: () => (
-            <NLayout has-sider sider-placement="right" position="absolute">
+            <NLayout
+              has-sider
+              sider-placement="right"
+              position="absolute"
+              class={currentTheme.value === 'dark' ? 'dark' : undefined}
+            >
               <NLayoutContent class="h-full" content-style="height: 100%; position: relative;">
                 <div
                   ref={canvasRef}
@@ -429,6 +451,7 @@ export default defineComponent<BpmnProcessViewerProps>({
                       | ((name: string) => any)
                       | undefined
                   }
+                  renderUserInfo={slots.userInfo}
                 />
               </NLayoutContent>
 

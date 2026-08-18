@@ -28,3 +28,17 @@ export interface TooltipData {
   candidateUsers?: string[]
   candidateGroups?: string[]
 }
+
+/** 传给用户自定义渲染的用户信息（办理人/候选，含解析后的名称） */
+export interface ViewerUserInfo {
+  /** 办理人 id */
+  assignee?: string
+  /** 候选办理人 id 列表 */
+  candidateUsers?: string[]
+  /** 候选用户组 id 列表 */
+  candidateGroups?: string[]
+  /** 候选办理人解析后的名称列表 */
+  resolvedUsers?: { value: string; label: string }[]
+  /** 候选用户组解析后的名称列表 */
+  resolvedGroups?: { value: string; label: string }[]
+}

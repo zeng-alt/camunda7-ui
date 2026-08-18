@@ -1,6 +1,6 @@
-import { defineComponent, ref, watch, type PropType } from 'vue'
+import { defineComponent, ref, watch, type PropType, type VNodeChild } from 'vue'
 import { useCamundaI18n } from '../../locales'
-import type { TooltipData, ExecutionStatus } from './types'
+import type { TooltipData, ExecutionStatus, ViewerUserInfo } from './types'
 
 const statusColorMap: Record<ExecutionStatus, string> = {
   active: '#2563eb',
@@ -20,6 +20,8 @@ export interface NodeTooltipProps {
   onSearchUsers?: (name: string) => any
   /** 搜索用户组回调：用于把候选用户组 id 解析为名称 */
   onSearchUserGroups?: (name: string) => any
+  /** 自定义用户信息渲染：传入后替换默认的办理人/候选渲染，未传则使用内置渲染 */
+  renderUserInfo?: (scope: { userInfo: ViewerUserInfo; data: TooltipData }) => VNodeChild
 }
 
 export default defineComponent<NodeTooltipProps>({
@@ -38,6 +40,13 @@ export default defineComponent<NodeTooltipProps>({
     onSearchUsers: { type: Function as PropType<(name: string) => any>, default: null },
     /** 搜索用户组回调：用于把候选用户组 id 解析为名称 */
     onSearchUserGroups: { type: Function as PropType<(name: string) => any>, default: null },
+    /** 自定义用户信息渲染：传入后替换默认的办理人/候选渲染，未传则使用内置渲染 */
+    renderUserInfo: {
+      type: Function as PropType<
+        (scope: { userInfo: ViewerUserInfo; data: TooltipData }) => VNodeChild
+      >,
+      default: null,
+    },
   },
   setup(props) {
     const { t } = useCamundaI18n()
@@ -116,23 +125,42 @@ export default defineComponent<NodeTooltipProps>({
                   {t(`bpmnViewer.tooltip.${d.status}`)}
                 </span>
               </div>
-              {d.assignee && (
-                <div class="flex gap-4px">
-                  <span class="text-#888 shrink-0">{t('bpmnViewer.tooltip.assignee')}:</span>
-                  <span>{d.assignee}</span>
-                </div>
-              )}
-              {resolvedUsers.value.length > 0 && (
-                <div class="flex gap-4px">
-                  <span class="text-#888 shrink-0">{t('bpmnViewer.tooltip.candidateUsers')}:</span>
-                  <span>{resolvedUsers.value.map((u) => u.label).join(', ')}</span>
-                </div>
-              )}
-              {resolvedGroups.value.length > 0 && (
-                <div class="flex gap-4px">
-                  <span class="text-#888 shrink-0">{t('bpmnViewer.tooltip.candidateGroups')}:</span>
-                  <span>{resolvedGroups.value.map((g) => g.label).join(', ')}</span>
-                </div>
+              {props.renderUserInfo ? (
+                props.renderUserInfo({
+                  userInfo: {
+                    assignee: d.assignee,
+                    candidateUsers: d.candidateUsers,
+                    candidateGroups: d.candidateGroups,
+                    resolvedUsers: resolvedUsers.value,
+                    resolvedGroups: resolvedGroups.value,
+                  },
+                  data: d,
+                })
+              ) : (
+                <>
+                  {d.assignee && (
+                    <div class="flex gap-4px">
+                      <span class="text-#888 shrink-0">{t('bpmnViewer.tooltip.assignee')}:</span>
+                      <span>{d.assignee}</span>
+                    </div>
+                  )}
+                  {resolvedUsers.value.length > 0 && (
+                    <div class="flex gap-4px">
+                      <span class="text-#888 shrink-0">
+                        {t('bpmnViewer.tooltip.candidateUsers')}:
+                      </span>
+                      <span>{resolvedUsers.value.map((u) => u.label).join(', ')}</span>
+                    </div>
+                  )}
+                  {resolvedGroups.value.length > 0 && (
+                    <div class="flex gap-4px">
+                      <span class="text-#888 shrink-0">
+                        {t('bpmnViewer.tooltip.candidateGroups')}:
+                      </span>
+                      <span>{resolvedGroups.value.map((g) => g.label).join(', ')}</span>
+                    </div>
+                  )}
+                </>
               )}
               <div class="flex gap-4px">
                 <span class="text-#888 shrink-0">{t('bpmnViewer.tooltip.visitCount')}:</span>
