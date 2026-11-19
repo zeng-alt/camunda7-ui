@@ -568,13 +568,33 @@ The `playground/` directory contains a demo app (`main.ts`, `App.vue`) that impo
 
 ## Publishing
 
+GitHub Actions runs a frozen pnpm install, type checks, tests, a library build, and an npm package dry-run on every branch push and pull request. The package manager is pinned to pnpm 10.33.0 in `package.json`.
+
+The `publish.yml` workflow runs when a `v*` tag is pushed. It verifies that the tag matches `package.json`, reruns tests and the build, then publishes to npm with OIDC Trusted Publishing. Ordinary pushes and pull requests only run CI.
+
+Before the first automated release, configure a GitHub Actions trusted publisher in the npm settings for `@zeng-alt/camunda7-ui`:
+
+- Organization or user: `zeng-alt`
+- Repository: `camunda7-ui`
+- Workflow filename: `publish.yml`
+- Environment: leave empty
+- Allow direct publishing with `npm publish`
+
+This workflow uses Node.js 24 with a compatible npm CLI and requires no `NPM_TOKEN` secret. See the [npm Trusted Publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+
+To release, update `package.json` and `CHANGELOG.md`, commit the changes, and push the matching tag. For version 1.0.9:
+
 ```bash
+pnpm install --frozen-lockfile
+pnpm test
 pnpm build
-cd dist
-npm publish --access public
+npm pack --dry-run
+# After committing and pushing the release changes:
+git tag v1.0.9
+git push origin v1.0.9
 ```
 
-Only `dist/` is published (see `files` in `package.json`).
+For a manual release, run `npm publish --access public` from the repository root after building. The package includes `dist/`, `CHANGELOG.md`, and npm's standard metadata files; do not change into `dist/` before publishing.
 
 ---
 

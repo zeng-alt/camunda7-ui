@@ -563,13 +563,33 @@ pnpm test:coverage
 
 ## 发布
 
+每次分支推送和 Pull Request 都会通过 GitHub Actions 执行冻结锁文件安装、类型检查、测试、库构建及 npm 包内容检查。`package.json` 将包管理器固定为 pnpm 10.33.0。
+
+推送 `v*` 标签会触发 `publish.yml`：先校验标签与 `package.json` 版本一致，再运行测试和构建，最后通过 OIDC Trusted Publishing 发布 npm。普通推送和 PR 只运行 CI。
+
+首次自动发布前，在 npm 的 `@zeng-alt/camunda7-ui` 包设置中添加 GitHub Actions Trusted Publisher：
+
+- Organization or user：`zeng-alt`
+- Repository：`camunda7-ui`
+- Workflow filename：`publish.yml`
+- Environment：留空
+- 允许通过 `npm publish` 直接发布
+
+工作流使用 Node.js 24 及兼容的 npm CLI，无需配置 `NPM_TOKEN` secret。详见 [npm Trusted Publishing 文档](https://docs.npmjs.com/trusted-publishers/)。
+
+发布时更新 `package.json`、`CHANGELOG.md`，提交并推送变更，再推送相同版本的标签。以 1.0.9 为例：
+
 ```bash
+pnpm install --frozen-lockfile
+pnpm test
 pnpm build
-cd dist
-npm publish --access public
+npm pack --dry-run
+# 提交并推送发布变更后执行：
+git tag v1.0.9
+git push origin v1.0.9
 ```
 
-仅发布 `dist/` 目录（见 `package.json` 的 `files` 字段）。
+手动发布时，在构建完成后从仓库根目录执行 `npm publish --access public`。发布内容包括 `dist/`、`CHANGELOG.md` 和 npm 自动包含的元数据文件，不要先进入 `dist/` 目录。
 
 ---
 
